@@ -23,23 +23,23 @@
 #define X_WINNAME "Exclude"
 #define X_VERSION "0.0.1"
 
-//static GtkAccelGroup *accel    	= NULL;
-//static GtkWidget *add		= NULL;
-//static GtkWidget *app		= NULL;
-//static GtkWidget *bbox		= NULL;
-//static GtkWidget *bclose	= NULL;
+static GtkAccelGroup *accel    	= NULL;
+static GtkWidget *add		= NULL;
+static GtkWidget *app		= NULL;
+static GtkWidget *bbox		= NULL;
+static GtkWidget *bclose	= NULL;
 static GtkWidget *bremove	= NULL;
 static GtkWidget *list		= NULL;
-//static GtkWidget *scroll	= NULL;
+static GtkWidget *scroll	= NULL;
 static GtkWidget *text		= NULL;
-//static GtkWidget *vbox		= NULL;
+static GtkWidget *vbox		= NULL;
 
 int selection = -1;
 
 void
 exclude_destroy (GtkWidget *widget, gpointer data)
 {
-	gtk_exit (0);
+	gtk_main_quit();
 }
 
 void
@@ -154,17 +154,12 @@ no_default (GtkWidget *widget, gpointer data)
 	//GTK_WIDGET_UNSET_FLAGS (add, GTK_HAS_DEFAULT);
 }
 
-#if 0
-int
-main (int argc, char *argv[])
+void
+exclude_dialog (void)
 {
-	//static char *cols[] = { "col1", "col2" };
-	gnome_init (X_APPNAME, X_VERSION, argc, argv);
-
 	app	= gnome_app_new (X_APPNAME, X_WINNAME);
 	vbox	= gtk_vbox_new (FALSE, 5);
 	scroll	= gtk_scrolled_window_new (NULL, NULL);
-	//clist	= gtk_clist_new_with_titles (2, cols);
 	list	= gtk_list_new();
 	text	= gtk_entry_new();
 	bbox	= gtk_hbutton_box_new();
@@ -185,7 +180,6 @@ main (int argc, char *argv[])
 
 	gnome_app_set_contents (GNOME_APP (app), vbox);
 
-	//gtk_container_add (GTK_CONTAINER (scroll), list);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scroll), list);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 
@@ -229,8 +223,5 @@ main (int argc, char *argv[])
 
 	gtk_widget_show_all (app);
 	gtk_main();
-	
-	return 0;
 }
-#endif
 

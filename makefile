@@ -64,7 +64,7 @@ testgtk: testgtk.o
 ################################################################################
 
 SOURCE	= args.c canvas.c compare.c derived.c diff.c exclude.c file.c gd.c global.c mdi.c menu.c node.c options.c preferences.c progress.c spawn.c tree.c
-HEADER	= args.h compare.h config.h derived.h diff.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h
+HEADER	= args.h compare.h config.h derived.h diff.h exclude.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h
 EXTRA	= makefile todo
 FILES	= $(SOURCE) $(HEADER) $(EXTRA)
 

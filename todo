@@ -12,9 +12,10 @@ implement get/set args on the derived objects
 
 the overview widget:
     A click means change the view to one centred HERE
-    A drag should send scroll messages to the window (up/down) to match the mouse posn
+    A drag should send scroll msgs to the window (up/down) to match the mouse posn
 
-if _I_ expand tabs, then I need to keep the original text cached if they change the tabstops
+if _I_ expand tabs, then I need to keep the original text cached
+if they change the tabstops
 
 scale the overview
 extract left/right view and inform the overview to draw brackets
@@ -67,6 +68,8 @@ gnomify all the types int -> gint etc
 
 ________________________________________________________________________________
 FEATURES - to do
+
+make progress an option? why bother it's fast
 
 default buttons and activation on the file selection
 
@@ -142,7 +145,8 @@ check out CTRL/ CTRL\, etc in tree already
 
 i18n the config files too -- main code first
 
-Preferences menu, those marked with a * will only be visible after restarting the application
+Preferences menu, those marked with a * will only be visible
+after restarting the application
 
 * by an option ->only on next diff
 + by an option ->need to restart (get rid of these eventually)
@@ -185,6 +189,9 @@ EVERYTHING on thee settings menu is GLOBAL
 ________________________________________________________________________________
 WISH LIST - blue sky
 
+window list in a tree form
+trees at the root, their files indented
+
 split up preferences to create a drop-in preferences component
 eg, a drop-in 'view options', or 'diff settings'
 
@@ -206,7 +213,8 @@ If I cannot parse the diff output, write an explanation and quote it verbatim:
 add a timeout to refresh the diff tree every 5 seconds?
 no, but a progress/cancel box would be nice (modeless)
 
-try and remove the unixness of the path stuff -- there will be a few tripups for DOS ppl
+try and remove the unixness of the path stuff
+(there will be a few tripups for DOS ppl)
 
 can hide columns, but not rows
 view same, diff, left only, right only
@@ -263,7 +271,8 @@ if more files popup a list dialog
 colours too
 how about fonts?
 
-I _could_ stat any left/right file.  Any that turn out to be dirs, will need expanding
+I _could_ stat any left/right file.  Any that turn out to be dirs,
+will need expanding
 'find path' should do the trick (and all are left/right)
 stat the left/right directories first -- no need to recurse!
 flag any queries as 'to be resolved'
@@ -322,7 +331,7 @@ where will the entries live in the normal menus?
 parse an RCS ,v file and list the revisions -- highlight two and hit 'diff..'
 list branches?
 RCS / CVS view
-if they select anything ending in ,v ask them which revsion
+if they select anything ending in ,v ask them which revision
 
 option - show stats -> FULL diff parsed into added 4, deleted 2 moved 15, etc
 very slow
@@ -356,7 +365,13 @@ let gnome do it automatically
 
 HELP!
 
-sort by diff-type, eg 1st=same,2nd=left,3rd=right,4th=diff,5th=error (alphabetic within groups)
+sort by diff-type, eg 1st=same,2nd=left,3rd=right,4th=diff,5th=error
+(alphabetic within groups)
+Sort menu & prefs sort
+Only sort the files
+	X directories first (don't mix)
+	O alphabetical
+	O by diff type
 
 add a file count to the tree
 will need to be refreshed when view changes
@@ -453,6 +468,6 @@ GtkWidget* gtk_widget_get_ancestor (GtkWidget *widget, GtkType    widget_type)
 GtkWidget* gtk_widget_get_toplevel (GtkWidget *widget)
 
 GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
-This could allow me to have my exlusions list with check boxes
+This could allow me to have my exclusions list with check boxes
 
 ________________________________________________________________________________

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.18 $ */
+/* $Revision: 1.19 $ */
 
 #include "config.h"
 #include "options.h"
@@ -94,7 +94,7 @@ static GtkContainer *
 add_page (GnomePropertyBox *props, PrefOption *opt)
 {
 	GtkWidget *label = gtk_label_new (_(opt->label));
-	GtkWidget *vbox  = gtk_vbox_new  (FALSE, GNOME_PAD);
+	GtkWidget *vbox  = gtk_vbox_new  (FALSE, GNOME_PAD_BIG);
 
 	gnome_property_box_append_page (props, vbox, label);
 
@@ -132,13 +132,19 @@ check_toggled (GtkToggleButton *toggle_button, guint *number)
 static int
 add_label (GtkContainer *cont, PrefOption *list, Options *options)
 {
-	gtk_container_add (cont, gtk_label_new (list->label));
+	GtkWidget *hbox  = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+	GtkWidget *label = gtk_label_new (list->label);
+
+	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, GNOME_PAD_SMALL);
+	gtk_container_add (cont, hbox);
+
 	return 1;
 }
 
 static int
 add_check (GtkContainer *cont, PrefOption *list, Options *options)
 {
+	GtkWidget *hbox   = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 	GtkWidget *toggle = gtk_check_button_new_with_label (_(list->label));
 	gchar     *ptr    = (gchar*) options;
 	guint     *pint   = NULL;
@@ -150,7 +156,9 @@ add_check (GtkContainer *cont, PrefOption *list, Options *options)
 
 	gtk_signal_connect (GTK_OBJECT (toggle), "toggled", check_toggled, ptr);
 
-	gtk_container_add (cont, toggle);
+	gtk_box_pack_start (GTK_BOX (hbox), toggle, FALSE, FALSE, GNOME_PAD_SMALL);
+	gtk_container_add (cont, hbox);
+
 
 	return 1;
 }
@@ -184,6 +192,7 @@ radio_pressed (GtkWidget *radio, gpointer data)
 static int
 add_radio (GtkContainer *cont, PrefOption *list, Options *options)
 {
+	GtkWidget      *hbox  = NULL;
 	GtkRadioButton *radio = NULL;
 	gchar          *ptr   = (gchar*) options;
 	guint          *pint  = NULL;
@@ -196,10 +205,13 @@ add_radio (GtkContainer *cont, PrefOption *list, Options *options)
 
 	for (; list->type == PrefRadio; list++, count++)
 	{
+		hbox  = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 		radio = GTK_RADIO_BUTTON (gtk_radio_button_new_with_label_from_widget (radio, list->label));
+
 		gtk_signal_connect (GTK_OBJECT (radio), "pressed", radio_pressed, GUINT_TO_POINTER (count));
 
-		gtk_container_add (cont, GTK_WIDGET (radio));
+		gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (radio), FALSE, FALSE, GNOME_PAD_SMALL);
+		gtk_container_add (cont, hbox);
 	}
 	
 	return count;

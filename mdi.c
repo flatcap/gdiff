@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.28 $ */
+/* $Revision: 1.29 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -117,7 +117,7 @@ gd_mdi_create_view (GnomeMDIChild * child, gpointer data)
 	scroll = gtk_scrolled_window_new (NULL, NULL);
 
 	g_return_val_if_fail (scroll != NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
 	diff = data;
 	tree = gtk_diff_tree_new (2, 0, diff);

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.14 $ */
+/* $Revision: 1.15 $ */
 
 #include <stdio.h>
 #include <gnome.h>
@@ -29,7 +29,7 @@ FILE * run_diff (gchar *prog);
 /*----------------------------------------------------------------------------*/
 
 FILE *
-run_diff (gchar *prog)
+run_diff2 (gchar *prog)
 {
 	gint    fds[2] = { -1, -1 };
 	gint    pid    = -1;
@@ -47,16 +47,57 @@ run_diff (gchar *prog)
 
 			parts = g_strsplit (prog, " ", -1);
 
-			execvp (parts[0], parts);
+			//if (fork())
+			//	exit (0);
+			//else
+				execvp (parts[0], parts);
 			g_assert_not_reached();
 		}
 		else if (pid > 0)		/* Parent */
 		{
 			close (fds[1]);
+			//waitpid (pid, NULL, 0);
 			file = fdopen (fds[0], "r");
 		}
 	}
 
 	return file;
+}
+
+//XXX close_program does waitpid too
+
+FILE *
+run_diff (gchar *acmd)
+{
+	gchar **parts;
+	gint childpid;
+	gint fds[2];
+	
+	if (pipe (fds))
+		return NULL;
+	
+	childpid = fork ();
+	if (childpid < 0)
+		return NULL;
+	
+	if (childpid){
+		close (fds [1]);
+		//waitpid (childpid, &childpid, 0);
+		waitpid (-1, NULL, WNOHANG);
+		return fdopen (fds [0], "r");
+	}
+	
+	parts = g_strsplit (acmd, " ", -1);
+	dup2 (fds [1], 1);
+	dup2 (fds [1], 2);
+	//if (fork()) /* Double-forking is good for the (zombified) soul ;-) */
+	//	exit (0);
+	//else
+		execvp (parts [0], parts);
+	
+	/* ERROR IF REACHED */
+	close (0);
+	close (1);
+	exit (69);
 }
 

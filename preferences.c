@@ -41,6 +41,7 @@ PrefOption options_list[] =
 
 	{ PrefPage,	N_("View"),					"View" },
 	{ PrefFrame,	N_("View") },
+	{ PrefLabel,	N_("These options will take effect on the next diff") },
 	{ PrefCheck,	N_("Same"),					"DirViewSame",			G_STRUCT_OFFSET (Options, DirViewSame) },
 	{ PrefCheck,	N_("Left"),					"DirViewLeft",			G_STRUCT_OFFSET (Options, DirViewLeft) },
 	{ PrefCheck,	N_("Right"),					"DirViewRight",			G_STRUCT_OFFSET (Options, DirViewRight) },

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.36 $ */
+/* $Revision: 1.37 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -28,6 +28,7 @@
 #include "compare.h"
 #include "mdi.h"
 #include "file.h"
+#include "exclude.h" //XXX temp
 
 /*----------------------------------------------------------------------------*/
 
@@ -267,6 +268,7 @@ next_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
 	//mdichild - then I can figure out what the view is of
 	g_print ("next_diff_cb\n");
+	exclude_dialog(); //XXX temp
 }
 
 static void
