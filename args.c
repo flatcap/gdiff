@@ -1,7 +1,10 @@
-/* $Revision: 1.16 $ */
+/* $Revision: 1.17 $ */
 
 #include <gnome.h>
 #include <popt.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include "args.h"
 #include "options.h"
 #include "diff.h"
 
@@ -100,7 +103,7 @@ gnome_init_and_parse_args (const char *app_id,
 			{
 				diff->left  = g_strdup (left);
 				diff->right = g_strdup (right);
-				diff->type  = File;
+				categorise_args (diff);
 			}
 		}
 	}
@@ -108,5 +111,125 @@ gnome_init_and_parse_args (const char *app_id,
 	poptFreeContext (context);
 
 	return diff;
+}
+
+gboolean
+categorise_args (DiffOptions *diff)
+{
+	//gboolean reversed = FALSE;
+	struct stat lstat;
+	struct stat rstat;
+	struct stat pstat;
+	DiffType ltype = Error;
+	DiffType rtype = Error;
+	DiffType ptype = Error;
+	char *dir = NULL;
+	char *file = NULL;
+	char *path = NULL;
+	char *base = NULL;
+
+	g_return_val_if_fail (diff        != NULL, FALSE);
+	g_return_val_if_fail (diff->left  != NULL, FALSE);
+	g_return_val_if_fail (diff->right != NULL, FALSE);
+
+	if (stat (diff->left, &lstat))
+	{
+		g_print ("left file bad\n");
+		return FALSE;
+	}
+
+	if (stat (diff->right, &rstat))
+	{
+		g_print ("right file bad\n");
+		return FALSE;
+	}
+
+	// Preliminary
+	if      (S_ISREG (lstat.st_mode))	ltype = File;
+	else if (S_ISDIR (lstat.st_mode))	ltype = Dir;
+
+	if      (S_ISREG (rstat.st_mode))	rtype = File;
+	else if (S_ISDIR (rstat.st_mode))	rtype = Dir;
+
+	if (ltype == Error)
+	{
+		g_print ("left path is a non-file\n");
+		return FALSE;
+	}
+	else if (rtype == Error)
+	{
+		g_print ("right path is a non-file\n");
+		return FALSE;
+	}
+
+	if (ltype == rtype)
+	{
+		if (ltype == File)
+		{
+			diff->type = File;
+		}
+		else
+		{
+			diff->type = Dir;
+		}
+	}
+	else
+	{
+		dir  = (ltype == Dir)  ? diff->left : diff->right;
+		file = (ltype == File) ? diff->left : diff->right;
+
+		g_print ("file = %s\n", file);
+		g_print ("dir  = %s\n", dir);
+
+		base = g_basename (file);
+		if (!base)
+			base = file;
+
+		path = g_strjoin (G_DIR_SEPARATOR_S, dir, base, NULL);
+
+		g_print ("path = %s\n", path);
+
+		if (stat (path, &pstat) == 0)
+		{
+			if      (S_ISREG (pstat.st_mode))	ptype = File;
+			else if (S_ISDIR (pstat.st_mode))	ptype = Dir;
+
+			if (((ltype == File) && (ptype == File)) ||
+			    ((rtype == File) && (ptype == File)))
+			{
+				if (ltype == Dir)
+				{
+					g_free (diff->left);
+					diff->left = path;
+				}
+				else
+				{
+					g_free (diff->right);
+					diff->right = path;
+				}
+				diff->type = File;
+			}
+			else
+			{
+				g_print ("args are different types\n");
+				g_free (path);
+				return FALSE;
+			}
+		}
+		else
+		{
+			g_print ("path %s doesn't exist\n", path);
+			// see if 'file' is a patch
+			// see if 'dir' is an RCS / CVS dir
+			g_free (path);
+			return FALSE;
+		}
+	}
+
+	g_print ("left  = %s, %d\n", diff->left,  ltype);
+	g_print ("right = %s, %d\n", diff->right, rtype);
+	g_print ("type  = %s\n",     (diff->type == File) ? "file" : "dir");
+
+	return TRUE;
 }
 

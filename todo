@@ -216,3 +216,18 @@ make sure ctrl-end ctrl-home work as expected
 save file list as list of paths or as a tree?
 
 share libraries of widgets, then develop rcsdiff, cvsdiff, etc
+
+doesn't make sense to compare one FILE argument (against .)
+force two args? or leave this a a limitation (handy to be able
+to do 'diff dir' and have it default the rest
+
+support file editing (and refresh)
+
+implement a gboolean reversed flag
+this would make all the dir/file logic much simpler.
+
+If I cannot parse the diff output, write an explanation and quote it verbatim:
+"Cannot understand diff's output -- printing it verbatim" -- in Red
+...
+
+

@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.6 $ */
 
 #ifndef _ARGS_H_
 #define _ARGS_H_
@@ -10,6 +10,8 @@ DiffOptions * gnome_init_and_parse_args (const char *app_id,
 					 const char *app_version,
 					 int argc,
 					 char *argv[]);
+
+gboolean categorise_args (DiffOptions *diff);
 
 #endif // _ARGS_H_
 
