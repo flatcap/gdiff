@@ -92,11 +92,42 @@ get_status_style (Status status, gboolean node)
 void
 set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
 {
-	DiffTreeRow *row = list->data;
+	DiffTreeRow *diffrow = list->data;
+	GtkCTreeRow *treerow = list->data;
+	GtkCListRow *listrow = list->data;
 
-	//g_print ("%s, %d\n", data->name, data->status);
-	row->name   = g_strdup (data->name);
-	row->status = data->status;
+	diffrow->name   = g_strdup (data->name);
+	diffrow->status = data->status;
+
+	g_print ("row = %p\n", list->data);
+	/*
+	g_print ("%p\n", list);
+	g_print ("\tcell = %p, ", listrow->cell);
+	g_print ("state = %d, ", listrow->state);
+	//g_print ("fg = %ld, %d, %d, %d, ", listrow->foreground.pixel, listrow->foreground.red, listrow->foreground.green, listrow->foreground.blue);
+	//g_print ("bg = %ld, %d, %d, %d, ", listrow->background.pixel, listrow->background.red, listrow->background.green, listrow->background.blue);
+	g_print ("style = %p, ", listrow->style);
+	g_print ("data = %p, ", listrow->data);
+	g_print ("notify = %p, ", listrow->destroy);
+	//g_print ("fg_set = %d, ", listrow->fg_set);
+	//g_print ("bg_set = %d, ", listrow->bg_set);
+	//g_print ("selectable = %d\n", listrow->selectable);
+	g_print ("\n");
+
+	g_print ("\tparent = %p, ", treerow->parent);
+	g_print ("sibling = %p, ", treerow->sibling);
+	g_print ("children = %p, ", treerow->children);
+	//g_print ("pixmap_closed = %p, ", treerow->pixmap_closed);
+	//g_print ("mask_closed = %p, ", treerow->mask_closed);
+	//g_print ("pixmap_opened = %p, ", treerow->pixmap_opened);
+	//g_print ("mask_opened = %p, ", treerow->mask_opened);
+	g_print ("level = %d, ", treerow->level);
+	g_print ("is_leaf = %d, ", treerow->is_leaf);
+	g_print ("expanded = %d\n", treerow->expanded);
+
+	g_print ("\tname = %s, ", diffrow->name);
+	g_print ("status = %d\n", diffrow->status);
+	*/
 }
 
 void

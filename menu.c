@@ -158,6 +158,7 @@ void show_cb (GtkWidget * widget, gpointer data)
 	GtkCListRow *row = NULL;
 	//TreeNode *node = NULL;
 	DiffTreeRow *dtr = NULL;
+	GList *l2 = NULL;
 
 	mdi = GNOME_MDI (data);
 	w = gnome_mdi_get_active_view (mdi);
@@ -166,14 +167,25 @@ void show_cb (GtkWidget * widget, gpointer data)
 	tree = GTK_DIFF_TREE (child);
 	list = GTK_CLIST (tree);
 
+	g_mem_chunk_print (list->row_mem_chunk);
+
 	sel = list->selection;
 	sel_end = list->selection_end;
 
-	row = GTK_CLIST_ROW (sel);
+	l2 = (GList*) (sel->data);
+	row = (GtkCListRow*) (l2->data);
 
 	dtr = (DiffTreeRow*) row;
 	//node = row->data;
 
+	g_print ("show_cb\n");
+	g_print ("mdi = %p\n", mdi);
+	g_print ("view = %p\n", w);
+	g_print ("child = %p, %s\n", child, gtk_widget_get_name (GTK_WIDGET (child)));
+	g_print ("l/r = %s/%s\n", tree->left, tree->right);
+	g_print ("sel = %p\n", sel);
+
 	g_print ("show_cb %s, %d\n", dtr->name, dtr->status);
+	//g_print ("show_cb %d\n", dtr->status);
 }
 

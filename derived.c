@@ -96,10 +96,17 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
 	// Nobody can be using these chunks, yet...
 	g_mem_chunk_destroy (list->row_mem_chunk);
 	list->row_mem_chunk = g_mem_chunk_new ("clist row mem chunk",
-						sizeof (DiffTreeRow),
-						sizeof (DiffTreeRow) * 128, 
+						512,//sizeof (DiffTreeRow),
+						512*128,//sizeof (DiffTreeRow) * 128, 
 						G_ALLOC_AND_FREE);
-
+	//g_print ("chunk = %p\n", list->row_mem_chunk);
+	//g_print ("chunk1 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
+	//g_print ("chunk2 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
+	//g_print ("chunk3 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
+	//g_print ("chunk4 = %p\n", g_chunk_new (GtkCTreeRow, list->row_mem_chunk));
+	//g_print ("chunk5 = %p\n", g_chunk_new (GtkCTreeRow, list->row_mem_chunk));
+	//g_print ("chunk6 = %p\n", g_chunk_new (GtkCListRow, list->row_mem_chunk));
+	//g_print ("chunk7 = %p\n", g_chunk_new (GtkCListRow, list->row_mem_chunk));
 	return widget;
 }
 
@@ -191,6 +198,11 @@ gtk_diff_tree_display (GtkDiffTree *tree)
 {
 	g_print ("gtk_diff_tree_display\n");
 	tree_dialog_draw (tree, eFileAll);
+
+	g_mem_chunk_print (GTK_CLIST (tree)->row_mem_chunk);
+	g_print ("sizeof (DiffTreeRow) = %d\n", sizeof (DiffTreeRow));
+	g_print ("sizeof (GtkCTreeRow) = %d\n", sizeof (GtkCTreeRow));
+	g_print ("sizeof (GtkCListRow) = %d\n", sizeof (GtkCListRow));
 }
 
 char *
@@ -244,7 +256,9 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 
 	progress = progress_new ();
 
-	f = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
+	// P -> no 'right' files! will need to stat left/right files
+	//f = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
+	f = run_diff (g_strdup_printf ("diff -qrs %s %s", tree->left, tree->right));
 	//f = stdin;
 
 	g_return_if_fail (f);

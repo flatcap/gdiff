@@ -67,4 +67,6 @@ testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
 co:
-	co -l args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h
+	co -l args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo
+ci:
+	ci args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo
