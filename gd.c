@@ -24,7 +24,7 @@ main (int argc, char *argv[], char *envv[])
 	gnome_init_and_parse_args (PACKAGE, VERSION, argc, argv, opt, diff);
 
 	mdi  = mdi_new (PACKAGE, WINNAME);
-	mdi_add_diff (mdi, opt, diff);
+	//mdi_add_diff (mdi, opt, diff);
 
 	//g_free (opt);	 // maybe?
 	//g_free (diff);

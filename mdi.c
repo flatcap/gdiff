@@ -91,15 +91,15 @@ mdi_add_dummy_window (GnomeMDI *mdi)
 {
 	// is it possible to show / hide a dummy window?
 	// I want an MDI with nothing in it
-	GnomeMDIGenericChild *child = gnome_mdi_generic_child_new ("dummy");
+	//GnomeMDIGenericChild *child = gnome_mdi_generic_child_new ("dummy");
 
-	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       NULL);
-	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      NULL);
-	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, NULL);
-	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         NULL);
+	//gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       NULL);
+	//gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      NULL);
+	//gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, NULL);
+	//gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         NULL);
 
 	//gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));
-	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));
+	//gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));
 }
 
 void
@@ -129,6 +129,7 @@ mdi_new (gchar *appname, gchar *title)
 	gtk_signal_connect (GTK_OBJECT (mdi), "app_created", GTK_SIGNAL_FUNC (app_created), NULL);
 
 	mdi_add_dummy_window (mdi);
+	gnome_mdi_open_toplevel (mdi);
 
 	return mdi;
 }
