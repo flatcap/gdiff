@@ -93,7 +93,7 @@ testgtk: testgtk.o
 
 ################################################################################
 
-SOURCE	= args.c compare.c derived.c diff.c gd.c global.c mdi.c menu.c node.c options.c progress.c spawn.c tree.c makefile todo file.c
+SOURCE	= args.c compare.c derived.c diff.c gd.c global.c mdi.c menu.c node.c options.c progress.c spawn.c tree.c file.c
 HEADER	= args.h config.h derived.h diff.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h compare.h file.h
 EXTRA	= todo makefile
 FILES	= $(SOURCE) $(HEADER) $(EXTRA)
