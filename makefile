@@ -11,7 +11,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 all:	gd tags libtags
 
 gd:	args.o compare.o derived.o diff.o file.o gd.o global.o mdi.o menu.o \
-	node.o options.o progress.o spawn.o tree.o canvas.o exclude.o
+	node.o options.o progress.o spawn.o tree.o canvas.o exclude.o style.o
 	$(CC) $(EXTRAS) $(LIBS) $^ -o $@
 	#$@ &
 
@@ -63,8 +63,8 @@ testgtk: testgtk.o
 
 ################################################################################
 
-SOURCE	= args.c canvas.c compare.c derived.c diff.c exclude.c file.c gd.c global.c mdi.c menu.c node.c options.c preferences.c progress.c spawn.c tree.c
-HEADER	= args.h compare.h config.h derived.h diff.h exclude.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h
+SOURCE	= args.c canvas.c compare.c derived.c diff.c exclude.c file.c gd.c global.c mdi.c menu.c node.c options.c preferences.c progress.c spawn.c tree.c style.c
+HEADER	= args.h compare.h config.h derived.h diff.h exclude.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h style.h
 EXTRA	= makefile todo
 FILES	= $(SOURCE) $(HEADER) $(EXTRA)
 

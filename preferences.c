@@ -21,6 +21,7 @@
 
 PrefOption options_list[] =
 {
+#if 0
 	{ PrefPage,	N_("Style"),					"Style" },
 	{ PrefFrame,	N_("Directory") },
 	{ PrefStyle,	N_("List Same"),				"DirStyleSame",			G_STRUCT_OFFSET (Options, DirStyleSame) },
@@ -34,6 +35,7 @@ PrefOption options_list[] =
 	{ PrefFrame,	N_("Overview") },
 	{ PrefStyle,	N_("Overview Left"),				"OverviewStyleLeft",		G_STRUCT_OFFSET (Options, OverviewStyleLeft) },
 	{ PrefStyle,	N_("Overview Right"),				"OverviewStyleRight",		G_STRUCT_OFFSET (Options, OverviewStyleRight) },
+#endif
 
 	{ PrefPage,	N_("Confirmation"),				"Confirmation" },
 	{ PrefFrame,	N_("Confirmation") },
@@ -95,5 +97,19 @@ PrefOption options_list[] =
 	{ PrefList,	NULL,						"Exclusions",			G_STRUCT_OFFSET (Options, Exclusions) },
 
 	{ 0 },
- };
+};
+
+PrefOption style_list[] =
+{
+	{ PrefStyle,	N_("List Same"),	"DirStyleSame",		G_STRUCT_OFFSET (Options, DirStyleSame) },
+	{ PrefStyle,	N_("List Left"),	"DirStyleLeft",		G_STRUCT_OFFSET (Options, DirStyleLeft) },
+	{ PrefStyle,	N_("List Right"),	"DirStyleRight",	G_STRUCT_OFFSET (Options, DirStyleRight) },
+	{ PrefStyle,	N_("List Diff"),	"DirStyleDiff",		G_STRUCT_OFFSET (Options, DirStyleDiff) },
+	{ PrefStyle,	N_("List Error / Type"),"DirStyleError",	G_STRUCT_OFFSET (Options, DirStyleError) },
+	{ PrefStyle,	N_("File Left"),	"FileStyleLeft",	G_STRUCT_OFFSET (Options, FileStyleLeft) },
+	{ PrefStyle,	N_("File Right"),	"FileStyleRight",	G_STRUCT_OFFSET (Options, FileStyleRight) },
+	{ PrefStyle,	N_("Overview Left"),	"OverviewStyleLeft",	G_STRUCT_OFFSET (Options, OverviewStyleLeft) },
+	{ PrefStyle,	N_("Overview Right"),	"OverviewStyleRight",	G_STRUCT_OFFSET (Options, OverviewStyleRight) },
+	{ 0 }
+};
 
