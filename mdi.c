@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.29 $ */
+/* $Revision: 1.30 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -27,13 +27,13 @@
 #include "global.h"
 
 /*----------------------------------------------------------------------------*/
-static GList   * gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data);
-static GtkWidget * gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data);
-static GtkWidget * gd_mdi_create_view (GnomeMDIChild * child, gpointer data);
-static GtkWidget * gd_mdi_set_label (GnomeMDIChild * child, GtkWidget * old_label, gpointer data);
-static gint remove_child (GnomeMDI *mdi, GnomeMDIChild *child);
-static void app_created (GnomeMDI * mdi, GnomeApp * app);
-static void destroy (GnomeMDI *mdi);
+static GList *		gd_mdi_create_menus		(GnomeMDIChild * child, GtkWidget * view, gpointer data);
+static GtkWidget *	gd_mdi_create_compare_view	(GnomeMDIChild * child, gpointer data);
+static GtkWidget *	gd_mdi_create_view		(GnomeMDIChild * child, gpointer data);
+static GtkWidget *	gd_mdi_set_label		(GnomeMDIChild * child, GtkWidget * old_label, gpointer data);
+static gint		remove_child			(GnomeMDI *mdi, GnomeMDIChild *child);
+static void		app_created			(GnomeMDI * mdi, GnomeApp * app);
+static void		destroy				(GnomeMDI *mdi);
 
 GnomeMDI *	mdi_new (gchar *appname, gchar *title);
 void		mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
@@ -145,7 +145,7 @@ gd_mdi_set_label (GnomeMDIChild * child,
 		hbox = gtk_hbox_new (FALSE, 0);
 		label = gtk_label_new (g_strdup_printf ("%s", child->name));
 		gtk_widget_show (label);
-		//pixmap = gnome_stock_new_with_icon (GNOME_STOCK_MENU_BOOK_OPEN);
+
 		if ((diff->type == Dir) || (diff->type == DirPatch))
 		{
 			pixmap = gtk_pixmap_new (pixmap_open, mask_open);
@@ -154,6 +154,9 @@ gd_mdi_set_label (GnomeMDIChild * child,
 		{
 			pixmap = gtk_pixmap_new (pixmap_leaf, mask_leaf);
 		}
+
+		gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
+
 		gtk_widget_show (pixmap);
 		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 2);
 		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 2);
@@ -177,7 +180,7 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 
 	diff = data;
 
-	g_assert (FALSE);
+	//g_assert (FALSE);
 	//g_print ("gd_mdi_create_menus (w = %s) (p = %s) (pp = %s) (ppp = %s) (pppp = %s)\n", gtk_widget_get_name (view), gtk_widget_get_name (view->parent), gtk_widget_get_name (view->parent->parent), gtk_widget_get_name (view->parent->parent->parent), gtk_widget_get_name (view->parent->parent->parent->parent));
 	menu_list = NULL;
 
@@ -254,10 +257,6 @@ mdi_new (gchar *appname, gchar *title)
 	gtk_signal_connect (GTK_OBJECT (mdi), "remove_child", GTK_SIGNAL_FUNC (remove_child), NULL);
 	gtk_signal_connect (GTK_OBJECT (mdi), "view_changed", GTK_SIGNAL_FUNC (view_changed), NULL);
 
-	//XXX move to menu.c
-	gnome_mdi_set_child_menu_path(mdi, _("Compare"));		// child specific menus
-	gnome_mdi_set_child_list_path(mdi, _("Windows/"));		// automatic window list
-
 	gnome_mdi_open_toplevel (mdi);
 
 	return mdi;
@@ -272,7 +271,15 @@ mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 	g_return_if_fail (mdi  != NULL);
 	g_return_if_fail (diff != NULL);
 
-	name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
+	if ((diff->type == Dir) || (diff->type == DirPatch))
+	{
+		name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
+	}
+	else
+	{
+		//name  = g_strdup_printf ("%s\n%s\n%s", diff->relative, diff->left, diff->right);
+		name  = g_strdup_printf ("%s\n%s\n%s", diff->left_root, diff->right_root, diff->relative);
+	}
 	child = gnome_mdi_generic_child_new (name);
 
 	g_return_if_fail (child != NULL);

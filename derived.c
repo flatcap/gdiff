@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.25 $ */
+/* $Revision: 1.26 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -196,7 +196,6 @@ DiffOptions *
 get_current_selection (GtkDiffTree *tree)
 {
 	// XXX ask the tree for the selection -- it only allows 1!
-	// XXX move this method to the tree
 	// XXX link the TreeNodes to the DataNodes and vice versa
 	GtkCList	*clist		= NULL;
 	GList		*selection	= NULL;
@@ -222,6 +221,9 @@ get_current_selection (GtkDiffTree *tree)
 	g_return_val_if_fail (options != NULL, NULL);
 	options->left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, treerow->path, NULL);
 	options->right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->relative = g_strdup (treerow->path);
+	options->left_root = g_strdup (tree->left);
+	options->right_root = g_strdup (tree->right);
 	options->type  = File;
 
 	return options;

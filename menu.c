@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.37 $ */
+/* $Revision: 1.38 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -29,13 +29,6 @@
 #include "mdi.h"
 #include "file.h"
 #include "exclude.h" //XXX temp
-
-/*----------------------------------------------------------------------------*/
-
-#define DIFF_MENU		N_("_Diff")
-#define GNOME_MENU_DIFF_STRING	D_("_Diff")
-#define GNOME_MENU_DIFF_PATH	D_("_Diff/")
-#define GNOMEUIINFO_MENU_DIFF_TREE(tree) { GNOME_APP_UI_SUBTREE_STOCK, DIFF_MENU, NULL, tree, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL }
 
 /*----------------------------------------------------------------------------*/
 
@@ -61,30 +54,91 @@ void menu_create (GnomeMDI *mdi, GnomeApp *app);
 
 static GnomeUIInfo file_menu[] =
 {
-	GNOMEUIINFO_MENU_SAVE_AS_ITEM(save_file_list_cb, NULL),
+	{ GNOME_APP_UI_ITEM, "_New Difference", "", new_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_n, GDK_CONTROL_MASK, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, "_Save File List", "", save_file_list_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_s, GDK_CONTROL_MASK, NULL },
+	GNOMEUIINFO_SEPARATOR,
 	GNOMEUIINFO_MENU_CLOSE_ITEM(close_view_cb, NULL),
 	GNOMEUIINFO_MENU_EXIT_ITEM(exit_gdiff_cb, NULL),
 	GNOMEUIINFO_END
 };
 
-static GnomeUIInfo diff_menu[] =
-{
-	{ GNOME_APP_UI_ITEM, "_New Difference", "", new_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_n, GDK_CONTROL_MASK, NULL },
-	GNOMEUIINFO_SEPARATOR,
-	{ GNOME_APP_UI_ITEM, "_Previous Difference", "", prev_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F9, (GdkModifierType) 0, NULL },
-	{ GNOME_APP_UI_ITEM, "_Next Difference",     "", next_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F10, (GdkModifierType) 0, NULL },
-	GNOMEUIINFO_SEPARATOR,
-	{ GNOME_APP_UI_ITEM, "_Compare", "", compare_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_c, GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, "_Rescan",  "", rescan_cb,  NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo view_menu[] =
+static GnomeUIInfo display_menu[] =
 {
 	{ GNOME_APP_UI_TOGGLEITEM, "_Same", "Same tooltip", view_cb, GUINT_TO_POINTER (eFileSame), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F5, (GdkModifierType) 0, NULL },
 	{ GNOME_APP_UI_TOGGLEITEM, "_Left", "Left tooltip", view_cb, GUINT_TO_POINTER (eFileLeft), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F6, (GdkModifierType) 0, NULL },
 	{ GNOME_APP_UI_TOGGLEITEM, "_Right", "Right tooltip", view_cb, GUINT_TO_POINTER (eFileRight), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F7, (GdkModifierType) 0, NULL },
 	{ GNOME_APP_UI_TOGGLEITEM, "_Different", "Different tooltip", view_cb, GUINT_TO_POINTER (eFileDiff), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F8, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_TOGGLEITEM, "_Error", "Error tooltip", view_cb, GUINT_TO_POINTER (eFileError), NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo tree_style_list_menu[] =
+{
+	{ GNOME_APP_UI_ITEM, "Tree", "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F2, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "List (with full path)", "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F3, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "List (with no path)", "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F4, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo tree_style_menu[] =
+{
+	GNOMEUIINFO_RADIOLIST(tree_style_list_menu),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo view_menu[] =
+{
+	{ GNOME_APP_UI_TOGGLEITEM, "File _Count", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F8, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, "_Previous Difference", "", prev_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F9, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "_Next Difference",     "", next_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F10, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "Refresh", 	    "", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_SUBTREE_STOCK, "_Display", NULL, display_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_SUBTREE_STOCK, "_Style", NULL, tree_style_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo file_style_list_menu[] =
+{
+	{ GNOME_APP_UI_ITEM, "One pane",  "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F2, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "Two panes", "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F3, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo file_style_menu[] =
+{
+	GNOMEUIINFO_RADIOLIST(file_style_list_menu),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo view_menu2[] =
+{
+	{ GNOME_APP_UI_TOGGLEITEM, "_Line Numbers", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, "Refresh", 	    "", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
+	{ GNOME_APP_UI_SUBTREE_STOCK, "_Style", NULL, file_style_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo sort_list_menu[] =
+{
+	GNOMEUIINFO_RADIOITEM_DATA  ("_Alphabetical", NULL , NULL, NULL, NULL),
+	GNOMEUIINFO_RADIOITEM_DATA  ("_By Diff Type", NULL , NULL, NULL, NULL),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo sort_menu[] =
+{
+	{ GNOME_APP_UI_TOGGLEITEM, "_Directories first", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	GNOMEUIINFO_RADIOLIST(sort_list_menu),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo mdi_menu[] =
+{
 	GNOMEUIINFO_END
 };
 
@@ -113,13 +167,85 @@ static GnomeUIInfo help_menu[] =
 static GnomeUIInfo main_menu[] =
 {
 	GNOMEUIINFO_MENU_FILE_TREE     (file_menu),
-	GNOMEUIINFO_MENU_DIFF_TREE     (diff_menu),
 	GNOMEUIINFO_MENU_VIEW_TREE     (view_menu),
+	//{ GNOME_APP_UI_SUBTREE_STOCK, "_View2", NULL, view_menu2, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_SUBTREE_STOCK, "_Sort", NULL, sort_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_MENU_SETTINGS_TREE (settings_menu),
 	GNOMEUIINFO_MENU_WINDOWS_TREE  (windows_menu),
 	GNOMEUIINFO_MENU_HELP_TREE     (help_menu),
 	GNOMEUIINFO_END
 };
+	//GNOMEUIINFO_MENU_MISC_TREE     (misc_menu),
+
+/*
+File
+	  New difference		CTRL-n		always
+	  -------------
+	  Save file list		CTRL-s		tree
+	  -------------
+	  Close				CTRL-w		tree | compare
+	  Exit				CTRL-q		always
+
+View (tree)						tree
+	X File count					tree
+	  -------------
+	  Prev diff			F9		tree
+	  Next diff			F10		tree
+	  -------------
+	> Display					tree
+		X Same			F5		tree
+		X Left			F6		tree
+		X Right			F7		tree
+		X Diff			F8		tree
+		X Error					tree
+	  Refresh			CTRL-r		tree
+	> Style
+		Tree			F2		tree
+		List (path)		F3		tree
+		List (no path)		F4		tree
+
+View (file)						file
+	X Line numbers					file
+	  -------------
+	  Refresh			CTRL-r		file
+	> Style						file
+		One pane		F2		file
+		Two panes		F3		file
+
+Sort							tree
+	X Directories first				tree
+	  -------------
+	O Alphabetical			SHIFT-F9	tree
+	O By diff type			SHIFT-F10	tree
+
+Settings
+	show status bar					always
+	preferences					always
+
+Windows
+	window list.					tree | compare
+
+Help
+	contents					always
+	about						always
+
+________________________________________________________________________________
+
+MDI							always
+	O Default					always
+	O Notebook					always
+	O Modal						always
+	O Top level					always
+
+Misc
+	Compare			tree
+	rescan whole tree	tree
+	Rescan from here	tree & selection
+	Stop diff now		treediff
+	save file list		tree
+	save file list here	tree & selection
+	display style tree	tree
+*/
 
 //______________________________________________________________________________
 //
@@ -139,11 +265,14 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), gtk_statusbar_new());
 
+	gnome_mdi_set_child_menu_path (mdi, GNOME_MENU_VIEW_PATH);	// child specific menus
+	gnome_mdi_set_child_list_path (mdi, GNOME_MENU_WINDOWS_PATH);	// automatic window list
 }
 
 static void
 menu_set_view_defaults (GtkMenuShell *shell)
 {
+#if 0
 	GnomeUIInfo *window = NULL;
 	GtkCheckMenuItem *item = NULL;
 	int i;
@@ -161,6 +290,7 @@ menu_set_view_defaults (GtkMenuShell *shell)
 	//XXX also useful for en/disabling menu items
 	window = &main_menu[4];
 	gtk_widget_set_sensitive (window->widget, FALSE);
+#endif
 }
 
 //______________________________________________________________________________

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.23 $ */
+/* $Revision: 1.24 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -128,7 +128,6 @@ gnome_init_and_parse_args (const char *app_id,
 				diff->left  = g_strdup (left);
 				diff->right = g_strdup (right);
 				categorise_args (diff);
-				//XXX need to standardise the args too (trailing slashes)
 
 				g_print ("type  = %s\n", (diff->type == File) ? "file" : "dir");
 				g_print ("left  = %s\n", diff->left);

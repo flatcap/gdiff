@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.9 $ */
+/* $Revision: 1.10 $ */
 
 #ifndef _DIFF_H_
 #define _DIFF_H_
@@ -39,6 +39,11 @@ struct _DiffOptions
 {
 	gchar *left;				// The left  path
 	gchar *right;				// The right path
+
+	// make the above just the root
+	gchar *relative;
+	gchar *left_root;
+	gchar *right_root;
 
 	DiffType type;				// File or directory?
 
