@@ -31,8 +31,8 @@ main (int argc, char *argv[])
 	GtkStyle *style_col2 = NULL;
 	GtkStyle *style_col3 = NULL;
 	int row;
-	GdkColor red    = { 0, 65535, 30000, 30000 };
-	GdkColor yellow = { 0, 55535, 55535, 30000 };
+	GdkColor red    = { 0, 65535, 60000, 60000 };
+	GdkColor yellow = { 0, 65535, 65535, 50000 };
 	//GdkColor green  = { 0,     0, 65535,     0 };
 	//GdkColor blue   = { 0,     0,     0, 65535 };
 	GdkColor black  = { 0,     0,     0,     0 };

@@ -79,3 +79,20 @@ i18n the config files too
 
 pattern matching to locate second file / dir
 guess where the root is?
+
+use exclude for extra options
+only allow a few to save confusing ourselves.
+--ignore-case  Consider upper- and lower-case to be the same.
+-w  --ignore-all-space  Ignore all white space.
+-b  --ignore-space-change  Ignore changes in the amount of white space.
+-B  --ignore-blank-lines  Ignore changes whose lines are all blank.
+-I RE  --ignore-matching-lines=RE  Ignore changes whose lines all match RE.
+-d  --minimal  Try hard to find a smaller set of changes.
+-H  --speed-large-files  Assume large files and many scattered small changes.
+-a  --text  Treat all files as text.
+    
+
+-p  --show-c-function  Show which C function each change is in.
+could give us tooltips ! won't work for my formatting and
+also it truncates the line to 40 chars -- could work it out for myself, though
+

@@ -38,6 +38,7 @@ fork:	fork.o
 
 compare: compare.o
 	$(CC) $(LIBS) $^ -o $@
+	cat data/y | $@ &
 
 file:	file.o menu.o
 	$(CC) $(LIBS) $^ -o $@

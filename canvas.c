@@ -173,7 +173,7 @@ scaled_canvas (GtkWidget *app)
 					"y1", 0.01,
 					"x2", 0.99,
 					"y2", 0.99,
-					"fill_color_rgba", 0x008000FF,
+					"fill_color_rgba", 0xFFFFFFFF,
 					//"outline_color", "pink",
 					//"width_units", 0.04,
 					NULL);
@@ -185,7 +185,7 @@ scaled_canvas (GtkWidget *app)
 					"y1", 0.01,
 					"x2", 0.52,
 					"y2", 0.99,
-					"fill_color_rgba", 0x800000FF,
+					"fill_color_rgba", 0xFF0000FF,
 					//"outline_color", "pink",
 					//"width_units", 0.04,
 					NULL);
@@ -197,7 +197,7 @@ scaled_canvas (GtkWidget *app)
 					"y1", 0.48,
 					"x2", 0.99,
 					"y2", 0.52,
-					"fill_color_rgba", 0x000080FF,
+					"fill_color_rgba", 0x0000FFFF,
 					//"outline_color", "pink",
 					//"width_units", 0.04,
 					NULL);
