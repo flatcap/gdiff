@@ -31,6 +31,9 @@ PrefOption options_list[] =
 	{ PrefFrame,	N_("File") },
 	{ PrefStyle,	N_("File Left"),				"FileStyleLeft",		G_STRUCT_OFFSET (Options, FileStyleLeft) },
 	{ PrefStyle,	N_("File Right"),				"FileStyleRight",		G_STRUCT_OFFSET (Options, FileStyleRight) },
+	{ PrefFrame,	N_("Overview") },
+	{ PrefStyle,	N_("Overview Left"),				"OverviewStyleLeft",		G_STRUCT_OFFSET (Options, OverviewStyleLeft) },
+	{ PrefStyle,	N_("Overview Right"),				"OverviewStyleRight",		G_STRUCT_OFFSET (Options, OverviewStyleRight) },
 
 	{ PrefPage,	N_("Confirmation"),				"Confirmation" },
 	{ PrefFrame,	N_("Confirmation") },

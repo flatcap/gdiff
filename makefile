@@ -46,7 +46,7 @@ file.o: file.c file.h options.h diff.h mdi.h args.h
 gd.o: gd.c config.h args.h options.h diff.h mdi.h global.h
 global.o: global.c global.h icons/open.xpm icons/closed.xpm icons/leaf.xpm
 mdi.o: mdi.c mdi.h options.h diff.h menu.h derived.h compare.h global.h
-menu.o: menu.c config.h menu.h derived.h diff.h node.h tree.h compare.h mdi.h options.h file.h
+menu.o: menu.c config.h menu.h mdi.h options.h diff.h derived.h node.h tree.h compare.h file.h exclude.h
 node.o: node.c node.h derived.h diff.h
 options.o: options.c config.h options.h preferences.c
 preferences.o: preferences.c
@@ -76,5 +76,4 @@ diff:
 	@rcsdiff -q --brief $(FILES) | cut -d' ' -f4-
 deps:
 	gcc -MM `gnome-config --cflags gnomeui gnome gtk glib` $(SOURCE)
-	
 

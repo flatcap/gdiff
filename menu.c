@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.43 $ */
+/* $Revision: 1.44 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -35,7 +35,8 @@
 
 // in this file there are callbacks - only get parms then delegate
 static void about_cb          (GtkWidget *, GnomeMDI *);	// help.c	gd_about()
-static void close_display_cb  (GtkWidget *, GnomeMDI *);	// 
+static void close_display_cb  (GtkWidget *, GnomeMDI *);	// mdi.c	mdi_close_view()
+static void compare_cb        (GtkWidget *, GnomeMDI *);	//
 static void contents_cb       (GtkWidget *, GnomeMDI *);	// help.c	
 static void exit_gdiff_cb     (GtkWidget *, GnomeMDI *);	// mdi.c	mdi_close_view()
 static void new_diff_cb       (GtkWidget *, GnomeMDI *);	// file.c	new_file()
@@ -51,7 +52,6 @@ static void prev_diff_cb      (GtkWidget *, GnomeMDIChild *);	//
 static void refresh_cb        (GtkWidget *, GnomeMDIChild *);	//
 static void style_cb          (GtkWidget *, GnomeMDIChild *);	//
 
-//XXX static void compare_cb        (GtkWidget *, GnomeMDI *);
 
 /*----------------------------------------------------------------------------*/
 //static void menu_set_view_defaults (GtkMenuShell *shell);
@@ -91,6 +91,7 @@ static GnomeUIInfo main_menu[] =
 static GnomeUIInfo file_menu[] =
 {
 	{ GNOME_APP_UI_ITEM, "_New Difference", "", new_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_n, GDK_CONTROL_MASK, NULL },
+	{ GNOME_APP_UI_ITEM, "_Compare", "", compare_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_c, GDK_CONTROL_MASK, NULL },
 	GNOMEUIINFO_SEPARATOR,
 	{ GNOME_APP_UI_ITEM, "_Save File List", "", save_file_list_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_s, GDK_CONTROL_MASK, NULL },
 	GNOMEUIINFO_SEPARATOR,
@@ -245,49 +246,22 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 }
 
 void
-set_menu_for_view (GnomeMDIChild *child, GtkType type)
+set_menu_for_view (MDIDiffChild *child)
 {
-	/*
-	GtkWidget     *item   = NULL;
-	GtkWidget     *menu   = NULL;
-	GList         *result = NULL;
-	GtkAccelGroup *accel  = NULL;
-
-	accel = app->accel_group;
-
-	if (type == gtk_diff_tree_get_type())
+	GnomeUIInfo *menu = NULL;
+	DiffOptions *diff = child->diff_options;
+	
+	if ((diff->type == Dir) ||
+	    (diff->type == DirPatch))
 	{
-		menu = create_list_main_menu (accel);
-	}
-	else if (type == gtk_compare_get_type())
-	{
-		menu = create_compare_menu (accel);
-	}
-
-	if (menu)
-	{
-		item = gtk_menu_item_new_with_label (GNOME_MENU_VIEW_STRING);
-		gtk_widget_show (item);
-
-		gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
-
-		result = g_list_append (NULL, item);
-	}
-
-	return result;
-	*/
-	if (type == gtk_diff_tree_get_type())
-	{
-		gnome_mdi_child_set_menu_template (child, list_main_menu);
-	}
-	else if (type == gtk_compare_get_type())
-	{
-		gnome_mdi_child_set_menu_template (child, file_main_menu);
+		menu = list_main_menu;
 	}
 	else
 	{
-		//XXX?
+		menu = file_main_menu;
 	}
+
+	gnome_mdi_child_set_menu_template (GNOME_MDI_CHILD (child), menu);
 }
 
 /*
@@ -364,7 +338,6 @@ about_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 close_display_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	//XXX move the actual doing to mdi.c
 	GnomeMDIChild *child = NULL;
 
 	g_return_if_fail (mdi != NULL);
@@ -374,10 +347,9 @@ close_display_cb (GtkWidget *widget, GnomeMDI *mdi)
 
 	g_return_if_fail (child != NULL);
 
-	gnome_mdi_remove_child (mdi, child, FALSE);
+	mdi_close_view (mdi, child);
 }
 
-/*
 static void
 compare_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
@@ -397,7 +369,6 @@ compare_cb (GtkWidget *widget, GnomeMDI *mdi)
 	g_return_if_fail (diff != NULL);
 	mdi_add_diff (mdi, diff);
 }
-*/
 
 void
 recurse_menu (GtkMenuShell *shell, int depth)
@@ -564,18 +535,21 @@ set_state_file_menu (GnomeUIInfo *menu)
 
 void
 set_menu_state (GnomeMDI *mdi)
+//XXX see who calls this, what vars they have, and decide what the best params are
+//XXX make it so that this is only called by MDI/Child and after MDI signals
 {
-	gboolean     tree       = FALSE;
-	gboolean     compare    = FALSE;
-	GnomeApp    *app        = NULL;
-	GtkWidget   *view       = NULL;
-	GtkWidget   *bin        = NULL;
-	GnomeUIInfo *main_menu  = NULL;
-	GnomeUIInfo *child_menu = NULL;
-	GnomeUIInfo *file_menu  = NULL;
-	GtkWidget   *file_save  = NULL;
-	GtkWidget   *file_close = NULL;
-	GtkWidget   *windows    = NULL;
+	gboolean     tree         = FALSE;
+	gboolean     compare      = FALSE;
+	GnomeApp    *app          = NULL;
+	GtkWidget   *view         = NULL;
+	GtkWidget   *bin          = NULL;
+	GnomeUIInfo *main_menu    = NULL;
+	GnomeUIInfo *child_menu   = NULL;
+	GnomeUIInfo *file_menu    = NULL;
+	GtkWidget   *file_compare = NULL;
+	GtkWidget   *file_save    = NULL;
+	GtkWidget   *file_close   = NULL;
+	GtkWidget   *windows      = NULL;
 
 	g_return_if_fail (mdi != NULL);
 
@@ -598,12 +572,14 @@ set_menu_state (GnomeMDI *mdi)
 	g_return_if_fail (file_menu);
 	g_return_if_fail (windows);
 
-	file_save  = file_menu[2].widget;
-	file_close = file_menu[4].widget;
+	file_compare  = file_menu[1].widget;
+	file_save     = file_menu[3].widget;
+	file_close    = file_menu[5].widget;
 
-	gtk_widget_set_sensitive (windows,    (tree || compare));
-	gtk_widget_set_sensitive (file_save,  tree);
-	gtk_widget_set_sensitive (file_close, (tree || compare));
+	gtk_widget_set_sensitive (windows,      (tree || compare));
+	gtk_widget_set_sensitive (file_compare, tree);
+	gtk_widget_set_sensitive (file_save,    tree);
+	gtk_widget_set_sensitive (file_close,   (tree || compare));
 
 	if (tree)
 	{

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.33 $ */
+/* $Revision: 1.34 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -27,13 +27,16 @@
 #include "global.h"
 
 /*----------------------------------------------------------------------------*/
-static GList *		gd_mdi_create_menus		(GnomeMDIChild * child, GtkWidget * view, gpointer data);
-static GtkWidget *	gd_mdi_create_compare_view	(GnomeMDIChild * child, gpointer data);
-static GtkWidget *	gd_mdi_create_view		(GnomeMDIChild * child, gpointer data);
-static GtkWidget *	gd_mdi_set_label		(GnomeMDIChild * child, GtkWidget * old_label, gpointer data);
+static GtkWidget *	gd_mdi_set_label		(GnomeMDIChild *child, GtkWidget *old_label, gpointer data);
+static GtkWidget *	gd_mdi_create_view		(GnomeMDIChild *child, gpointer data);
+static GtkWidget *	gd_mdi_create_file_view		(MDIDiffChild *child);
+static GtkWidget *	gd_mdi_create_list_view		(MDIDiffChild *child);
 static gint		remove_child			(GnomeMDI *mdi, GnomeMDIChild *child);
-static void		app_created			(GnomeMDI * mdi, GnomeApp * app);
+static void		app_created			(GnomeMDI *mdi, GnomeApp *app);
 static void		destroy				(GnomeMDI *mdi);
+
+static void		gtk_mdi_diff_child_class_init	(MDIDiffChildClass *klass);
+static void		gtk_mdi_diff_child_init		(MDIDiffChild *child);
 
 GnomeMDI *	mdi_new (gchar *appname, gchar *title);
 void		mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
@@ -86,6 +89,7 @@ view_changed (GnomeMDI *mdi, GtkWidget *oldview)
 	//g_print ("new view = %s\n", gtk_widget_get_name (bin->child));
 	//g_print ("object = %d\n", gtk_object_get_type());
 	//g_print ("view   = %d\n", GTK_OBJECT_TYPE (bin->child));
+
 	g_print ("active_child = %p\nactive_view = %p\nactive_window = %p\n\n", mdi->active_child, mdi->active_view, mdi->active_window);
 
 	// change the menus (obj type)
@@ -93,10 +97,25 @@ view_changed (GnomeMDI *mdi, GtkWidget *oldview)
 }
 
 static GtkWidget *
-gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data)
+gd_mdi_create_view (GnomeMDIChild *child, gpointer data)
 {
-	DiffOptions *diff    = data;
-	GtkWidget   *compare = gtk_compare_new (diff);
+	MDIDiffChild *dchild = GTK_MDI_DIFF_CHILD (child);
+
+	if ((dchild->diff_options->type == Dir) || (dchild->diff_options->type == DirPatch))
+	{
+		return gd_mdi_create_list_view (dchild);
+	}
+	else
+	{
+		return gd_mdi_create_file_view (dchild);
+	}
+
+}
+
+static GtkWidget *
+gd_mdi_create_file_view (MDIDiffChild *child)
+{
+	GtkWidget   *compare = gtk_compare_new (child->diff_options);
 	GtkWidget   *scroll  = gtk_scrolled_window_new (NULL, NULL);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -107,22 +126,19 @@ gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data)
 }
 
 static GtkWidget *
-gd_mdi_create_view (GnomeMDIChild * child, gpointer data)
+gd_mdi_create_list_view (MDIDiffChild *child)
 {
 	GtkWidget      *scroll = NULL;
 	GtkWidget      *tree   = NULL;
-	DiffOptions    *diff   = NULL;
 
 	g_return_val_if_fail (child != NULL, NULL);
-	g_return_val_if_fail (data  != NULL, NULL);
 
 	scroll = gtk_scrolled_window_new (NULL, NULL);
 
 	g_return_val_if_fail (scroll != NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
-	diff = data;
-	tree = gtk_diff_tree_new (2, 0, diff);
+	tree = gtk_diff_tree_new (2, 0, child->diff_options);
 
 	gtk_container_add (GTK_CONTAINER (scroll), tree);
 
@@ -131,19 +147,16 @@ gd_mdi_create_view (GnomeMDIChild * child, gpointer data)
 }
 
 static GtkWidget *
-gd_mdi_set_label (GnomeMDIChild * child,
-		    GtkWidget * old_label,
-		    gpointer data)
+gd_mdi_set_label (GnomeMDIChild *child, GtkWidget *old_label, gpointer data)
 {
 	// This label will show up in both the notebook tab AND the window menu
 	GtkWidget	*hbox   = NULL;
 	GtkWidget	*pixmap = NULL;
 	GtkWidget	*label  = NULL;
-	DiffOptions	*diff   = NULL;
+	DiffOptions	*diff   = GTK_MDI_DIFF_CHILD (child)->diff_options;
 
 	if (old_label == NULL)						/* We have to create a new label */
 	{
-		diff = data;
 		hbox = gtk_hbox_new (FALSE, 0);
 		label = gtk_label_new (g_strdup_printf ("%s", child->name));
 		gtk_widget_show (label);
@@ -161,7 +174,7 @@ gd_mdi_set_label (GnomeMDIChild * child,
 
 		gtk_widget_show (pixmap);
 		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 2);
-		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 2);
+		gtk_box_pack_start (GTK_BOX (hbox), label,  FALSE, FALSE, 2);
 	}
 	else
 	{
@@ -171,55 +184,8 @@ gd_mdi_set_label (GnomeMDIChild * child,
 	return hbox;
 }
 
-static GList   *
-gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
-{
-#if 0
-	// this isn't called because we haven't registered the callback?
-	// These menus are mdi child specific -- we chose to distinguish between tree and file
-	GList          *menu_list;
-	GtkWidget      *menu, *w;
-	DiffOptions *diff = NULL;
-
-	diff = data;
-
-	//g_assert (FALSE);
-	//g_print ("gd_mdi_create_menus (w = %s) (p = %s) (pp = %s) (ppp = %s) (pppp = %s)\n", gtk_widget_get_name (view), gtk_widget_get_name (view->parent), gtk_widget_get_name (view->parent->parent), gtk_widget_get_name (view->parent->parent->parent), gtk_widget_get_name (view->parent->parent->parent->parent));
-	menu_list = NULL;
-
-	/* the Child menu */
-	menu = gtk_menu_new ();
-
-	w = gtk_menu_item_new_with_label ("Add View");
-	gtk_widget_show (w);
-
-	gtk_menu_append (GTK_MENU (menu), w);
-	w = gtk_menu_item_new_with_label ("Remove View");
-	gtk_widget_show (w);
-
-	gtk_menu_append (GTK_MENU (menu), w);
-
-	if ((diff->type == Dir) || (diff->type == DirPatch))
-	{
-		w = gtk_menu_item_new_with_label ("Dir menu");
-	}
-	else
-	{
-		w = gtk_menu_item_new_with_label ("File menu");
-	}
-	gtk_widget_show (w);
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (w), menu);
-	menu_list = g_list_append (menu_list, w);
-
-	return menu_list;
-#endif
-	//return get_menu_for_view (gtk_diff_tree_get_type(), child);
-	g_assert (FALSE);
-	return NULL;
-}
-
 static void 
-app_created (GnomeMDI * mdi, GnomeApp * app)
+app_created (GnomeMDI *mdi, GnomeApp *app)
 {
 	menu_create (mdi, app);
 	gtk_window_set_default_size (GTK_WINDOW (app), 500, 500);
@@ -233,9 +199,18 @@ destroy (GnomeMDI *mdi)
 }
 
 static void
-child_destroy (GnomeMDIChild *child, GnomeMDI *mdi)
+child_destroy (GtkObject *object)
 {
-	set_menu_state (mdi);
+	GtkObjectClass *parent = NULL;
+
+	//XXX free the diff_options
+	// set all struct members to NULL
+
+	parent = gtk_type_class (gnome_mdi_child_get_type());		// my parent class
+
+	g_return_if_fail (parent != NULL);
+
+	parent->destroy (object);
 }
 
 static gint
@@ -244,6 +219,13 @@ remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 	//XXX ask config for confirm, if compare just close, if tree 'close all compares, too?'
 	g_print ("remove child\n");
 	return TRUE;			// yes let it die
+}
+
+void
+mdi_close_view (GnomeMDI *mdi, GnomeMDIChild *child)
+{
+	gnome_mdi_remove_child (mdi, child, FALSE);
+	set_menu_state (mdi);
 }
 
 void
@@ -280,45 +262,103 @@ mdi_new (gchar *appname, gchar *title)
 void
 mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 {
-	GnomeMDIGenericChild	*child = NULL;
-	char			*name  = NULL;
-	GtkType			 type  = 0;
+	MDIDiffChild	*child = NULL;
+	char		*name  = NULL;
+	GtkType		 type  = 0;
 
 	g_return_if_fail (mdi  != NULL);
 	g_return_if_fail (diff != NULL);
 
-	if ((diff->type == Dir) || (diff->type == DirPatch))
+	if (diff->relative)
+	{
+		name  = g_strdup_printf ("%s\n%s\n%s", diff->left_root, diff->right_root, diff->relative);
+	}
+	else
 	{
 		name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
+	}
+
+	if ((diff->type == Dir) || (diff->type == DirPatch))
+	{
 		type = gtk_diff_tree_get_type();
 	}
 	else
 	{
-		//name  = g_strdup_printf ("%s\n%s\n%s", diff->relative, diff->left, diff->right);
-		name  = g_strdup_printf ("%s\n%s\n%s", diff->left_root, diff->right_root, diff->relative);
 		type = gtk_compare_get_type();
 	}
-	child = gnome_mdi_generic_child_new (name);
-	set_menu_for_view (GNOME_MDI_CHILD (child), type);
 
+	child = gtk_mdi_diff_child_new (name, diff);
 	g_return_if_fail (child != NULL);
-	gnome_mdi_generic_child_set_menu_creator (child, gd_mdi_create_menus, diff);//XXX
-	gnome_mdi_generic_child_set_label_func   (child, gd_mdi_set_label,    diff);
 
-	gtk_signal_connect (GTK_OBJECT (child), "destroy", GTK_SIGNAL_FUNC (child_destroy), mdi);
-
-	if ((diff->type == Dir) || (diff->type == DirPatch))
-	{
-		gnome_mdi_generic_child_set_view_creator (child, gd_mdi_create_view,  diff);
-	}
-	else
-	{
-		gnome_mdi_generic_child_set_view_creator (child, gd_mdi_create_compare_view, diff);
-	}
+	set_menu_for_view (child);
 
 	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));			/* Add one child to the MDI */
 	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));			/* Display one view of that child */
+	//g_print ("mdi_add_diff %p %p\n", mdi, GNOME_MDI_CHILD (child)->parent);
+}
 
-	//XXX update menus
+/*______________________________________________________________________________
+*/
+
+guint
+gtk_mdi_diff_child_get_type (void)
+{
+	static guint mdi_diff_child_type = 0;
+	static const GtkTypeInfo mdi_diff_child_info =
+	{
+		"MDIDiffChild",
+		sizeof (MDIDiffChild),
+		sizeof (MDIDiffChildClass),
+		(GtkClassInitFunc)  gtk_mdi_diff_child_class_init,
+		(GtkObjectInitFunc) gtk_mdi_diff_child_init,
+		/* reserved */ NULL,
+		/* reserved */ NULL,
+		(GtkClassInitFunc) NULL,
+	};
+
+	//g_print ("gtk_mdi_diff_child_get_type\n");
+	if (!mdi_diff_child_type)
+	{
+		// has to be 'derived' from GnomeMDIChild to be able to cast to it!
+		mdi_diff_child_type = gtk_type_unique (gnome_mdi_child_get_type(), &mdi_diff_child_info);
+	}
+
+	return mdi_diff_child_type;
+}
+
+MDIDiffChild *
+gtk_mdi_diff_child_new (char *name, DiffOptions *diff)
+{
+	MDIDiffChild *child = NULL;
+
+	child = gtk_type_new (gtk_mdi_diff_child_get_type());
+
+	g_return_val_if_fail (child != NULL, NULL);
+
+	child->diff_options = diff;
+	GNOME_MDI_CHILD (child)->name = g_strdup (name);
+
+	return child;
+}
+
+static void
+gtk_mdi_diff_child_class_init (MDIDiffChildClass *klass)
+{
+	GnomeMDIChildClass *gnome  = (GnomeMDIChildClass*) klass;
+	GtkObjectClass     *object = (GtkObjectClass*)     klass;
+
+	gnome->set_label	 = gd_mdi_set_label;
+	gnome->create_view	 = gd_mdi_create_view;
+	gnome->create_menus	 = NULL;
+	gnome->get_config_string = NULL;
+
+	object->destroy		 =  child_destroy;
+}
+
+static void
+gtk_mdi_diff_child_init (MDIDiffChild *child)
+{
+	//XXX not ACTUALLY necessary
+	child->diff_options = NULL;
 }
 

@@ -71,6 +71,13 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+create an "Are you sure?" dialog which takes a parameter of a options struct member.
+a check box is created for the parameter.  If the parameter is TRUE, just return YES.
+
+left/right only don't run diff to view, but cat?
+how about diff -new_file -> all left or all right?
+can't we just cat it and FLAG it left/right?
+
 naming dir/tree -> LIST, file -> FILE
 pane -> panel
 

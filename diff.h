@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.10 $ */
+/* $Revision: 1.11 $ */
 
 #ifndef _DIFF_H_
 #define _DIFF_H_
@@ -47,8 +47,8 @@ struct _DiffOptions
 
 	DiffType type;				// File or directory?
 
-	GNode *root;
-	gpointer compare_stuff;
+	//XXX GNode *root;
+	//XXX gpointer compare_stuff;
 
 	char *last_error;
 };

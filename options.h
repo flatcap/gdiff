@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.13 $ */
+/* $Revision: 1.14 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -36,6 +36,8 @@ struct _PrefColours
 
 struct _Options
 {
+	gulong		dummy;
+
 	PrefColours	DirStyleSame;
 	PrefColours	DirStyleLeft;
 	PrefColours	DirStyleRight;
@@ -43,6 +45,8 @@ struct _Options
 	PrefColours	DirStyleError;
 	PrefColours	FileStyleLeft;
 	PrefColours	FileStyleRight;
+	PrefColours	OverviewStyleLeft;
+	PrefColours	OverviewStyleRight;
 
 	guint		ConfirmOnClose;
 	guint		ConfirmOnExit;

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #include <gnome.h>
 #include "diff.h"
@@ -37,7 +37,7 @@ diffoptions_new (void)
 	{
 		diff->left       = NULL;	// XXX malloc0 -> not nec
 		diff->right      = NULL;
-		diff->root       = NULL;
+		//XXX diff->root       = NULL;
 		diff->last_error = NULL;
 	}
 
