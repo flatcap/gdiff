@@ -33,22 +33,20 @@ veryclean: clean
 
 phony:
 
-deps:
-	gcc -MM `gnome-config --cflags gnomeui gnome gtk glib` *.c
-	
-args.o: args.c options.h diff.h
-compare.o: compare.c compare.h spawn.h
-derived.o: derived.c derived.h spawn.h progress.h global.h node.h tree.h
+args.o: args.c args.h options.h diff.h
+compare.o: compare.c compare.h diff.h spawn.h
+derived.o: derived.c derived.h diff.h spawn.h progress.h global.h node.h tree.h menu.h mdi.h options.h
 diff.o: diff.c diff.h
+file.o: file.c file.h
 gd.o: gd.c config.h args.h options.h diff.h mdi.h global.h
 global.o: global.c global.h icons/open.xpm icons/closed.xpm icons/leaf.xpm
-mdi.o: mdi.c options.h mdi.h diff.h menu.h derived.h
-menu.o: menu.c menu.h derived.h node.h tree.h compare.h
-node.o: node.c node.h derived.h
+mdi.o: mdi.c mdi.h options.h diff.h menu.h derived.h compare.h global.h
+menu.o: menu.c config.h menu.h derived.h diff.h node.h tree.h compare.h mdi.h options.h file.h
+node.o: node.c node.h derived.h diff.h
 options.o: options.c options.h
 progress.o: progress.c progress.h
 spawn.o: spawn.c spawn.h
-tree.o: tree.c tree.h node.h derived.h global.h
+tree.o: tree.c tree.h node.h derived.h diff.h global.h
 
 ################################################################################
 
@@ -93,11 +91,19 @@ testgtk.o:
 testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
-FILES	= args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo compare.h file.c file.h
+################################################################################
+
+SOURCE	= args.c compare.c derived.c diff.c gd.c global.c mdi.c menu.c node.c options.c progress.c spawn.c tree.c makefile todo file.c
+HEADER	= args.h config.h derived.h diff.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h makefile todo compare.h file.h
+FILES	= $(SOURCE) $(HEADER)
+
 co:
-	co -l -q $(FILES)
+	co -q -l  $(FILES)
 ci:
 	ci -q -m. $(FILES)
 diff:
 	@rcsdiff -q --brief $(FILES) | cut -d' ' -f4-
+deps:
+	gcc -MM `gnome-config --cflags gnomeui gnome gtk glib` $(SOURCE)
+	
 
