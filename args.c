@@ -1,4 +1,4 @@
-/* $Revision: 1.21 $ */
+/* $Revision: 1.22 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -12,6 +12,7 @@
 static DiffType	identify_path   (char *path);
 static void	swap_strings    (char **a, char **b);
 
+char *		standardise_arg (char *path);
 void		categorise_args (DiffOptions *diff);
 DiffOptions *	gnome_init_and_parse_args (const char *app_id, const char *app_version, int argc, char *argv[]);
 /*----------------------------------------------------------------------------*/
@@ -110,7 +111,7 @@ gnome_init_and_parse_args (const char *app_id,
 				categorise_args (diff);
 				//XXX need to standardise the args too (trailing slashes)
 
-				g_print ("type  = %s\n",     (diff->type == File) ? "file" : "dir");
+				g_print ("type  = %s\n", (diff->type == File) ? "file" : "dir");
 				g_print ("left  = %s\n", diff->left);
 				g_print ("right = %s\n", diff->right);
 			}
@@ -146,6 +147,34 @@ swap_strings (char **a, char **b)
 	*b = c;
 }
 
+char *
+standardise_arg (char *path)
+{
+	GString *temp   = NULL;
+	char    *result = NULL;
+	int      len    = 0;
+
+	g_return_val_if_fail (path != NULL, NULL);
+
+	temp = g_string_new (path);
+	g_free (path);
+
+	len = strlen (temp->str);
+	if (len > 0)
+	{
+		while (temp->str[len-1] == G_DIR_SEPARATOR)
+		{
+			len--;
+			g_string_truncate (temp, len);
+		}
+	}
+
+	result = temp->str;
+	g_string_free (temp, FALSE);
+
+	return result;
+}
+
 void
 categorise_args (DiffOptions *diff)
 {
@@ -157,6 +186,9 @@ categorise_args (DiffOptions *diff)
 	g_return_if_fail (diff        != NULL);
 	g_return_if_fail (diff->left  != NULL);
 	g_return_if_fail (diff->right != NULL);
+
+	diff->left  = standardise_arg (diff->left);
+	diff->right = standardise_arg (diff->right);
 
 	ltype = identify_path (diff->left);
 	rtype = identify_path (diff->right);

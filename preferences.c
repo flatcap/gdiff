@@ -58,7 +58,7 @@ PrefOption options_list[] =
 
 	{ PrefPage,	N_("MDI"),					"MDI" },
 	{ PrefFrame,	N_("MDI style") },
-	{ PrefRadio,	N_("Default"),					"MDIStyle",			G_STRUCT_OFFSET (Options, MDIStyle) },				// Default,				Top Level,				Modal,				Notebook
+	{ PrefRadio,	N_("Default"),					"MDIStyle",			G_STRUCT_OFFSET (Options, MDIStyle) },				// Default,				Top Level,				Modal, Notebook
 	{ PrefRadio,	N_("Top Level") },
 	{ PrefRadio,	N_("Modal") },
 	{ PrefRadio,	N_("Notebook") },

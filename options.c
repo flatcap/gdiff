@@ -1,4 +1,4 @@
-/* $Revision: 1.16 $ */
+/* $Revision: 1.17 $ */
 
 #include "config.h"
 #include "options.h"
@@ -385,11 +385,12 @@ help_signal (GtkWidget *button, gpointer data)
 }
 
 GtkWidget *
-get_preferences (GtkWindow *parent, PrefsPage page)
+get_preferences (GtkWindow *parent, PrefsPage /*XXX unused*/page_sel)
 {
 	GnomePropertyBox *props = NULL;
 	PrefOption       *list   = NULL;
 	GtkContainer     *cont  = NULL;
+	GtkContainer     *page  = NULL;
 	Options		 *options = NULL;
 
 	options = options_get_default (options_list);
@@ -404,11 +405,12 @@ get_preferences (GtkWindow *parent, PrefsPage page)
 	{
 		switch (list->type)
 		{
-		case PrefPage:	cont = add_page  (props, list);
+		case PrefPage:	page = add_page (props, list);
+				cont = page;
 				list++;
 				break;
 
-		case PrefFrame:	cont = add_frame (cont, list);
+		case PrefFrame:	cont = add_frame (page, list);
 				list++;
 				break;
 
@@ -612,6 +614,18 @@ options_get_default (PrefOption *list)
 	return opt;
 }
 
+static void
+destroy_prefs (GtkWidget *parent, GtkWidget **prefs) //XXX misc.c?
+{
+	g_return_if_fail (prefs != NULL);
+
+	if (*prefs)
+	{
+		gtk_widget_destroy (*prefs);
+		*prefs = NULL;
+	}
+}
+
 void
 show_preferences (GtkWindow *parent, PrefsPage page)
 {
@@ -629,7 +643,8 @@ show_preferences (GtkWindow *parent, PrefsPage page)
 		prefs = get_preferences (parent, page);
 		if (prefs)
 		{
-			gtk_signal_connect (GTK_OBJECT (prefs), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);
+			gtk_signal_connect (GTK_OBJECT (prefs),  "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);
+			gtk_signal_connect (GTK_OBJECT (parent), "destroy", GTK_SIGNAL_FUNC (destroy_prefs),        &prefs);
 			gtk_widget_show_all (prefs);
 		}
 	}

@@ -1,4 +1,4 @@
-/* $Revision: 1.21 $ */
+/* $Revision: 1.22 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -33,7 +33,6 @@ static void gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right);
 static void gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area);
 static void gtk_diff_tree_destroy	 (GtkObject * object);
 static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
-static void gtk_diff_tree_init (GtkDiffTree * tree);
 static void gtk_diff_tree_realize (GtkWidget *widget);
 //static void gtk_diff_tree_set_view (GtkDiffTree *tree, Status status);
 static void gtk_diff_tree_show (GtkWidget *widget);
@@ -420,6 +419,7 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 	tree->right = NULL;
 	tree->view  = eFileAll;
 	tree->diff  = NULL;
+	tree->drawn = FALSE;
 
 	//g_print ("gtk_diff_tree_init\n");
 }
@@ -434,15 +434,14 @@ gtk_diff_tree_show (GtkWidget *widget)
 static void
 gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area)
 {
-	static gboolean drawn = FALSE;
 	GtkDiffTree *tree = GTK_DIFF_TREE (widget);
 
 	g_print ("gtk_diff_tree_draw\n");
 
-	if (!drawn)
+	if (!tree->drawn)
 	{
+		tree->drawn = TRUE;
 		gtk_diff_tree_compare (tree, tree->diff->left, tree->diff->right);
-		drawn = TRUE;
 	}
 
 	old_draw_handler (widget, area);

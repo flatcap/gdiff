@@ -1,4 +1,4 @@
-/* $Revision: 1.12 $ */
+/* $Revision: 1.13 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
@@ -50,6 +50,7 @@ struct _GtkDiffTree
 	GNode	*root;
 
 	gint flag1;
+	gboolean drawn;
 	//XXX collection of compares
 	//XXX selection?
 	//XXX GnomeMDI *mdi;
