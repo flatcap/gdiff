@@ -388,6 +388,17 @@ tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status
 }
 
 gboolean 
+tree_dialog_redraw (TreeDialog *tree, Status status, gboolean add)
+{
+	// This method will maintain the tree expansion
+	// freeze
+	// if add check not there
+	// if remove find and remove
+	// thaw
+	return FALSE;
+}
+
+gboolean 
 tree_dialog_draw (TreeDialog *tree, Status status)
 {
 	g_return_val_if_fail (tree,         FALSE);
