@@ -1,88 +1,364 @@
-ignore files called
-ignore files containing
-nick gmc icons
-gnome-config
+________________________________________________________________________________
+CODING - better ways
 
-parse diff files (patch!)
+resolve which need to be double and which guint in overview
 
-compare a directory tree and a patch file!
+move options object (get) to global (static)
 
-check cumulative status for dirs:
-	if the dir has only right only -> right
-	if the dir has only left  only -> left 
-	otherwise just diff
-	
-separate files and directories?
+gd_ prefix to avoid clutter
+what about local (static) methods?
 
-can hide columns, but not rows
-view same, diff, left only, right only
-'nothing to view => no directory' option
+implement get/set args on the derived objects
 
-when not viewing everything, have an option to keep the dir tree intact
+the overview widget:	A click means change the view to one centred HERE
+			A drag should send scroll messages to the window (up/down) to match the mouse posn
+
+if _I_ expand tabs, then I need to keep the original text cached if they change the tabstops
+
+scale the overview
+extract left/right view and inform the overview to draw brackets
+make sure all keys/mouse ->overview and clist are always in sync
+
+remove unit and post scale (separate fn)
+
+one consistant set of left/right/etc enums
+
+recursion -> duff's
+
+call all callbacks *_cb
+
+remove top node -- replace it with a node that has both next and children
+
+split file.c into file.c and browse.c
 
 split code into parse phase and display phase
 
-two panes? one for dirs (left) and one for files (right/middle)?
+make sure EVERYTHING's initialised
 
-configure the colours, sizes, fonts, diff/same/left/right visible, 
+is it going to be bg or base?
+
+(my/sensible) defaults if there's no config file
+
+mnemonic space is too cluttered
+
+________________________________________________________________________________
+COSMETICS - formatting, etc
+
+dependencies
+
+xref all methods -- make sure all local methods are static
+make sure all non-static methods are called from more than one place
+if a fn is only called from one place is it better to leave it in context? prob yes
+menus are the best example of leaving things as is.
+
+add gnu copyright
+add ident / rcs header
+
+rename every prefs to props
+
+now that ENABLE_NLS is in config.h , config.h must be the first include in any c/h
+
+remove all c++ comments!
+
+add BEGIN_GNOME_DECLS, END_GNOME_DECLS
+
+gnomify all the types int -> gint etc
+
+________________________________________________________________________________
+FEATURES - to do
+
+default buttons and activation on the file selection
+
+display file errors -- where can it fail?
+
+parse diff into diff lines, tabs but no \n
+
+allow click and drag on the overview
+hook up to scrolled window/clist
+
+extend settings menu (one for each page of the preferences)
+plus exclusions
+font?
+styles?
+
+make options a GtkObject, then it can emit signals "config changed"
+No -- that will only help one person!
+No I don't think that's true I think it WILL work
+
+config object (GtkObject) should be able to hook up serveral other people
+config 'emit's 'config_changed' (or 'changed');
+also need to listen for 'destroy' (call gtk_widget_destroyed?)
+
+tab width, like view is global, but can be configured per compare
+
+Window / Windows... , Diff1, Compare1, ...
+
+move the exclusions to a separate dialog on the settings menu
+much simpler than cramming it onto the pref's notebook
+likewise the style menu? Or make it into a list and a work area
+will also need a reset button and a default (no colour) button
+
+tab width default but is compare specific
+
+should view ident/diff/left/right be global or per tree?
+View menu -> per Tree
+Prefs menu -> global  -- need to be named carefully
+and defined in the statusbar too.
+
+refresh signal on diff object one for options, one for colours/fonts
+use signals or callbacks?
+
+view scrollbar, overview, both (scrollbar to the right of the overview)
+
+extra colour of 'default' == not set
+
+categorise all menu entries -- what they need to
+be enabled, eg Tree, Compare, Nothing, Selection
+
+ignore files containing
+
+ignore files called
+
+use mdi menu stuff to (tree/dir), (compare/file) menus
+
+statusbar explanation of slow events
+
+need to set cursors everywhere
+
+stop RIGHT double click activating things!
+
+button for next/prev diff
+Last / First diff msg box
+Messages Pref section / tab, eg Confirm on exit
+(all optional)
+
+SHOULD the options be global?
+
+right-click menus where applicable
+
+implement + - * CTRL, etc for leaves
+check out CTRL/ CTRL\, etc in tree already
+
+i18n the config files too -- main code first
+
+Preferences menu, those marked with a * will only be visible after restarting the application
+
+* by an option ->only on next diff
++ by an option ->need to restart (get rid of these eventually)
+MORE LABELS
+
+two new colours -- left and right overview
+
+file history for file selection / browse
+
+configure the colours, sizes, fonts, diff/same/left/right visible,
 tree font and diff font
-
-trap close and Ctrl-C and abort processing loop m_bAbort = TRUE;
-check the statusbar is OK
-
-diffstat
-default single argument to /usr/src/linux (for patches)
-
-
 
 save file list (l/r/s/d/t)
 format <, >, ' ', !  space then the filename
 
-option - show stats -> FULL diff parsed into added 4, deleted 2 moved 15, etc
-very slow
+Disable irrelevant menu items (reorganise menus if nec)
 
-gnome-history
+double click on a directory should open/close it
 
-parse an RCS ,v file and list the revisions -- highlight two and hit 'diff..'
-list branches?
-RCS / CVS view 
-if they select anything ending in ,v ask them which revsion
+Esc to cancel?  _Diff/_Stop
+How do I tie these into the loop?
+
+create tree_save_file_list !<>' ', then full pathname
+
+trap close and Ctrl-C and abort processing loop m_bAbort = TRUE;
+check the statusbar is OK
+if we kept the pid we could raise SIGTERM on diff
+(we can't just /dev/NULL the output -- could be too slow)
+if the app disappears, abort
+
+option to automatically open file/open/browse don't just give focus to the entry field
+
+if lines only exist in one file, show a 'token' line on the other side as a marker
+remember to add 1 to the other side.
+
+use exclude dialog for extra options
+
+EVERYTHING on thee settings menu is GLOBAL
+
+________________________________________________________________________________
+WISH LIST - blue sky
+
+split up preferences to create a drop-in preferences component
+eg, a drop-in 'view options', or 'diff settings'
+
+parse raw -u diff into above?  -- not yet
+
+how many of the configurable strings can I centralise?
+Do I WANT to centralise them?
+Or maybe just the help stuff?
+
+make key bindings configurable?
+need to find out the scope of accelerators - use
+add_button_with_accel? (are they accidentally global?)
+
+If I cannot parse the diff output, write an explanation and quote it verbatim:
+"Cannot understand diff's output -- printing it verbatim" -- in Red
+(if all else fails)
+...
+
+add a timeout to refresh the diff tree every 5 seconds?
+no, but a progress/cancel box would be nice (modeless)
+
+try and remove the unixness of the path stuff -- there will be a few tripups for DOS ppl
+
+can hide columns, but not rows
+view same, diff, left only, right only
+'nothing to view => no directory' option
+(keep the directory tree visible, but not the files)
+
+check cumulative status for dirs:
+	if the dir has only right only -> right
+	if the dir has only left  only -> left
+	otherwise just diff
+
+make sure ctrl-end ctrl-home work as expected
+see gtk_binding_set_by_class(klass) in gtkclist.c
 
 if the whole (graphical) tree is encapsulated as a single widget, then it
 can be inserted into multiple windows or a single MDI
 Also how can I export the widget to another app (embed it) elsewhere?
 
-need to derive a new app class for the menu callbacks
-need to derive a diff class (widget) to display the diffs in
+save file list as list of paths or as a tree?
 
-if _I_ expand tabs, then I need to keep the original text cached if they change the tabstops
+if you close a diff "Do you want to close all the compares too?"
+Yes - close all, No - close the diff, Cancel - do nothing
 
-hide rows by regex
-each regex has a checkbox to en/disable
+rescan option - current FILE , or selected branch of the TREE
 
-HELP!
+option -- treat empty files as missing
 
-make the colour scheme a separate .rc file
-.gnome-diff	ColourScheme = bob
-.gnome-diff_bob	x = red, etc
-separate users -- not our problem
-
-
-GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
-This could allow me to have my exlusions list with check boxes
-
-the overview widget:	A click means change the view to one centred HERE
-			A drag should send scroll messages to the window (up/down) to match the mouse posn
+printing support?
+wait for gnome
 
 now that I'm not using a text widget, can I implement highlight / copy
 to fit in with editing?
 
-i18n the config files too -- main code first
+patch files -> understanding all the various output formats
+of patch (and all combinations)
 
-pattern matching to locate second file / dir
-guess where the root is?
+-p  --show-c-function  Show which C function each change is in.
+could give us tooltips ! won't work for my formatting and
+also it truncates the line to 40 chars -- could work it out for myself, though
 
-use exclude dialog for extra options
+need to rename windows when switching from notebook to modal to toplevel
+
+compare a directory tree and a patch file!
+
+parse diff files (patch!)
+
+support file editing (and refresh)
+refresh -> update patch
+
+drag and drop support
+if one file popup a dialog
+if two files auto mode
+if more files popup a list dialog
+colours too
+how about fonts?
+
+I _could_ stat any left/right file.  Any that turn out to be dirs, will need expanding
+'find path' should do the trick (and all are left/right)
+stat the left/right directories first -- no need to recurse!
+flag any queries as 'to be resolved'
+
+don't allow the selection of directories
+
+need to trap signals SIGTERM, SIGINT, etc
+
+gnome session management?
+
+play with libz libgz libbz2 for patch files
+
+have two sets of arguments for popt
+a 'standard' english set and a customisable 'foreign' set
+the english set would always work (but would be hidden)
+if locale is english (or sub-dialect) only use english else foreign
+how about standard options are long only allow the short options to be i18n'd
+implement foreign --help and --usage
+
+for create_patch ask "Use existing options <list>, or re-run diff"
+Buttons: Existing, Diff Options, OK, Cancel
+Existing -> immediate results
+OK -> slow but you can have a progress window
+
+add gzip/bzip2 options to create patch
+read existing diff options -- need save diff options section
+need to keep all output or rerun diff
+
+don't use a scrolled window for the overview/clist, but a viewport
+forget it -- keep the scrollbar
+
+toolbar -- new, refresh, next, prev, close, exit, etc
+(exclude-like dialog)
+
+status bar -- do we need it?
+tooltip -- on/off
+
+[Locale] setting in the rc file
+then all the options can be converted!
+AND I'LL still know what's going on!
+
+error stack (hidden listbox / dialog) pops up when something new is added
+error stack doubles as warning / g_print stack!
+
+save file list - exclusions option
+
+use GNOME regex! -- ought to have a look
+
+right click on tree
+	refresh WHOLE tree
+	refresh from here
+	new view from here
+what DO we want on the right click menus for trees/dirs?
+where will the entries live in the normal menus?
+
+parse an RCS ,v file and list the revisions -- highlight two and hit 'diff..'
+list branches?
+RCS / CVS view
+if they select anything ending in ,v ask them which revsion
+
+option - show stats -> FULL diff parsed into added 4, deleted 2 moved 15, etc
+very slow
+
+share libraries of widgets, then develop rcsdiff, cvsdiff, etc
+
+diffstat
+default single argument to /usr/src/linux (for patches)
+
+Sort menu (for trees)
+
+if a file ends in .gz or .bz2, can we decompress it on-the-fly
+with run_diff "gzip -dc file | diff x -" or something?
+
+--pipe option ->  rcsdiff x y | gd --pipe
+until we support rcs properly?
+
+in the overview -- lines linking all the diff OR lines at set intervals?
+
+generate patches
+
+[p1]~/src$ diff d diff
+diff: diff/d: No such file or directory
+if file doesn't exist in directory, see if it's a patch
+
+hide rows by regex
+each regex has a checkbox to en/disable
+
+how do I launch help?
+let gnome do it automatically
+
+HELP!
+
+sort by diff-type, eg 1st=same,2nd=left,3rd=right,4th=diff,5th=error (alphabetic within groups)
+
+add a file count to the tree
+will need to be refreshed when view changes
 
 global options
 only allow a few to save confusing ourselves.
@@ -95,12 +371,66 @@ only allow a few to save confusing ourselves.
 -H  --speed-large-files  Assume large files and many scattered small changes.
 -a  --text  Treat all files as text.
 
+________________________________________________________________________________
+DONE - already there
 
--p  --show-c-function  Show which C function each change is in.
-could give us tooltips ! won't work for my formatting and
-also it truncates the line to 40 chars -- could work it out for myself, though
+need to derive a new app class for the menu callbacks
+need to derive a diff class (widget) to display the diffs in
+
+when not viewing everything, have an option to keep the dir tree intact
+(mdi open top level?)
+
+separate files and directories?
+(sort order)
+
+gnome-config
+
+use gmc icons
+
+implement a gboolean reversed flag
+this would make all the dir/file logic much simpler.
+
+notebook / menu pixmaps  Dir / File stock icons
+
+standardise args -> add/remove '/' -- call from categorise args
+
+extra mode GNOME_MDI_DEFAULT
+
+________________________________________________________________________________
+WON'T DO - problems
+
+combination of mdi modes
+new notebook for each diff, all compares join parent diff
+
+doesn't make sense to compare one FILE argument (against .)
+force two args? or leave this a a limitation (handy to be able
+to do 'diff dir' and have it default the rest
+Hmm... it does ONLY if FILE is not in the current directory
+(too tricky to detect)
+
+always on top button
+prerogative of the window manager
 
 command line option to specify 'diff' location
+
+pattern matching to locate second file / dir
+guess where the root is?
+
+make the colour scheme a separate .rc file
+.gnome-diff	ColourScheme = bob
+.gnome-diff_bob	x = red, etc
+separate users -- not our problem
+
+two panes? one for dirs (left) and one for files (right/middle)?
+
+how about gnome_exec too -- no gain
+
+disable the options that aren't connected
+
+________________________________________________________________________________
+INFO - extras
+
+new directories aren't recursed, limitation of diff
 
 diff options (local to one diff, naturally)
 	dir dir		compare two directories
@@ -115,297 +445,13 @@ diff options (local to one diff, naturally)
 	l   r
 	r,l
 
-
-have two sets of arguments for popt
-a 'standard' english set and a customisable 'foreign' set
-the english set would always work (but would be hidden)
-if locale is english (or sub-dialect) only use english else foreign
-how about standard options are long only allow the short options to be i18n'd
-implement foreign --help and --usage
-
-implement + - * CTRL, etc for leaves
-
-dependencies
-
-gd_ prefix to avoid clutter
-
-play with libz libgz libbz2 for patch files
-
-patch files -> understanding all the various output formats
-of patch (and all combinations)
-
-gnome session management?
-
-right-click menus where applicable
-
-need to rename windows when switching from notebook to modal to toplevel
-
-need to trap signals SIGTERM, SIGINT, etc
-
-refresh signal on diff object one for options, one for colours/fonts
-
-SHOULD the options be global?
-
-remove all c++ comments!
-
-add BEGIN_GNOME_DECLS, END_GNOME_DECLS
-
-now that ENABLE_NLS is in config.h , config.h must be the first include in any c/h
-
-extra colour of 'default' == not set
-
-new directories aren't recursed, limitation of diff
-
-option -- treat empty files as missing
-
-don't allow the selection of directories
-
-I _could_ stat any left/right file.  Any that turn out to be dirs, will need expanding
-'find path' should do the trick (and all are left/right)
-stat the left/right directories first -- no need to recurse!
-flag any queries as 'to be resolved'
-
-always on top button
-prerogative of the window manager
-
-try and remove the unixness of the path stuff -- there will be a few tripups for DOS ppl
-
-extra mode GNOME_MDI_DEFAULT
-
-drag and drop support
-if one file popup a dialog
-if two files auto mode
-if more files popup a list dialog
-colours too
-how about fonts?
-
-printing support?
-wait for gnome
-
-Window / Windows... , Diff1, Compare1, ...
-
-notebook / menu pixmaps  Dir / File stock icons
-
-combination of mdi modes
-new notebook for each diff, all compares join parent diff
-
-double click on a directory should open/close it
-
-view scrollbar, overview, both (scrollbar to the right of the overview)
-
-if you close a diff "Do you want to close all the compares too?"
-Yes - close all, No - close the diff, Cancel - do nothing
-
-Preferences menu, those marked with a * will only be visible after restarting the application
-
-implement get/set args on the derived objects
-
-add gnu copyright
-add ident / rcs header
-
-button for next/prev diff
-
-gnomify all the types int -> gint etc
-
-tab width default but is compare specific
-
-add a timeout to refresh the diff tree every 5 seconds?
-no, but a progress/cancel box would be nice (modeless)
-
-rescan option - current FILE , or selected branch of the TREE
-
-make sure ctrl-end ctrl-home work as expected
-see gtk_binding_set_by_class(klass) in gtkclist.c
-
-save file list as list of paths or as a tree?
-
-share libraries of widgets, then develop rcsdiff, cvsdiff, etc
-
-doesn't make sense to compare one FILE argument (against .)
-force two args? or leave this a a limitation (handy to be able
-to do 'diff dir' and have it default the rest
-
-support file editing (and refresh)
-refresh -> update patch
-
-implement a gboolean reversed flag
-this would make all the dir/file logic much simpler.
-
-If I cannot parse the diff output, write an explanation and quote it verbatim:
-"Cannot understand diff's output -- printing it verbatim" -- in Red
-...
-
-how do I launch help?
-let gnome do it automatically
-
-xref all methods -- make sure all local methods are static
-make sure all non-static methods are called from more than one place
-if a fn is only called from one place is it better to leave it in context? prob yes
-menus are the best example of leaving things as is.
+gnome-history
 
 handy!
 GtkWidget* gtk_widget_get_ancestor (GtkWidget *widget, GtkType    widget_type)
 GtkWidget* gtk_widget_get_toplevel (GtkWidget *widget)
 
-should view ident/diff/left/right be global or per tree?
-View menu -> per Tree
-Prefs menu -> global  -- need to be named carefully
+GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
+This could allow me to have my exlusions list with check boxes
 
-sort by diff-type, eg 1st=same,2nd=left,3rd=right,4th=diff,5th=error (alphabetic within groups)
-
-option to automatically open file/open/browse don't just give focus to the entry field 
-
-add a file count to the tree
-will need to be refreshed when view changes
-
-right click on tree
-	refresh WHOLE tree
-	refresh from here
-	new view from here
-
-make key bindings configurable?
-
-use GNOME regex! -- ought to have a look
-
-how about gnome_exec too -- no gain
-
-rename every prefs to props
-
-error stack (hidden listbox / dialog) pops up when something new is added
-error stack doubles as warning / g_print stack!
-
-[Locale] setting in the rc file
-then all the options can be converted!
-AND I'LL still know what's going on!
-
-how many of the configurable strings can I centralise?
-Do I WANT to centralise them?
-Or maybe just the help stuff?
-
-is it going to be bg or base?
-
-make sure EVERYTHING's initialised
-
-status bar -- do we need it?
-tooltip -- on/off
-
-mnemonic space is too cluttered
-
-make options a GtkObject, then it can emit signals "config changed"
-No -- that will only help one person!
-No I don't think that's true I think it WILL work
-
-move the exclusions to a separate dialog on the settings menu
-much simpler than cramming it onto the pref's notebook
-likewise the style menu? Or make it into a list and a work area
-will also need a reset button and a default (no colour) button
-
-extend settings menu (one for each page of the preferences)
-plus exclusions
-font?
-styles?
-
-toolbar -- new, refresh, next, prev, close, exit, etc
-(exclude-like dialog)
-
-one consistant set of left/right/etc enums
-
-two new colours -- left and right overview
-
-in the overview -- lines linking all the diff OR lines at set intervals
-
---pipe option ->  rcsdiff x y | gd --pipe
-until we support rcs properly?
-
-if lines only exist in one file, show a 'token' line on the other side as a marker
-remember to add 1 to the other side.
-
-config object (GtkObject) should be able to hook up serveral other people
-config 'emit's 'config_changed' (or 'changed');
-also need to listen for 'destroy' (call gtk_widget_destroyed?)
-
-don't use a scrolled window for the overview/clist, but a viewport
-forget it -- keep the scrollbar
-
-disable the options that aren't connected
-
-scale the overview
-extract left/right view and inform the overview to draw brackets
-make sure all keys/mouse ->overview and clist are always in sync
-
-remove unit and post scale (separate fn)
-
-move options object (get) to global (static)
-
-standardise args -> add/remove '/' -- call from categorise args
-
-allow click and drag on the overview
-hook up to scrolled window/clist
-
-create tree_save_file_list !<>' ', then full pathname
-
-parse diff into diff lines, tabs but no \n
-
-parse raw -u diff into above?  -- not yet
-
-display file errors -- where can it fail?
-
-add gzip/bzip2 options to create patch
-read existing diff options -- need save diff options section
-need to keep all output or rerun diff
-
-for create_patch ask "Use existing options <list>, or re-run diff"
-Buttons: Existing, Diff Options, OK, Cancel
-Existing -> immediate results
-OK -> slow but you can have a progress window
-
-* by an option ->only on next diff
-+ by an option ->need to restart (get rid of these eventually)
-MORE LABELS
-
-resolve which need to be double and which guint in overview
-
-
-default buttons and activation on the file selection
-
-split up preferences to create a drop-in preferences component
-eg, a drop-in 'view options', or 'diff settings'
-
-(my/sensible) defaults if there's no config file
-
-________________________________________________________________________________
-BUILD - dependencies, etc
-________________________________________________________________________________
-CODING - better ways
-
-recursion -> duff's
-
-call all callbacks *_cb
-
-remove top node -- replace it with a node that has both next and children
-
-split file.c into file.c and browse.c
-
-________________________________________________________________________________
-COSMETICS - formatting, etc
-________________________________________________________________________________
-FEATURES - to do
-
-file history for file selection / browse
-
-________________________________________________________________________________
-WISH LIST - blue sky
-
-generate patches
-
-[p1]~/src$ diff d diff
-diff: diff/d: No such file or directory
-if file doesn't exist in directory, see if it's a patch
-
-________________________________________________________________________________
-DONE - already there
-________________________________________________________________________________
-WON'T DO - problems
-________________________________________________________________________________
-INFO - extras
 ________________________________________________________________________________
