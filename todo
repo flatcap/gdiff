@@ -61,3 +61,10 @@ each regex has a checkbox to en/disable
 
 HELP!
 
+make the colour scheme a separate .rc file
+.gnome-diff	ColourScheme = bob
+.gnome-diff_bob	x = red, etc
+
+
+GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
+This could allow me to have my exlusions list with check boxes
