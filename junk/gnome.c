@@ -245,11 +245,11 @@ void
 gnome_rc (void)
 {
 	char           *path = "/TestRC";
-	char           *section = "/TestRC/Colors";
+	char           *section = "/TestRC/Section2";
 	void           *handle = NULL;
 	char           *key = NULL;
 	char           *value = NULL;
-	GdkColor        col;
+	//GdkColor        col;
 
 	handle = gnome_config_init_iterator_sections (path);
 	while (handle)
@@ -269,10 +269,13 @@ gnome_rc (void)
 		handle = gnome_config_iterator_next (handle, &key, &value);
 		if (handle)
 		{
+			g_print ("%s=%s\n", key, value);
+			/*
 			if (gdk_color_parse (value, &col))
 			{
 				g_print ("%s = %.04x %.04x %.04x\n", value, col.red, col.green, col.blue);
 			}
+			*/
 		}
 	}
 }
@@ -318,11 +321,11 @@ main (int argc, char *argv[])
 	//progress();
 	//threads();
 
-	gtk_widget_show_all (app);
+	//gtk_widget_show_all (app);
 	//gtk_widget_show_all (app2);
-	gtk_main ();
+	//gtk_main ();
 
-	//gnome_rc();
+	gnome_rc();
 	//gnome_rc2();
 
 	return 0;
