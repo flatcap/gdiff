@@ -17,33 +17,59 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.9 $ */
+/* $Revision: 1.10 $ */
 
 #ifndef _NODE_H_
 #define _NODE_H_
 
-#include <gtk/gtk.h>
-#include "derived.h"
+#include <gnome.h>
 
-typedef struct _TreeNode TreeNode;
+typedef struct _TreeNode    TreeNode;
+typedef struct _DiffTreeRow DiffTreeRow;
+
+//#include "derived.h"
+
+typedef enum
+{
+	eFileSame  = 1 << 0,		// Obviously these are mutually exclusive for files,
+	eFileLeft  = 1 << 1,		// but directories can accumulate them.
+	eFileRight = 1 << 2,
+	eFileDiff  = 1 << 3,
+	eFileType  = 1 << 4,
+	eFileError = 1 << 5,
+
+	eFileAll   = (1 << 6) - 1
+} Status;
+
+struct _DiffTreeRow
+{
+	GtkCTreeRow row;
+
+	char   *name;
+	char *path;
+	Status  status;
+
+	TreeNode *node;
+};
 
 struct _TreeNode
 {
-	GNode   node;	//XXX FUTURE
+	GNode        gnode;
 
-	char   *name;
-	char   *path;
-	Status  status;
+	gchar       *name;
+	gchar       *path;
+	Status       status;
+
+	DiffTreeRow *row;
 };
 
 //TreeNode * tree_node_new  (char *name, char *path, Status status);
 //void       tree_node_free (TreeNode *node);
 //GNode *    tree_node_find (GNode *node,   char *name);
-void		tree_node_add  (GNode *parent, char *path, Status status, char *orig_path);
-void		tree_print     (GNode *node, int depth);
+void		tree_node_add	(TreeNode *parent, char *orig_path, char **parts, Status status);
+void		tree_print	(TreeNode *node, int depth);
 
-//XXX FUTURE
-gboolean	tree_parse_diff (FILE *file, GnomeApp *app);
+TreeNode *	tree_parse_diff (FILE *file, gchar *left, gchar *right, GnomeApp *app);
 
 #endif // _NODE_H_
 

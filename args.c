@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.24 $ */
+/* $Revision: 1.25 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -129,9 +129,9 @@ gnome_init_and_parse_args (const char *app_id,
 				diff->right = g_strdup (right);
 				categorise_args (diff);
 
-				g_print ("type  = %s\n", (diff->type == File) ? "file" : "dir");
-				g_print ("left  = %s\n", diff->left);
-				g_print ("right = %s\n", diff->right);
+				//g_print ("type  = %s\n", (diff->type == File) ? "file" : "dir");
+				//g_print ("left  = %s\n", diff->left);
+				//g_print ("right = %s\n", diff->right);
 			}
 		}
 	}

@@ -8,7 +8,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	gd tags libtags
+all:	tags libtags gd 
 
 gd:	args.o compare.o derived.o diff.o file.o gd.o global.o mdi.o menu.o \
 	node.o options.o progress.o spawn.o tree.o canvas.o exclude.o style.o

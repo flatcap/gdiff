@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.11 $ */
+/* $Revision: 1.12 $ */
 
 #ifndef _DIFF_H_
 #define _DIFF_H_
@@ -40,21 +40,19 @@ struct _DiffOptions
 	gchar *left;				// The left  path
 	gchar *right;				// The right path
 
-	// make the above just the root
 	gchar *relative;
 	gchar *left_root;
 	gchar *right_root;
 
-	DiffType type;				// File or directory?
-
-	//XXX GNode *root;
-	//XXX gpointer compare_stuff;
+	DiffType type;
 
 	char *last_error;
 };
 
 DiffOptions *	diffoptions_new  (void);
 void		diffoptions_free (DiffOptions *diff);
+
+//XXX also need a diffoptions_copy (from, to); (if this is an embedded struct)
 
 #endif // _DIFF_H_
 

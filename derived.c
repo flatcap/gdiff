@@ -17,10 +17,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.27 $ */
+/* $Revision: 1.28 $ */
 
 #include <gnome.h>
-#include <regex.h>
 #include "derived.h"
 #include "spawn.h"
 #include "progress.h"
@@ -40,9 +39,8 @@ static void (* old_show_handler)    (GtkWidget *widget)                        =
 //XXX int handler (GtkWidget *tree, TreeNode *node);
 
 /*----------------------------------------------------------------------------*/
-static GtkStatusbar * get_view_statusbar(GtkDiffTree *tree);
+//static GtkStatusbar * get_view_statusbar(GtkDiffTree *tree);
 static GtkWidget * gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
-static Status gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path);
 //static char * dup_and_add_slash (char *path);
 static gint gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event);
 static gint gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event);
@@ -163,10 +161,7 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], 
 
 	// Nobody can be using these chunks, yet...
 	g_mem_chunk_destroy (list->row_mem_chunk);
-	list->row_mem_chunk = g_mem_chunk_new ("DiffTreeRow mem chunk",
-						sizeof (DiffTreeRow),
-						sizeof (DiffTreeRow) * 512, 
-						G_ALLOC_AND_FREE);
+	list->row_mem_chunk = g_mem_chunk_create (DiffTreeRow, 1024, G_ALLOC_AND_FREE);
 
 	gtk_clist_set_selection_mode     (list, GTK_SELECTION_BROWSE);
 	gtk_clist_set_auto_sort          (list, TRUE);
@@ -226,79 +221,6 @@ gtk_diff_tree_set_view (GtkDiffTree *tree, Status status)
 }
 */
 
-static Status
-gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
-{
-	regmatch_t      matches[MATCHES];
-	Status          result = eFileError;
-
-	g_return_val_if_fail (buffer, eFileError);
-	g_return_val_if_fail (path,   eFileError);
-
-	if (regexec (&reg_same, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileSame;
-	}
-	else if (regexec (&reg_diff, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileDiff;
-	}
-	else if (regexec (&reg_only, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileLeft;				// This may be overridden
-	}
-	else if (regexec (&reg_type, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileType;
-	}
-	else
-	{
-		result = eFileError;
-	}
-
-	if (result == eFileError)
-	{
-		g_string_truncate (path, 0);
-	}
-	else
-	{
-		int l = strlen (tree->left);
-		int r = strlen (tree->right);
-
-		GString *file = g_string_new (buffer + matches[2].rm_so);
-
-		//g_print ("	path = %s", buffer);
-		g_string_assign (path, buffer + matches[1].rm_so);
-		//g_print ("	path = %s", path->str);
-		g_string_truncate (path, matches[1].rm_eo - matches[1].rm_so);
-		//g_print ("	path = %s\n", path->str);
-		g_string_append (path, G_DIR_SEPARATOR_S);
-		//g_print ("	path = %s\n", path->str);
-
-		g_string_truncate (file, matches[2].rm_eo - matches[2].rm_so);
-		//g_print ("	file = %s\n", file->str);
-		g_string_append (path, file->str);
-		g_string_free (file, TRUE);
-
-		if (strncmp (tree->left, path->str, l) == 0)
-		{
-			g_string_erase (path, 0, l + 1);			// Same, diff, type, and left only
-		}								// include slash /
-		else if (strncmp (tree->right, path->str, r) == 0)
-		{
-			g_string_erase (path, 0, r + 1);			// inlclude slash /
-			result = eFileRight;					// Right-only
-		}
-		else
-		{
-			result = eFileError;
-		}
-	}
-
-	//g_print ("path = %s\n", path->str);
-	return result;
-}
-
 /*
 static char *
 dup_and_add_slash (char *path)
@@ -326,6 +248,7 @@ dup_and_add_slash (char *path)
 // get someone else to do the spawn / parse stuff (MDI maybe?)
 // tree_dialog_draw (tree, eFileAll);
 
+/*
 static GtkStatusbar *
 get_view_statusbar(GtkDiffTree *tree)
 {
@@ -339,10 +262,14 @@ get_view_statusbar(GtkDiffTree *tree)
 
 	return GTK_STATUSBAR (app->statusbar);
 }
+*/
 
 static void
 gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 {
+	FILE	 *file    = NULL;
+	//Progress *progress = NULL;
+
 	g_return_if_fail (tree  != NULL);
 	g_return_if_fail (left  != NULL);
 	g_return_if_fail (right != NULL);
@@ -355,62 +282,22 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	tree->left  = g_strdup (left);
 	tree->right = g_strdup (right);
 
-	{
-	char	 buffer[_POSIX_PATH_MAX * 2 + 50]; // XXX possible buffer overrun here
-	FILE	*f       = NULL;
-	char    *base    = NULL;
-	GString *path    = g_string_new (NULL);
-	GString *old_loc = g_string_new (NULL);
-	GString *new_loc = g_string_new (NULL);
-	Status   status  = eFileError;
-	Progress *progress = NULL;
-
-	progress = progress_new (get_view_statusbar(tree));
+	//progress = progress_new (get_view_statusbar(tree));
 	//progress = progress_new (global_statusbar);
 
 	// P -> no 'right' files! will need to stat left/right files
-	//f = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
-	f = run_diff (g_strdup_printf ("diff -qrs %s %s", tree->left, tree->right));
-	//f = stdin;
+	//file = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
+	file = run_diff (g_strdup_printf ("diff -qrs %s %s", tree->left, tree->right));
 
-	g_return_if_fail (f);
+	g_return_if_fail (file);
 
-	tree->root = g_node_new (NULL);
-	g_return_if_fail (tree->root);
+	tree->root = tree_parse_diff (file, tree->left, tree->right, NULL);
 
-	while (fgets (buffer, sizeof (buffer), f))
-	{
-		status = gtk_diff_tree_parse_line (tree, buffer, path);
-		//g_print ("parsed: %s\n", path->str);
-
-		tree_node_add (tree->root, path->str, status, path->str);
-
-		g_string_assign (new_loc, path->str);
-
-		base = g_basename (new_loc->str);
-		if (base == new_loc->str)			// just a file in the root directory
-		{
-			g_string_assign (new_loc, ".");
-		}
-
-		g_string_truncate (new_loc, (base - new_loc->str) - 1);
-		//g_print ("new_loc = %s, old_loc = %s\n", new_loc->str, old_loc->str);
-
-		if ((strcmp (new_loc->str, old_loc->str) != 0))// &&
-		    //(strlen (new_loc->str) > strlen (old_loc->str)))		// files between dirs in list!
-		{
-			//g_print ("progress %s\n", new_loc->str);
-			progress_set_text (progress, new_loc->str);
-			g_string_assign (old_loc, new_loc->str);
-		}
-	}
-
-	fclose (f);			// temp
+	fclose (file);			// temp
 	//tree_print (tree->root, 0);	// temp
 
-	progress_free (progress);
+	//progress_free (progress);
 	tree_dialog_draw (tree, eFileAll);
-	}
 }
 
 //______________________________________________________________________________
@@ -434,7 +321,7 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 static void
 gtk_diff_tree_show (GtkWidget *widget)
 {
-	g_print ("gtk_diff_tree_show\n");
+	//g_print ("gtk_diff_tree_show\n");
 	old_show_handler (widget);
 }
 
@@ -443,7 +330,7 @@ gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area)
 {
 	GtkDiffTree *tree = GTK_DIFF_TREE (widget);
 
-	g_print ("gtk_diff_tree_draw\n");
+	//g_print ("gtk_diff_tree_draw\n");
 
 	if (!tree->drawn)
 	{
@@ -457,7 +344,7 @@ gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area)
 static void
 gtk_diff_tree_realize (GtkWidget *widget)
 {
-	g_print ("gtk_diff_tree_realize\n");
+	//g_print ("gtk_diff_tree_realize\n");
 	old_realize_handler (widget);
 }
 
@@ -558,8 +445,9 @@ gtk_diff_tree_destroy (GtkObject *object)
 }
 
 static void
-save_recurse (GNode *node)
+save_recurse (TreeNode *node)
 {
+	/*
 	TreeNode *tree   = NULL;
 	char      status = 0;
 
@@ -590,6 +478,7 @@ save_recurse (GNode *node)
 
 		node = node->next;
 	}
+	*/
 }
 
 void

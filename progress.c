@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #include <gnome.h>
 #include "progress.h"
@@ -61,6 +61,8 @@ progress_set_text (Progress *progress, char *text)
 	guint msgid = 0;
 	char *message = NULL;
 	
+	g_return_if_fail (progress != NULL);
+
 	if (progress->context)
 	{
 		gtk_statusbar_pop (progress->status, progress->context);
@@ -81,3 +83,37 @@ progress_set_text (Progress *progress, char *text)
 	g_free (message);
 }
 
+/*
+	while (fgets (buffer, sizeof (buffer), file))
+	{
+		status = gtk_diff_tree_parse_line (left, right, buffer, path);
+		//g_print ("parsed: %d, %s\n", status, path->str);
+
+		parts = g_strsplit (path->str, G_DIR_SEPARATOR_S, -1);
+
+		//new node;
+		//node->left, right, relative, left_root?, right_root?, status
+		
+		//RR tree_node_add (node, path->str, status, path->str);
+
+		g_string_assign (new_loc, path->str);
+
+		base = g_basename (new_loc->str);
+		if (base == new_loc->str)			// just a file in the root directory
+		{
+			g_string_assign (new_loc, ".");
+		}
+
+		g_string_truncate (new_loc, (base - new_loc->str) - 1);
+		//g_print ("new_loc = %s, old_loc = %s\n", new_loc->str, old_loc->str);
+
+		if ((strcmp (new_loc->str, old_loc->str) != 0))// &&
+		    //(strlen (new_loc->str) > strlen (old_loc->str)))		// files between dirs in list!
+		{
+			//g_print ("progress %s\n", new_loc->str);
+			g_string_assign (old_loc, new_loc->str);
+		}
+
+		g_strfreev (parts);
+	}
+*/

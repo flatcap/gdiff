@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.9 $ */
+/* $Revision: 1.10 $ */
 
 #ifndef _TREE_H_
 #define _TREE_H_
@@ -31,19 +31,6 @@ gboolean	tree_dialog_parse (GtkDiffTree *tree, char *left, char *right);
 gboolean	tree_dialog_draw  (GtkDiffTree *tree, Status status);
 //void		tree_dialog_free  (GtkDiffTree *tree);
 
-typedef struct _DiffTreeRow DiffTreeRow;
-
-struct _DiffTreeRow
-{
-	GtkCTreeRow row;
-
-	char   *name;
-	char *path;
-	Status  status;
-
-	//XXX FUTURE
-	TreeNode *node;
-};
 
 #if 0
 	construct with base_left, base_right, return a widget

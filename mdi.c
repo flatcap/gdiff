@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.34 $ */
+/* $Revision: 1.35 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -90,7 +90,7 @@ view_changed (GnomeMDI *mdi, GtkWidget *oldview)
 	//g_print ("object = %d\n", gtk_object_get_type());
 	//g_print ("view   = %d\n", GTK_OBJECT_TYPE (bin->child));
 
-	g_print ("active_child = %p\nactive_view = %p\nactive_window = %p\n\n", mdi->active_child, mdi->active_view, mdi->active_window);
+	//g_print ("active_child = %p\nactive_view = %p\nactive_window = %p\n\n", mdi->active_child, mdi->active_view, mdi->active_window);
 
 	// change the menus (obj type)
 	set_menu_state (mdi);

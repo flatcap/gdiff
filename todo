@@ -71,6 +71,9 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+keep DiffOptions structure, but make it an integral part of DiffChild
+not a pointer but a member (see info)
+
 a change of style for list or file -> new 'view' of same data!
 obviously changing 'display right' has to work on the same tree.
 
@@ -516,5 +519,18 @@ GtkWidget* gtk_widget_get_toplevel (GtkWidget *widget)
 
 GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
 This could allow me to have my exclusions list with check boxes
+
+-----
+if you have the struct
+
+struct jim
+{
+	struct bob b;
+	int x;
+	int y;
+};
+
+you don't need to cast to get at parent (bob) use j->bob.member;
+-----
 
 ________________________________________________________________________________

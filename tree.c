@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.16 $ */
+/* $Revision: 1.17 $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,14 +28,15 @@
 #include "global.h"
 
 /*----------------------------------------------------------------------------*/
-static GtkStyle * get_status_style (Status status, gboolean node);
-static char * get_status_text (Status actual, Status view, gboolean node);
-static void set_row_data (GList *list, TreeNode *data);
-static void tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status);
+//static GtkStyle * get_status_style (Status status, gboolean node);
+//static char * get_status_text (Status actual, Status view, gboolean node);
+//static void set_row_data (GList *list, TreeNode *data);
+static void tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, TreeNode *node, Status status);
 
 gboolean tree_dialog_draw (GtkDiffTree *tree, Status status);
 /*----------------------------------------------------------------------------*/
 
+#if 0
 static char *
 get_status_text (Status actual, Status view, gboolean node)
 {
@@ -109,10 +110,12 @@ set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
 	diffrow->path   = g_strdup (data->path);
 	diffrow->status = data->status;
 }
+#endif
 
 static void
-tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status)
+tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, TreeNode *node, Status status)
 {
+	/*
 	//GtkCTreeNode *new_node = NULL;
 	GtkCTreeNode *sibling  = NULL;
 	TreeNode     *tnode    = NULL;
@@ -169,6 +172,7 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Stat
 
 		node = node->next;
 	}
+	*/
 }
 
 gboolean 
@@ -193,7 +197,7 @@ tree_dialog_draw (GtkDiffTree *tree, Status status)
 
 	gtk_clist_freeze     (GTK_CLIST (tree));
 	gtk_clist_clear      (GTK_CLIST (tree));
-	tree_dialog_traverse (GTK_DIFF_TREE (tree), NULL, tree->root->children, status);
+	tree_dialog_traverse (GTK_DIFF_TREE (tree), NULL, (TreeNode*) tree->root->gnode.children, status);
 	gtk_clist_thaw       (GTK_CLIST (tree));
 
 	return TRUE;

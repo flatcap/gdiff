@@ -17,30 +17,19 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
 
 #include <gnome.h>
 #include "diff.h"
+#include "node.h"
 
 #define GTK_TYPE_DIFF_TREE		(gtk_diff_tree_get_type ())
 #define GTK_DIFF_TREE(obj)		GTK_CHECK_CAST (obj, gtk_diff_tree_get_type (), GtkDiffTree)
 #define GTK_DIFF_TREE_CLASS(klass)	GTK_CHECK_CLASS_CAST (klass, gtk_diff_tree_get_type (), GtkDiffTreeClass)
 #define GTK_IS_DIFF_TREE(obj)		GTK_CHECK_TYPE (obj, gtk_diff_tree_get_type ())
-
-typedef enum
-{
-	eFileSame  = 1 << 0,		// Obviously these are mutually exclusive for files,
-	eFileLeft  = 1 << 1,		// but directories can accumulate them.
-	eFileRight = 1 << 2,
-	eFileDiff  = 1 << 3,
-	eFileType  = 1 << 4,
-	eFileError = 1 << 5,
-
-	eFileAll   = (1 << 6) - 1
-} Status;
 
 typedef struct	_GtkDiffTree		GtkDiffTree;
 typedef struct	_GtkDiffTreeClass	GtkDiffTreeClass;
@@ -54,8 +43,6 @@ void		gtk_diff_tree_save_list		(GtkDiffTree *tree);
 //void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
 //void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
 
-// Signal handlers
-
 struct _GtkDiffTree
 {
 	GtkCTree ctree;
@@ -63,11 +50,11 @@ struct _GtkDiffTree
 	DiffOptions *diff;
 	GnomeMDIChild *mdi_child;	// do we need this more/less than mdi?
 
-	char	*left;
-	char	*right;
-	Status	 view;
+	char     *left;
+	char     *right;
+	Status    view;
 
-	GNode	*root;
+	TreeNode *root;
 
 	gint flag1;
 	gboolean drawn;

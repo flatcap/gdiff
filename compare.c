@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.21 $ */
+/* $Revision: 1.22 $ */
 
 #include <gnome.h>
 #include "compare.h"
@@ -163,8 +163,6 @@ gtk_compare_new (DiffOptions *diff)
 	list->columns = columns;
 	compare->diff = diff;
 
-	gtk_clist_append (list, text);
-
 	// Nobody can be using these chunks, yet...
 	g_mem_chunk_destroy (list->row_mem_chunk);
 	list->row_mem_chunk = g_mem_chunk_new ("CompareRow mem chunk",
@@ -172,6 +170,7 @@ gtk_compare_new (DiffOptions *diff)
 						sizeof (CompareRow) * 1024, 
 						G_ALLOC_AND_FREE);
 
+	gtk_clist_append (list, text);
 
 	return widget;
 }

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.12 $ */
+/* $Revision: 1.13 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -40,7 +40,6 @@ main (int argc, char *argv[], char *envv[])
 	textdomain (PACKAGE);
 
 	diff = gnome_init_and_parse_args (PACKAGE, VERSION, argc, argv);
-
 	mdi  = mdi_new (PACKAGE, WINNAME);
 
 	g_return_val_if_fail (mdi != NULL, 1);
