@@ -11,7 +11,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	gd
+all:	gd tags libtags
 
 gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o
 	$(CC) $(LIBS) $^ -o $@
@@ -69,14 +69,17 @@ g:	gnome.o
 testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
-tags:	phony # $(SOURCE) $(HEADERS)
-	ctags -i+p *.[ch] /usr/src/gnome-libs-1.0.14/libgnome/*.[ch] /usr/src/gnome-libs-1.0.14/libgnomeui/*.[ch] /usr/src/gtk+-1.2.3/gdk/*.[ch] /usr/src/gtk+-1.2.3/gtk/*.[ch] /usr/src/glib-1.2.3/*.[ch]
+libtags:
+	ctags -f libtags -i+p /usr/src/gnome-libs-1.0.14/libgnome/*.[ch] /usr/src/gnome-libs-1.0.14/libgnomeui/*.[ch] /usr/src/gtk+-1.2.3/gdk/*.[ch] /usr/src/gtk+-1.2.3/gtk/*.[ch] /usr/src/glib-1.2.3/*.[ch]
+
+tags:	phony
+	ctags -i+p *.[ch]
 
 clean:
 	rm -f *.o $(PROGS)
 
 veryclean: clean
-	rm tags
+	rm tags libtags
 
 phony:
 

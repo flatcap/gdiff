@@ -11,6 +11,29 @@ typedef gchar     *(*GnomeMDIChildConfigFunc)  (GnomeMDIChild *, gpointer);
 typedef GtkWidget *(*GnomeMDIChildLabelFunc)   (GnomeMDIChild *, GtkWidget *, gpointer);
 */
 
+gint 
+tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
+{
+	GtkCTreeRow    *row1 = (GtkCTreeRow *) ptr1;
+	GtkCTreeRow    *row2 = (GtkCTreeRow *) ptr2;
+
+	int             leaf1 = (row1->is_leaf);
+	int             leaf2 = (row2->is_leaf);
+
+	char           *text1 = GTK_CELL_PIXTEXT (row1->row.cell[clist->sort_column])->text;
+	char           *text2 = GTK_CELL_PIXTEXT (row2->row.cell[clist->sort_column])->text;
+
+	if (leaf1 != leaf2)							// One leaf and one node
+
+	{
+		return ((leaf1) ? 1 : -1);
+	}
+	else
+	{
+		return strcmp (text1, text2);
+	}
+}
+
 GtkWidget *
 my_child_create_view (GnomeMDIChild * child, gpointer data)
 {
@@ -29,6 +52,13 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
+
+	//gtk_ctree_set_line_style (GTK_CTREE (pTree), GTK_CTREE_LINES_TABBED);
+	gtk_clist_set_selection_mode     (GTK_CLIST (tree), GTK_SELECTION_BROWSE);
+	gtk_clist_set_auto_sort          (GTK_CLIST (tree), TRUE);
+	gtk_clist_set_compare_func       (GTK_CLIST (tree), tree_compare);
+	gtk_clist_set_column_auto_resize (GTK_CLIST (tree), 0, TRUE);
+	gtk_clist_column_titles_passive  (GTK_CLIST (tree));
 
 	diff = data;
 	g_print ("l/r %s/%s\n", diff->left, diff->right);

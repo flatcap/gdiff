@@ -37,8 +37,8 @@ gtk_diff_tree_get_type (void)
 	//g_print ("gtk_diff_tree_get_type\n");
 	if (!diff_tree_type)
 	{
+		// has to be 'derived' from ctree to be able to cast to it!
 		diff_tree_type = gtk_type_unique (gtk_ctree_get_type(), &diff_tree_info);
-		make the parent a widget, then call the construct fn
 	}
 
 	return diff_tree_type;
@@ -155,21 +155,26 @@ gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
 
 		GString *file = g_string_new (buffer + matches[2].rm_so);
 
+		//g_print ("	path = %s", buffer);
 		g_string_assign (path, buffer + matches[1].rm_so);
+		//g_print ("	path = %s", path->str);
 		g_string_truncate (path, matches[1].rm_eo - matches[1].rm_so);
+		//g_print ("	path = %s\n", path->str);
 		g_string_append (path, G_DIR_SEPARATOR_S);
+		//g_print ("	path = %s\n", path->str);
 
 		g_string_truncate (file, matches[2].rm_eo - matches[2].rm_so);
+		//g_print ("	file = %s\n", file->str);
 		g_string_append (path, file->str);
 		g_string_free (file, TRUE);
 
 		if (strncmp (tree->left, path->str, l) == 0)
 		{
-			g_string_erase (path, 0, l);				// Same, diff, type, and left only
-		}
+			g_string_erase (path, 0, l + 1);			// Same, diff, type, and left only
+		}								// include slash /
 		else if (strncmp (tree->right, path->str, r) == 0)
 		{
-			g_string_erase (path, 0, r);
+			g_string_erase (path, 0, r + 1);			// inlclude slash /
 			result = eFileRight;					// Right-only
 		}
 		else
@@ -178,6 +183,7 @@ gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
 		}
 	}
 
+	//g_print ("path = %s\n", path->str);
 	return result;
 }
 
@@ -186,6 +192,27 @@ gtk_diff_tree_display (GtkDiffTree *tree)
 {
 	g_print ("gtk_diff_tree_display\n");
 	tree_dialog_draw (tree, eFileAll);
+}
+
+char *
+dup_and_add_slash (char *path)
+{
+	char *temp = NULL;
+	int end = 0;
+
+	g_return_val_if_fail (path != NULL, NULL);
+
+	end = strlen (path) - 1;
+	if ((end >= 0) && (path[end] == G_DIR_SEPARATOR))
+	{
+		temp = g_strdup (path);
+	}
+	else
+	{
+		temp = g_strconcat (path, G_DIR_SEPARATOR_S, NULL);
+	}
+
+	return temp;
 }
 
 // TODO move this code out of the tree
@@ -201,6 +228,8 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	g_free (tree->left);
 	g_free (tree->right);
 
+	//tree->left  = dup_and_add_slash (left);
+	//tree->right = dup_and_add_slash (right);
 	tree->left  = g_strdup (left);
 	tree->right = g_strdup (right);
 
@@ -216,7 +245,7 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 
 	progress = progress_new ();
 
-	f = run_diff (g_strdup_printf ("diff -qrs %s %s", tree->left, tree->right));
+	f = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
 	//f = stdin;
 
 	g_return_if_fail (f);
