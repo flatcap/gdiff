@@ -144,7 +144,7 @@ app_created (GnomeMDI * mdi, GnomeApp * app)
 {
 	//g_print ("app_created\n");
 	//gnome_app_create_menus (app, main_menu);
-	menu_create (app);
+	menu_create (mdi, app);
 	gtk_window_set_default_size (GTK_WINDOW (app), 500, 500);
 }
 

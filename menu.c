@@ -1,5 +1,7 @@
 #include "menu.h"
-#include "file.h"
+#include "derived.h"
+#include "node.h"
+#include "tree.h"
 
 void file_open_cb	(GtkWidget * widget, gpointer data);
 void file_close_cb	(GtkWidget * widget, gpointer data);
@@ -94,13 +96,13 @@ void menu_set_view_defaults (GtkMenuShell *shell)
 	}
 }
 
-void menu_create (GnomeApp *app)
+void menu_create (GnomeMDI *mdi, GnomeApp *app)
 {
 	GtkWidget *status = NULL;
 
 	g_return_if_fail (app != NULL);
 
-	gnome_app_create_menus (app, main_menu);
+	gnome_app_create_menus_with_data (app, main_menu, mdi);
 	
 	g_return_if_fail (app->menubar != NULL);
 
@@ -145,6 +147,33 @@ void about_cb (GtkWidget * widget, gpointer data)
 
 void show_cb (GtkWidget * widget, gpointer data)
 {
-	g_print ("show_cb %s, %p\n", gtk_widget_get_name (widget), data);
+	GnomeMDI *mdi = NULL;
+	GtkWidget *w = NULL;
+	GtkBin *bin = NULL;
+	GtkWidget *child = NULL;
+	GtkDiffTree *tree = NULL;
+	GtkCList *list = NULL;
+	GList *sel = NULL;
+	GList *sel_end =NULL;
+	GtkCListRow *row = NULL;
+	//TreeNode *node = NULL;
+	DiffTreeRow *dtr = NULL;
+
+	mdi = GNOME_MDI (data);
+	w = gnome_mdi_get_active_view (mdi);
+	bin = GTK_BIN (w);
+	child = bin->child;
+	tree = GTK_DIFF_TREE (child);
+	list = GTK_CLIST (tree);
+
+	sel = list->selection;
+	sel_end = list->selection_end;
+
+	row = GTK_CLIST_ROW (sel);
+
+	dtr = (DiffTreeRow*) row;
+	//node = row->data;
+
+	g_print ("show_cb %s, %d\n", dtr->name, dtr->status);
 }
 

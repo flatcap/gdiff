@@ -3,7 +3,7 @@
 
 #include <gnome.h>
 
-void menu_create (GnomeApp *app);
+void menu_create (GnomeMDI *mdi, GnomeApp *app);
 
 #endif // _MENU_H_
 

@@ -90,6 +90,16 @@ get_status_style (Status status, gboolean node)
 }
 
 void
+set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
+{
+	DiffTreeRow *row = list->data;
+
+	//g_print ("%s, %d\n", data->name, data->status);
+	row->name   = g_strdup (data->name);
+	row->status = data->status;
+}
+
+void
 tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status)
 {
 	//GtkCTreeNode *new_node = NULL;
@@ -115,6 +125,7 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Stat
 					text[1] = get_status_text (tnode->status, status, TRUE);
 					//g_print ("Node1: %s, %s\n", text[0], text[1]);
 					sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_closed, mask_closed, pixmap_open, mask_open, FALSE, FALSE);
+					set_row_data ((GList*) sibling, tnode);
 				}
 			}
 			else
@@ -124,6 +135,7 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Stat
 					text[1] = get_status_text (tnode->status, status, FALSE);
 					//g_print ("Node2: %s, %s\n", text[0], text[1]);
 					sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_leaf, mask_leaf, NULL, NULL, TRUE, FALSE);
+					set_row_data ((GList*) sibling, tnode);
 					g_free (text[1]);
 					//g_print ("%s (%d) %p\n", tnode->name, tnode->status, sibling);
 				}
@@ -198,73 +210,4 @@ tree_dialog_free (GtkDiffTree *tree)
 	g_free (tree);
 }
 
-/*
-Status
-tree_dialog_parse_diff_line (GtkDiffTree *tree, char *buffer, GString *path)
-{
-	regmatch_t      matches[MATCHES];
-	Status          result = eFileError;
-
-	g_return_val_if_fail (buffer, eFileError);
-	g_return_val_if_fail (path, eFileError);
-
-	if (regexec (&reg_same, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileSame;
-	}
-	else if (regexec (&reg_diff, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileDiff;
-	}
-	else if (regexec (&reg_only, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileLeft;						// This may be overridden
-	}
-	else if (regexec (&reg_type, buffer, MATCHES, matches, 0) == 0)
-	{
-		result = eFileType;
-	}
-	else
-	{
-		result = eFileError;
-	}
-
-	if (result == eFileError)
-	{
-		g_string_truncate (path, 0);
-	}
-	else
-	{
-		int l = strlen (tree->left);
-		int r = strlen (tree->right);
-
-		GString *file = g_string_new (buffer + matches[2].rm_so);
-
-		g_string_assign (path, buffer + matches[1].rm_so);
-		g_string_truncate (path, matches[1].rm_eo - matches[1].rm_so);
-		g_print ("len = %d\n", strlen (path->str));
-		g_string_append (path, G_DIR_SEPARATOR_S);
-
-		g_string_truncate (file, matches[2].rm_eo - matches[2].rm_so);
-		g_string_append (path, file->str);
-		g_string_free (file, TRUE);
-
-		if (strncmp (tree->left, path->str, l) == 0)
-		{
-			g_string_erase (path, 0, l);				// Same, diff, type, and left only
-		}
-		else if (strncmp (tree->right, path->str, r) == 0)
-		{
-			g_string_erase (path, 0, r);
-			result = eFileRight;					// Right-only
-		}
-		else
-		{
-			result = eFileError;
-		}
-	}
-
-	return result;
-}
-*/
 

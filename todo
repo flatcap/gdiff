@@ -157,3 +157,5 @@ extra colour of 'default' == not set
 new directories aren't recursed, limitation of diff
 
 option -- treat empty files as missing
+
+don't allow the selection of directories

@@ -94,13 +94,12 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
 	}
 
 	// Nobody can be using these chunks, yet...
-	/*
 	g_mem_chunk_destroy (list->row_mem_chunk);
 	list->row_mem_chunk = g_mem_chunk_new ("clist row mem chunk",
-						sizeof (GtkCListRow),
-						sizeof (GtkCListRow) * 128, 
+						sizeof (DiffTreeRow),
+						sizeof (DiffTreeRow) * 128, 
 						G_ALLOC_AND_FREE);
-	*/
+
 	return widget;
 }
 
