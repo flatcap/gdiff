@@ -68,3 +68,6 @@ make the colour scheme a separate .rc file
 
 GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
 This could allow me to have my exlusions list with check boxes
+
+the overview wiget:	A click means change the view to one centred HERE
+			A drag should send scroll messages to the window (up/down) to match the mouse posn
