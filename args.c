@@ -1,4 +1,4 @@
-/* $Revision: 1.18 $ */
+/* $Revision: 1.19 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -9,7 +9,11 @@
 #include "diff.h"
 
 /*----------------------------------------------------------------------------*/
-DiffOptions * gnome_init_and_parse_args (const char *app_id, const char *app_version, int argc, char *argv[]);
+static DiffType	identify_path   (char *path);
+static void	swap_strings    (char **a, char **b);
+
+void		categorise_args (DiffOptions *diff);
+DiffOptions *	gnome_init_and_parse_args (const char *app_id, const char *app_version, int argc, char *argv[]);
 /*----------------------------------------------------------------------------*/
 
 /* return a pointer to an options object */
@@ -104,6 +108,10 @@ gnome_init_and_parse_args (const char *app_id,
 				diff->left  = g_strdup (left);
 				diff->right = g_strdup (right);
 				categorise_args (diff);
+
+				g_print ("type  = %s\n",     (diff->type == File) ? "file" : "dir");
+				g_print ("left  = %s\n", diff->left);
+				g_print ("right = %s\n", diff->right);
 			}
 		}
 	}
@@ -129,102 +137,77 @@ identify_path (char *path)
 	return Error;
 }
 
-gboolean
+void
+swap_strings (char **a, char **b)
+{
+	char *c = *a;
+	*a = *b;
+	*b = c;
+}
+
+void
 categorise_args (DiffOptions *diff)
 {
-	//gboolean reversed = FALSE;
-	DiffType ltype = Error;
-	DiffType rtype = Error;
-	DiffType ptype = Error;
-	char *dir = NULL;
-	char *file = NULL;
-	char *path = NULL;
-	char *base = NULL;
+	gboolean  reversed = FALSE;
+	DiffType  ltype    = Error;
+	DiffType  rtype    = Error;
+	char     *path     = NULL;
 
-	g_return_val_if_fail (diff        != NULL, FALSE);
-	g_return_val_if_fail (diff->left  != NULL, FALSE);
-	g_return_val_if_fail (diff->right != NULL, FALSE);
+	g_return_if_fail (diff        != NULL);
+	g_return_if_fail (diff->left  != NULL);
+	g_return_if_fail (diff->right != NULL);
 
 	ltype = identify_path (diff->left);
 	rtype = identify_path (diff->right);
 
+	diff->type = Error;
+
 	if (ltype == Error)
 	{
-		g_print ("left path is a non-file\n");
-		return FALSE;
+		diff->last_error = "left path is a non-file";
+		return;
 	}
 	else if (rtype == Error)
 	{
-		g_print ("right path is a non-file\n");
-		return FALSE;
+		diff->last_error = "right path is a non-file";
+		return;
 	}
 
 	if (ltype == rtype)
 	{
-		if (ltype == File)
-		{
-			diff->type = File;
-		}
-		else
-		{
-			diff->type = Dir;
-		}
+		diff->type = ltype;				// can only be File or Dir
+		return;
 	}
-	else
+
+	if (ltype == Dir)					// We must have one file and one dir
 	{
-		dir  = (ltype == Dir)  ? diff->left : diff->right;
-		file = (ltype == File) ? diff->left : diff->right;
-
-		g_print ("file = %s\n", file);
-		g_print ("dir  = %s\n", dir);
-
-		base = g_basename (file);
-		if (!base)
-			base = file;
-
-		path = g_strjoin (G_DIR_SEPARATOR_S, dir, base, NULL);
-
-		g_print ("path = %s\n", path);
-
-		ptype = identify_path (path);
-		if (ptype != Error)
-		{
-			if (((ltype == File) && (ptype == File)) ||
-			    ((rtype == File) && (ptype == File)))
-			{
-				if (ltype == Dir)
-				{
-					g_free (diff->left);
-					diff->left = path;
-				}
-				else
-				{
-					g_free (diff->right);
-					diff->right = path;
-				}
-				diff->type = File;
-			}
-			else
-			{
-				g_print ("args are different types\n");
-				g_free (path);
-				return FALSE;
-			}
-		}
-		else
-		{
-			// see if 'file' is a patch
-			// see if 'dir' is an RCS / CVS dir
-			g_print ("path %s doesn't exist\n", path);
-			g_free (path);
-			return FALSE;
-		}
+		swap_strings (&diff->left, &diff->right);	// This seems strange, but it simplifies
+		reversed = TRUE;				// the logic (below) immensely
 	}
 
-	g_print ("left  = %s, %d\n", diff->left,  ltype);
-	g_print ("right = %s, %d\n", diff->right, rtype);
-	g_print ("type  = %s\n",     (diff->type == File) ? "file" : "dir");
+	path = g_strjoin (G_DIR_SEPARATOR_S, diff->right, g_basename (diff->left), NULL);
 
-	return TRUE;
+	switch (identify_path (path))
+	{
+	case File:	g_free (diff->right);
+			diff->right = g_strdup (path);
+			diff->type = File;
+			break;
+
+	case Dir:	diff->last_error = "args are different types";
+			break;
+	
+	default:	// see if 'file' is a patch
+			// see if 'dir' is an RCS / CVS dir
+			diff->last_error = "path %s doesn't exist", path;
+			break;
+	}
+
+	if (reversed)
+	{
+		swap_strings (&diff->left, &diff->right);
+	}
+
+	g_free (path);
 }
 

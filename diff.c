@@ -1,4 +1,4 @@
-/* $Revision: 1.4 $ */
+/* $Revision: 1.5 $ */
 
 #include <gnome.h>
 #include "diff.h"
@@ -16,9 +16,10 @@ diffoptions_new (void)
 	diff = g_malloc0 (sizeof (DiffOptions));
 	if (diff)
 	{
-		diff->left  = NULL;
-		diff->right = NULL;
-		diff->root  = NULL;
+		diff->left       = NULL;
+		diff->right      = NULL;
+		diff->root       = NULL;
+		diff->last_error = NULL;
 	}
 
 	return diff;
