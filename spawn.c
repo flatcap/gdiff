@@ -18,23 +18,14 @@ FILE * run_diff (char *prog);
 int
 main (int argc, char *argv[])
 {
-	char *left  = "data/read1.c";
-	char *right = "data/read2.c";
-	char *diff  = "diff %s %s";
-	char *exec = NULL;
 	char buffer[1024];
+	char *exec = "diff data/read1.c data/read2.c";
 	char *clean = NULL;
 	FILE *file = NULL;
 
 	gnome_init (APP, VER, argc, argv);
-	memset (buffer, 0, sizeof (buffer));
-
-	exec = g_strdup_printf (diff, left, right);
-
-	g_print ("exec = '%s'\n", exec);
 
 	file = run_diff (exec);
-
 	while (fgets (buffer, sizeof (buffer), file))
 	{
 		clean = g_strchomp (g_strdup (buffer));
@@ -43,17 +34,15 @@ main (int argc, char *argv[])
 	}
 
 	fclose (file);
-	g_free (exec);
-
 	return 0;
 }
 
 FILE *
-run_diff (char *prog)
+run_diff (gchar *prog)
 {
-	int     fds[2] = { -1, -1 };
-	int     pid    = -1;
-	char  **parts  = NULL;
+	gint    fds[2] = { -1, -1 };
+	gint    pid    = -1;
+	gchar  **parts  = NULL;
 	FILE   *file   = NULL;
 
 	if (!pipe (fds))
@@ -79,3 +68,4 @@ run_diff (char *prog)
 
 	return file;
 }
+
