@@ -5,12 +5,12 @@
 #include "derived.h"
 #include "compare.h"
 
-/*
+#if 0
 typedef GtkWidget *(*GnomeMDIChildViewCreator) (GnomeMDIChild *, gpointer);
 typedef GList     *(*GnomeMDIChildMenuCreator) (GnomeMDIChild *, GtkWidget *, gpointer);
 typedef gchar     *(*GnomeMDIChildConfigFunc)  (GnomeMDIChild *, gpointer);
 typedef GtkWidget *(*GnomeMDIChildLabelFunc)   (GnomeMDIChild *, GtkWidget *, gpointer);
-*/
+#endif
 
 gint 
 tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
@@ -206,7 +206,7 @@ mdi_add_compare (GnomeMDI *mdi, char *left, char *right)
 
 	sprintf (name, "%s\n%s", left, right);
 
-	//gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
+	//gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL GNOME_MDI_DEFAULT_MODE
 	child = gnome_mdi_generic_child_new (name);
 
 	gnome_mdi_generic_child_set_view_creator (child, my_child_create_compare_view, diff);

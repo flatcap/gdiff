@@ -59,6 +59,8 @@ canvas:	canvas.o
 	$@ &
 p:	popt.o
 	$(CC) $(LIBS) $^ -o $@
+hi:	hi.o
+	$(CC) $(LIBS) $^ -o $@
 args:	args.o
 	$(CC) $(POPT) $(LIBS) $^ -o $@
 auto:	auto.o

@@ -15,30 +15,6 @@ FILE * spawn_diff (char *args, char *left, char *right)
 
 FILE * run_diff (char *prog);
 
-/*
-int
-main (int argc, char *argv[])
-{
-	char buffer[1024];
-	char *exec = "diff data/read1.c data/read2.c";
-	char *clean = NULL;
-	FILE *file = NULL;
-
-	gnome_init (APP, VER, argc, argv);
-
-	file = run_diff (exec);
-	while (fgets (buffer, sizeof (buffer), file))
-	{
-		clean = g_strchomp (g_strdup (buffer));
-		g_print ("read '%s'\n", clean);
-		g_free (clean);
-	}
-
-	fclose (file);
-	return 0;
-}
-*/
-
 FILE *
 run_diff (gchar *prog)
 {

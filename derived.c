@@ -314,11 +314,19 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 }
 
 static gint (* old_button_handler) (GtkWidget *widget, GdkEventButton *event) = NULL;
+static gint (* old_key_handler)    (GtkWidget *widget, GdkEventKey    *event) = NULL;
 
 #if 0
 double click prototype needs to be:
 int handler (GtkWidget *tree, TreeNode *node);
 #endif
+
+gint
+gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event)
+{
+	//g_print ("key press\n");
+	return old_key_handler (widget, event);
+}
 
 gint
 gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
@@ -367,7 +375,9 @@ gtk_diff_tree_class_init (GtkDiffTreeClass * klass)
 
 	widget_class = (GtkWidgetClass*) klass;
 	old_button_handler = widget_class->button_press_event;
+	old_key_handler    = widget_class->key_press_event;
 	widget_class->button_press_event = gtk_diff_tree_button_press_event;
+	widget_class->key_press_event    = gtk_diff_tree_key_press_event;
 
 	//g_print ("gtk_diff_tree_class_init\n");
 }

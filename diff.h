@@ -9,6 +9,8 @@ struct _DiffOptions
 {
 	gchar *left;
 	gchar *right;
+
+	GNode *root;
 };
 
 DiffOptions * diffoptions_new (void);

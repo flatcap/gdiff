@@ -162,7 +162,21 @@ don't allow the selection of directories
 
 I _could_ stat any left/right file.  Any that turn out to be dirs, will need expanding
 'find path' should do the trick (and all are left/right)
+stat the left/right directories first -- no need to recurse!
 
 always on top button
 
 try and remove the unixness of the path stuff -- there will be a few tripups for DOS ppl
+
+extra mode GNOME_MDI_DEFAULT
+
+drag and drop support
+if one file popup a dialog
+if two files auto mode
+if more files popup a list dialog
+
+printing support?
+
+Window / Windows... , Diff1, Compare1, ...
+
+notebook / menu pixmaps  Dir / File stock icons
