@@ -4,19 +4,21 @@
 #include "diff.h"
 
 /* return a pointer to an options object */
-gboolean
+DiffOptions *
 gnome_init_and_parse_args (const char *app_id,
 			   const char *app_version,
 			   int argc,
-			   char *argv[],
-			   Options *global,
-			   DiffOptions *diff)
+			   char *argv[])
 {
 	char opt;
 	char *left          = NULL;
 	char *right         = NULL;
 	char *extra         = NULL;
+	DiffOptions *diff   = NULL;
 	poptContext context = NULL;
+	Options     *global = NULL;
+
+	//global  = options_get_default();
 
 	struct poptOption options[] =
 	{
@@ -33,6 +35,8 @@ gnome_init_and_parse_args (const char *app_id,
 		//{ "set-defaults",          0,   0,               NULL,    's', "Make the selected options the default for future usage.", NULL     },
 		{ NULL, 0, 0, NULL, 0 }
 	};
+
+	diff = diffoptions_new();
 
 	gnome_init_with_popt_table (app_id, app_version, argc, argv, options, 0, &context);
 
@@ -100,6 +104,6 @@ gnome_init_and_parse_args (const char *app_id,
 
 	poptFreeContext (context);
 
-	return left && right;
+	return diff;
 }
 

@@ -208,6 +208,7 @@ mdi_add_compare (GnomeMDI *mdi, DiffOptions *diff)
 	name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
 	child = gnome_mdi_generic_child_new (name);
 
+	g_return_if_fail (child != NULL);
 	gnome_mdi_generic_child_set_view_creator (child, my_child_create_compare_view, diff);
 	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      diff);
 	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         diff);
@@ -217,7 +218,7 @@ mdi_add_compare (GnomeMDI *mdi, DiffOptions *diff)
 }
 
 void
-mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)	//XXX what about options???
+mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff, Options *options)	//XXX what about options???
 {
 	GnomeMDIGenericChild	*child = NULL;
 	char			*name  = NULL;

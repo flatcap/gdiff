@@ -197,3 +197,6 @@ implement get/set args on the derived objects
 
 add gnu copyright
 add ident / rcs header
+
+button for next/prev diff
+

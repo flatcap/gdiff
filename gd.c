@@ -1,45 +1,38 @@
-#include "config.h"
+/* $Id:$ */
 
+#include "config.h"
 #include <gnome.h>
 #include <locale.h>
 #include "args.h"
 #include "mdi.h"
 #include "global.h"
 
-#define WINNAME "Graphical differences"
-
 int 
 main (int argc, char *argv[], char *envv[])
 {
 	GnomeMDI    *mdi  = NULL;
-	Options     *opt  = NULL;
 	DiffOptions *diff = NULL;
-	gboolean     args = FALSE;
 
 	bindtextdomain (PACKAGE, LOCALEDIR);
 	textdomain (PACKAGE);
 
-	opt  = options_get_default();
-	diff = diffoptions_new();
-
-	args = gnome_init_and_parse_args (PACKAGE, VERSION, argc, argv, opt, diff);
+	diff = gnome_init_and_parse_args (PACKAGE, VERSION, argc, argv);
 
 	mdi  = mdi_new (PACKAGE, WINNAME);
 
-	global_init (mdi);			// needs a GdkWindow*
+	g_return_val_if_fail (mdi != NULL, 1);
+	global_init (mdi);						/* Needs a GdkWindow to create pixmaps */
 
-	if (args)
+	if (diff)
 	{
-		mdi_add_diff (mdi, opt, diff);	// MDI take responsibility for opt and diff???
-	}
-	else
-	{
-		//options_free (opt);
-		//diffoptions_free (diff);
+		mdi_add_diff (mdi, diff);				/* Tree will free the diff later */
 	}
 
 	gtk_main();
+
+	diffoptions_free (diff);
 	global_close();
+
 	return 0;
 }
 

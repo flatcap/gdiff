@@ -4,12 +4,10 @@
 #include "options.h"
 #include "diff.h"
 
-gboolean gnome_init_and_parse_args (const char *app_id,
-				    const char *app_version,
-				    int argc,
-				    char *argv[],
-				    Options *global,
-				    DiffOptions *diff);
+DiffOptions * gnome_init_and_parse_args (const char *app_id,
+					 const char *app_version,
+					 int argc,
+					 char *argv[]);
 
 #endif // _ARGS_H_
 

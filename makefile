@@ -23,7 +23,7 @@ clean:
 	rm -f `find . -type f -perm 755 -maxdepth 1`
 
 veryclean: clean
-	rm tags libtags
+	rm -f tags libtags
 
 phony:
 
