@@ -1,4 +1,4 @@
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #ifndef _MDI_H_
 #define _MDI_H_
@@ -8,7 +8,6 @@
 
 GnomeMDI *	mdi_new		(gchar *appname, gchar *title);
 void		mdi_add_diff	(GnomeMDI *mdi, DiffOptions *diff);
-void		mdi_add_compare (GnomeMDI *mdi, DiffOptions *diff);
 
 #endif // _MDI_H_
 

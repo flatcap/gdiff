@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.6 $ */
 
 #ifndef _DIFF_H_
 #define _DIFF_H_
@@ -16,6 +16,8 @@ struct _DiffOptions
 
 	GNode *root;
 	gpointer compare_stuff;
+
+	char *last_error;
 };
 
 DiffOptions *	diffoptions_new  (void);

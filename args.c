@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.14 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -18,7 +18,7 @@ gnome_init_and_parse_args (const char *app_id,
 	char *extra         = NULL;
 	DiffOptions *diff   = NULL;
 	poptContext context = NULL;
-	Options     *global = NULL;
+	//Options     *global = NULL;
 
 	//global  = options_get_default();
 
@@ -37,8 +37,6 @@ gnome_init_and_parse_args (const char *app_id,
 		//{ "set-defaults",          0,   0,               NULL,    's', "Make the selected options the default for future usage.", NULL     },
 		{ NULL, 0, 0, NULL, 0 }
 	};
-
-	diff = diffoptions_new();
 
 	gnome_init_with_popt_table (app_id, app_version, argc, argv, options, 0, &context);
 
@@ -76,11 +74,11 @@ gnome_init_and_parse_args (const char *app_id,
 
 		if (!left && !right)
 		{
-			g_print ("no args!\n");
+			//g_print ("no args!\n");
 		}
 		else if (extra)
 		{
-			g_print ("too many options = %s\n", extra);
+			g_warning ("too many options = %s\n", extra);
 		}
 		else
 		{
@@ -93,14 +91,13 @@ gnome_init_and_parse_args (const char *app_id,
 				left = ".";
 			}
 
-			//g_print ("left  %s\n", left);
-			//g_print ("right %s\n", right);
-
-			g_free (diff->left);
-			g_free (diff->right);
-
-			diff->left  = g_strdup (left);
-			diff->right = g_strdup (right);
+			diff = diffoptions_new();
+			if (diff)
+			{
+				diff->left  = g_strdup (left);
+				diff->right = g_strdup (right);
+				diff->dir   = TRUE;
+			}
 		}
 	}
 

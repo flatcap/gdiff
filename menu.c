@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.20 $ */
 
 #include "menu.h"
 #include "derived.h"
@@ -200,6 +200,7 @@ get_current_selection (GnomeMDI *mdi)
 	g_return_val_if_fail (options != NULL, NULL);
 	options->left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, treerow->path, NULL);
 	options->right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->dir   = FALSE;
 
 	return options;
 }
@@ -215,6 +216,6 @@ void show_cb (GtkWidget * widget, gpointer data)
 	diff = get_current_selection (mdi);
 
 	g_return_if_fail (diff != NULL);
-	mdi_add_compare (mdi, diff);
+	mdi_add_diff (mdi, diff);
 }
 

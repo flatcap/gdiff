@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.15 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -15,14 +15,6 @@ static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * klass);
 static void gtk_diff_tree_finalize	 (GtkObject * object);
 
 #define MATCHES 8
-
-enum
-{
-	POPULATE,
-	LAST_SIGNAL
-};
-
-static guint difftree_signals[LAST_SIGNAL] = { 0 };
 
 //______________________________________________________________________________
 //
@@ -291,9 +283,6 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	g_free (tree->left);
 	g_free (tree->right);
 
-	g_print ("before signal emit\n");
-	gtk_signal_emit (GTK_OBJECT (tree), difftree_signals[POPULATE], 0x1234);
-	g_print ("after signal emit\n");
 	//tree->left  = dup_and_add_slash (left);
 	//tree->right = dup_and_add_slash (right);
 	tree->left  = g_strdup (left);
@@ -355,7 +344,6 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	progress_free (progress);
 	gtk_diff_tree_display (tree);
 	}
-	g_print ("leaving method (after signal emit)\n");
 }
 
 //______________________________________________________________________________
@@ -486,24 +474,6 @@ gtk_diff_tree_class_init (GtkDiffTreeClass * klass)
 	widget_class->show               = gtk_diff_tree_show;
 	widget_class->draw               = gtk_diff_tree_draw;
 	widget_class->realize            = gtk_diff_tree_realize;
-
-	klass->populate_handler = gtk_diff_tree_real_populate;
-
-	difftree_signals [POPULATE] = gtk_signal_new ("populate",
-						      GTK_RUN_FIRST,
-						      object_class->type,
-						      GTK_SIGNAL_OFFSET (GtkDiffTreeClass, populate_handler),
-						      gtk_marshal_NONE__POINTER,
-						      GTK_TYPE_NONE, 1,
-						      GTK_TYPE_POINTER);
-	g_print ("class init: signal = %d\n", difftree_signals[POPULATE]);
-	gtk_object_class_add_signals (object_class, difftree_signals, LAST_SIGNAL);
-}
-
-void
-gtk_diff_tree_real_populate (GtkWidget *widget, gpointer data)
-{
-	g_print ("POPULATE!!! (%p)\n", data);
 }
 
 static void

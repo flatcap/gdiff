@@ -48,6 +48,7 @@ gnome-history
 parse an RCS ,v file and list the revisions -- highlight two and hit 'diff..'
 list branches?
 RCS / CVS view 
+if they select anything ending in ,v ask them which revsion
 
 if the whole (graphical) tree is encapsulated as a single widget, then it
 can be inserted into multiple windows or a single MDI

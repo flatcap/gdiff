@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.7 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
@@ -36,7 +36,6 @@ void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
 void		gtk_diff_tree_display		(GtkDiffTree *tree);
 
 // Signal handlers
-void gtk_diff_tree_real_populate (GtkWidget *widget, gpointer data);
 
 struct _GtkDiffTree
 {
@@ -59,7 +58,6 @@ struct _GtkDiffTreeClass
 	GtkCTreeClass parent_class;
 
 	// Signal handlers
-	void (*populate_handler) (GtkWidget *widget, gpointer data);
 };
 
 #endif // _DERIVED_H_
