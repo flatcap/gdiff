@@ -1,0 +1,56 @@
+ignore files called
+ignore files containing
+nick gmc icons
+gnome-config
+
+parse diff files (patch!)
+
+compare a directory tree and a patch file!
+
+check cumulative status for dirs:
+	if the dir has only right only -> right
+	if the dir has only left  only -> left 
+	otherwise just diff
+	
+separate files and directories?
+
+can hide columns, but not rows
+view same, diff, left only, right only
+'nothing to view => no directory' option
+
+when not viewing everything, have an option to keep the dir tree intact
+
+split code into parse phase and display phase
+
+two panes? one for dirs (left) and one for files (right/middle)?
+
+configure the colours, sizes, fonts, diff/same/left/right visible, 
+tree font and diff font
+
+trap close and Ctrl-C and abort processing loop m_bAbort = TRUE;
+
+diffstat
+default single argument to /usr/src/linux (for patches)
+
+[p1]~/src$ diff d diff
+diff: diff/d: No such file or directory
+if file doesn't exist in directory, see if it's a patch
+
+generate patches
+
+save file list (l/r/s/d/t)
+
+option - show stats -> FULL diff parsed into added 4, deleted 2 moved 15, etc
+
+gnome-history
+
+parse an RCS ,v file and list the revisions -- highlight two and hit 'diff..'
+list branches?
+
+if the whole (graphical) tree is encapsulated as a single widget, then it
+can be inserted into multiple windows or a single MDI
+Also how can I export the widget to another app (embed it) elsewhere?
+
+need to derive a new app class for the menu callbacks
+need to derive a diff class (widget) to display the diffs in
+
