@@ -180,3 +180,6 @@ printing support?
 Window / Windows... , Diff1, Compare1, ...
 
 notebook / menu pixmaps  Dir / File stock icons
+
+combination of mdi modes
+new notebook for each diff, all compares join parent diff

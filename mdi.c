@@ -92,8 +92,7 @@ my_child_set_label (GnomeMDIChild * child,
 		    GtkWidget * old_label,
 		    gpointer data)
 {
-	//GtkWidget      *hbox, *pixmap, *label;
-	GtkWidget      *hbox, *label;
+	GtkWidget      *hbox, *pixmap, *label;
 	//g_print ("my_child_set_label\n");
 	if (old_label == NULL)
 	{
@@ -101,9 +100,9 @@ my_child_set_label (GnomeMDIChild * child,
 		hbox = gtk_hbox_new (FALSE, 0);
 		label = gtk_label_new (g_strdup_printf ("Label: %s", child->name));
 		gtk_widget_show (label);
-		//pixmap = gnome_stock_new_with_icon (GNOME_STOCK_MENU_TRASH_FULL);
-		//gtk_widget_show (pixmap);
-		//gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 2);
+		pixmap = gnome_stock_new_with_icon (GNOME_STOCK_MENU_TRASH_FULL);
+		gtk_widget_show (pixmap);
+		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 2);
 		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 2);
 	}
 	else
