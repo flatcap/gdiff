@@ -38,6 +38,7 @@ gtk_diff_tree_get_type (void)
 	if (!diff_tree_type)
 	{
 		diff_tree_type = gtk_type_unique (gtk_ctree_get_type(), &diff_tree_info);
+		make the parent a widget, then call the construct fn
 	}
 
 	return diff_tree_type;
@@ -55,6 +56,7 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
 {
 	GtkWidget *widget = NULL;
 	GtkCList  *list	  = NULL;
+	GtkCTree  *tree	  = NULL;
 
 	g_return_val_if_fail (columns     >  0,       NULL);
 	g_return_val_if_fail (tree_column >= 0,       NULL);
@@ -70,6 +72,12 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
 	g_return_val_if_fail (widget != NULL, NULL);
 
 	list = GTK_CLIST (widget);
+	tree = GTK_CTREE (widget);
+
+	list->columns     = columns;
+	tree->tree_column = tree_column;
+
+	//gtk_ctree_construct (tree, columns, tree_column, titles);
 
 	if (titles)
 	{

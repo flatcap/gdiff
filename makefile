@@ -1,6 +1,7 @@
 CC	= gcc
-CFLAGS	= `gnome-config --cflags gnomeui gnome` -c -g -Wall
-LIBS	= `gnome-config --libs   gnomeui`
+CFLAGS	= `gnome-config --cflags gnomeui gnome gtk glib` -c -g -Wall
+EXTRAS	= /usr/src/gtk+-1.2.3/gtk/gtkctree.o
+LIBS	= $(EXTRAS) `gnome-config --libs   gnomeui gnome gtk glib`
 
 SOURCE	= args.c canvas.c chunk.c color.c compare.c config.c derived.c exclude.c file.c font.c fork.c gd.c global.c gnome.c lang.c main.c menu.c node.c options.c positional.c progress.c richard.c spawn.c tree.c window.c
 HEADERS	= color.h confdefs.h config.h derived.h file.h font.h global.h main.h menu.h node.h options.h progress.h spawn.h tree.h

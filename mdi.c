@@ -14,7 +14,7 @@ typedef GtkWidget *(*GnomeMDIChildLabelFunc)   (GnomeMDIChild *, GtkWidget *, gp
 GtkWidget *
 my_child_create_view (GnomeMDIChild * child, gpointer data)
 {
-	static char *cols[] = { "Left", "Right" };
+	static char *cols[] = { "Left", "Right", "Dummy1", "Dummy2", "Dummy3"};
 	//GtkWidget      *new_view;
 	gchar           label[256];
 	GtkWidget      *scroll = NULL;
