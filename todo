@@ -71,6 +71,7 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+naming dir/tree -> LIST, file -> FILE
 pane -> panel
 
 when displaying the tabs/menu items for dirs, list the root path for each on separate lines
