@@ -1,4 +1,4 @@
-/* $Revision: 1.8 $ */
+/* $Revision: 1.9 $ */
 
 #include <stddef.h>
 #include <string.h>
@@ -100,6 +100,7 @@ tree_node_add (GNode *parent, char *path, Status status, char *orig_path)
 	GNode    *node  = NULL;
 	GString  *root  = NULL;
 	GString  *rest  = NULL;
+	GString  *temp  = NULL;
 	char     *slash = NULL;
 	TreeNode *data  = NULL;
 
@@ -127,10 +128,24 @@ tree_node_add (GNode *parent, char *path, Status status, char *orig_path)
 		}
 		else
 		{
+			//XXX desperately need some helper functions
+
 			//g_print ("new node: %s (%d)\n", root->str, status);
-			data = tree_node_new (root->str, orig_path, status);
+
+			temp = g_string_new (orig_path);
+			slash = strrchr (temp->str, G_DIR_SEPARATOR);
+			if (slash)
+			{
+				g_string_truncate (temp, (slash - temp->str));
+			}
+
+			//g_print ("new node: %s %s\n", orig_path, temp->str);
+
+			data = tree_node_new (root->str, temp->str, status);
 			node = g_node_append_data (parent, data);
 			tree_node_add (node, rest->str, status, orig_path);
+
+			g_string_free (temp, TRUE);
 		}
 	}
 	else

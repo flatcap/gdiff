@@ -1,4 +1,4 @@
-/* $Revision: 1.23 $ */
+/* $Revision: 1.24 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -554,24 +554,43 @@ gtk_diff_tree_destroy (GtkObject *object)
 static void
 save_recurse (GNode *node)
 {
-	TreeNode *tree  = NULL;
+	TreeNode *tree   = NULL;
+	char      status = 0;
 
-	if (node != NULL)
+	while (node != NULL)
 	{
-		tree = node->data;
-		if (tree)
+		if (node->children)
 		{
-			g_print ("%d %s\n", tree->status, tree->path);
+			save_recurse (node->children);	// it's a directory
+		}
+		else
+		{
+			tree = node->data;
+			if (tree)
+			{
+				switch (tree->status)
+				{
+					case eFileSame:	 status = ' '; break;
+					case eFileLeft:  status = '<'; break;
+					case eFileRight: status = '>'; break;
+					case eFileDiff:  status = '!'; break;
+					case eFileType:  status = 'T'; break;
+					case eFileError:
+					default:         status = 'E'; break;
+				}
+				g_print ("%c %s\n", status, tree->path);
+			}
 		}
 
-		save_recurse (node->children);
-		save_recurse (node->next);
+		node = node->next;
 	}
 }
 
 void
 gtk_diff_tree_save_list (GtkDiffTree *tree)
 {
+	// how about a heading (optional) diff linux-2.2.12 linux-2.3.18
+	// What about the root pathname?
 	save_recurse (tree->root);
 }
 

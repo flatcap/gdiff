@@ -361,3 +361,8 @@ split up preferences to create a drop-in preferences component
 eg, a drop-in 'view options', or 'diff settings'
 
 recursion -> duff's
+
+file history for file selection / browse
+
+remove top node -- replace it with a node that has both next and children
+
