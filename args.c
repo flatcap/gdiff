@@ -31,7 +31,6 @@ gnome_init_and_parse_args (const char *app_id,
 		//{ "speed-large-files",     'H', 0,               NULL,    'H', "Assume large files and many scattered small changes.",    NULL     },
 		//{ "text",                  'a', 0,               NULL,    'a', "Treat all files as text.",                                NULL     },
 		//{ "set-defaults",          0,   0,               NULL,    's', "Make the selected options the default for future usage.", NULL     },
-		POPT_AUTOHELP
 		{ NULL, 0, 0, NULL, 0 }
 	};
 

@@ -11,7 +11,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 
 all:	gd
 
-gd:	gd.o args.o mdi.o options.o diff.o
+gd:	gd.o args.o mdi.o options.o diff.o menu.o
 	$(CC) $(LIBS) $^ -o $@
 
 richard: richard.o derived.o menu.o progress.o global.o spawn.o

@@ -1,29 +1,7 @@
 #include <gnome.h>
 #include "options.h"
 #include "mdi.h"
-
-void 
-app_created (GnomeMDI * mdi, GnomeApp * app)
-{
-	//g_print ("app_created\n");
-	//gnome_app_create_menus (app, main_menu);
-	gtk_window_set_default_size (GTK_WINDOW (app), 500, 500);
-}
-
-GnomeMDI *
-mdi_new (gchar *appname, gchar *title)
-{
-	GnomeMDI *mdi = NULL;
-
-	mdi = GNOME_MDI (gnome_mdi_new (appname, title));
-
-	mdi->tab_pos = GTK_POS_TOP;		// GTK_POS_LEFT, GTK_POS_RIGHT, GTK_POS_TOP, GTK_POS_BOTTOM
-	gnome_mdi_set_mode (mdi, GNOME_MDI_NOTEBOOK); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
-
-	gtk_signal_connect (GTK_OBJECT (mdi), "app_created", GTK_SIGNAL_FUNC (app_created), NULL);
-
-	return mdi;
-}
+#include "menu.h"
 
 GtkWidget *
 my_child_create_view (GnomeMDIChild * child, gpointer data)
@@ -109,6 +87,53 @@ my_child_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 }
 
 void
+mdi_add_dummy_window (GnomeMDI *mdi)
+{
+	// is it possible to show / hide a dummy window?
+	// I want an MDI with nothing in it
+	GnomeMDIGenericChild *child = gnome_mdi_generic_child_new ("dummy");
+
+	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       NULL);
+	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      NULL);
+	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, NULL);
+	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         NULL);
+
+	//gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));
+	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));
+}
+
+void
+mdi_remove_dummy_window (GnomeMDI *mdi)
+{
+}
+
+void 
+app_created (GnomeMDI * mdi, GnomeApp * app)
+{
+	//g_print ("app_created\n");
+	//gnome_app_create_menus (app, main_menu);
+	menu_create (app);
+	gtk_window_set_default_size (GTK_WINDOW (app), 500, 500);
+}
+
+GnomeMDI *
+mdi_new (gchar *appname, gchar *title)
+{
+	GnomeMDI *mdi = NULL;
+
+	mdi = GNOME_MDI (gnome_mdi_new (appname, title));
+
+	mdi->tab_pos = GTK_POS_TOP;		// GTK_POS_LEFT, GTK_POS_RIGHT, GTK_POS_TOP, GTK_POS_BOTTOM
+	gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
+
+	gtk_signal_connect (GTK_OBJECT (mdi), "app_created", GTK_SIGNAL_FUNC (app_created), NULL);
+
+	mdi_add_dummy_window (mdi);
+
+	return mdi;
+}
+
+void
 mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)
 {
 	static gint counter = 1;
@@ -117,6 +142,7 @@ mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)
 
 	sprintf (name, "Child %d, much longer\nline 2!", counter);
 
+	gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
 	child = gnome_mdi_generic_child_new (name);
 
 	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       NULL);
@@ -126,10 +152,12 @@ mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)
 
 	gtk_object_set_user_data (GTK_OBJECT (child), GINT_TO_POINTER (counter));
 
-	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child)); /* add the child to MDI */
+	//gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child)); /* add the child to MDI */
 	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child)); /* and add a new view of the child */
 
 	counter++;
+
+	mdi_remove_dummy_window (mdi);
 }
 
 void

@@ -111,7 +111,7 @@ void menu_create (GnomeApp *app)
 
 void file_open_cb (GtkWidget * widget, gpointer data)
 {
-	main_diff();
+	//main_diff();
 }
 
 void file_close_cb (GtkWidget * widget, gpointer data)
