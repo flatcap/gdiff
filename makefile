@@ -8,7 +8,7 @@ HEADERS	= color.h confdefs.h config.h derived.h font.h global.h main.h menu.h no
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	tags file
+all:	file
 
 richard: richard.o derived.o menu.o progress.o global.o spawn.o
 	$(CC) $(LIBS) $^ -o $@
@@ -26,7 +26,8 @@ testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
 tags:	$(SOURCE) $(HEADERS)
-	ctags -i+p *.[ch]
+	ctags -i+p *.[ch] gdk/*.[ch] glib/*.[ch] gnome/*.[ch] gnomeui/*.[ch] gtk/*.[ch]
 
 clean:
 	rm -f *.o main g testgtk richard tags file
+
