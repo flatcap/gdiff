@@ -9,6 +9,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 	$(CC) $(CFLAGS) -o $@ $<
 
 all:	gd tags libtags
+#all:	canvas tags libtags
 
 gd:	args.o compare.o derived.o diff.o file.o gd.o global.o mdi.o menu.o node.o options.o progress.o spawn.o tree.o
 	$(CC) $(EXTRAS) $(LIBS) $^ -o $@
@@ -18,6 +19,7 @@ libtags:
 	ctags -f libtags -i+p						\
 		/usr/src/gnome-libs-1.0.14/libgnome/*.[ch]		\
 		/usr/src/gnome-libs-1.0.14/libgnomeui/*.[ch]		\
+		/usr/src/gnome-libs-1.0.14/libart_lgpl/*.[ch]		\
 		/usr/src/gtk+-1.2.3/gdk/*.[ch]				\
 		/usr/src/gtk+-1.2.3/gtk/*.[ch]				\
 		/usr/src/glib-1.2.3/*.[ch]
@@ -61,7 +63,7 @@ spawn:	spawn.o
 	#$@ &
 canvas:	canvas.o
 	$(CC) $(LIBS) $^ -o $@
-	$@ &
+	#$@ &
 p:	popt.o
 	$(CC) $(LIBS) $^ -o $@
 hi:	hi.o

@@ -212,6 +212,7 @@ add a timeout to refresh the diff tree every 5 seconds?
 rescan option - current FILE , or selected branch of the TREE
 
 make sure ctrl-end ctrl-home work as expected
+see gtk_binding_set_by_class(klass) in gtkclist.c
 
 save file list as list of paths or as a tree?
 
