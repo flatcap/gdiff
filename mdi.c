@@ -1,4 +1,4 @@
-/* $Revision: 1.21 $ */
+/* $Revision: 1.22 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -8,18 +8,19 @@
 #include "global.h"
 
 /*----------------------------------------------------------------------------*/
-GtkWidget * gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data);
-GtkWidget * gd_mdi_create_view (GnomeMDIChild * child, gpointer data);
-GtkWidget * gd_mdi_set_label (GnomeMDIChild * child, GtkWidget * old_label, gpointer data);
-GList   * gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data);
-void app_created (GnomeMDI * mdi, GnomeApp * app);
-void destroy (GnomeMDI *mdi);
-gint remove_child (GnomeMDI *mdi, GnomeMDIChild *child);
+static GList   * gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data);
+static GtkWidget * gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data);
+static GtkWidget * gd_mdi_create_view (GnomeMDIChild * child, gpointer data);
+static GtkWidget * gd_mdi_set_label (GnomeMDIChild * child, GtkWidget * old_label, gpointer data);
+static gint remove_child (GnomeMDI *mdi, GnomeMDIChild *child);
+static void app_created (GnomeMDI * mdi, GnomeApp * app);
+static void destroy (GnomeMDI *mdi);
+
 GnomeMDI * mdi_new (gchar *appname, gchar *title);
 void mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
 /*----------------------------------------------------------------------------*/
 
-GtkWidget *
+static GtkWidget *
 gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data)
 {
 	DiffOptions *diff    = data;
@@ -33,7 +34,7 @@ gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data)
 	return scroll;
 }
 
-GtkWidget *
+static GtkWidget *
 gd_mdi_create_view (GnomeMDIChild * child, gpointer data)
 {
 	GtkWidget      *scroll = NULL;
@@ -57,7 +58,7 @@ gd_mdi_create_view (GnomeMDIChild * child, gpointer data)
 	return scroll;
 }
 
-GtkWidget *
+static GtkWidget *
 gd_mdi_set_label (GnomeMDIChild * child,
 		    GtkWidget * old_label,
 		    gpointer data)
@@ -95,7 +96,7 @@ gd_mdi_set_label (GnomeMDIChild * child,
 	return hbox;
 }
 
-GList   *
+static GList   *
 gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 {
 	// These menus are mdi child specific -- we chose to distinguish between tree and file
@@ -135,7 +136,7 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 	return menu_list;
 }
 
-void 
+static void 
 app_created (GnomeMDI * mdi, GnomeApp * app)
 {
 	//g_print ("app_created\n");
@@ -145,13 +146,13 @@ app_created (GnomeMDI * mdi, GnomeApp * app)
 	gtk_widget_show_all (GTK_WIDGET (app));
 }
 
-void
+static void
 destroy (GnomeMDI *mdi)
 {
 	gtk_main_quit();
 }
 
-gint
+static gint
 remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 {
 	//g_print ("remove child\n");

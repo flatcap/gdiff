@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.6 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -14,12 +14,12 @@ struct _Options
 	guint	flag1 : 1;
 };
 
-Options *	options_new (void);
+//Options *	options_new (void);
 Options *	options_get_default (void);
-void		options_free (Options *options);
+//void		options_free (Options *options);
 
-gboolean	options_set_options  (Options *options);
-gboolean	options_save_options (Options *options);
+//gboolean	options_set_options  (Options *options);
+//gboolean	options_save_options (Options *options);
 
 typedef enum
 {

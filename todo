@@ -202,3 +202,5 @@ add ident / rcs header
 button for next/prev diff
 
 gnomify all the types int -> gint etc
+
+tab width default but is compare specific

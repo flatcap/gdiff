@@ -1,4 +1,4 @@
-/* $Revision: 1.22 $ */
+/* $Revision: 1.23 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -10,22 +10,17 @@
 #include "mdi.h"
 
 /*----------------------------------------------------------------------------*/
-void menu_set_view_defaults (GtkMenuShell *shell);
-void menu_create (GnomeMDI *mdi, GnomeApp *app);
-void file_open_cb (GtkWidget * widget, gpointer data);
-void file_close_cb (GtkWidget * widget, gpointer data);
-void view_cb (GtkWidget * widget, gpointer data);
-void about_cb (GtkWidget * widget, gpointer data);
-GtkWidget * get_current_view (GnomeMDI *mdi);
-DiffOptions * get_current_selection (GnomeMDI *mdi);
-void show_cb (GtkWidget * widget, gpointer data);
-/*----------------------------------------------------------------------------*/
+static DiffOptions * get_current_selection (GnomeMDI *mdi);
+static GtkWidget * get_current_view (GnomeMDI *mdi);
+static void about_cb		(GtkWidget * widget, gpointer data);
+static void file_close_cb	(GtkWidget * widget, gpointer data);
+static void file_open_cb	(GtkWidget * widget, gpointer data);
+static void menu_set_view_defaults (GtkMenuShell *shell);
+static void show_cb		(GtkWidget * widget, gpointer data);
+static void view_cb		(GtkWidget * widget, gpointer data);
 
-void file_open_cb	(GtkWidget * widget, gpointer data);
-void file_close_cb	(GtkWidget * widget, gpointer data);
-void view_cb		(GtkWidget * widget, gpointer data);
-void about_cb		(GtkWidget * widget, gpointer data);
-void show_cb		(GtkWidget * widget, gpointer data);
+void menu_create (GnomeMDI *mdi, GnomeApp *app);
+/*----------------------------------------------------------------------------*/
 
 GtkStatusbar *global_statusbar = NULL;
 
@@ -72,7 +67,7 @@ static GnomeUIInfo main_menu[] =
 	GNOMEUIINFO_END
 };
 
-void
+static void
 menu_set_view_defaults (GtkMenuShell *shell)
 {
 	GList            *list  = NULL;
@@ -148,25 +143,25 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 */
 }
 
-void
+static void
 file_open_cb (GtkWidget * widget, gpointer data)
 {
 	//main_diff();
 }
 
-void
+static void
 file_close_cb (GtkWidget * widget, gpointer data)
 {
 	g_print ("file_close_cb\n");
 }
 
-void
+static void
 view_cb (GtkWidget * widget, gpointer data)
 {
 	g_print ("view_cb\n");
 }
 
-void
+static void
 about_cb (GtkWidget * widget, gpointer data)
 {
 	GtkWidget      *about;
@@ -184,7 +179,7 @@ about_cb (GtkWidget * widget, gpointer data)
 	return;
 }
 
-GtkWidget *
+static GtkWidget *
 get_current_view (GnomeMDI *mdi)
 {
 	GtkWidget *widget = NULL;
@@ -200,7 +195,7 @@ get_current_view (GnomeMDI *mdi)
 	return bin->child;
 }
 
-DiffOptions *
+static DiffOptions *
 get_current_selection (GnomeMDI *mdi)
 {
 	GtkWidget	*view		= NULL;
@@ -237,7 +232,7 @@ get_current_selection (GnomeMDI *mdi)
 	return options;
 }
 
-void
+static void
 show_cb (GtkWidget * widget, gpointer data)
 {
 	GnomeMDI    *mdi  = NULL;

@@ -1,4 +1,4 @@
-/* $Revision: 1.16 $ */
+/* $Revision: 1.17 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -22,28 +22,25 @@ static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    =
 //XXX int handler (GtkWidget *tree, TreeNode *node);
 
 /*----------------------------------------------------------------------------*/
-static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
+static GtkStatusbar * get_view_statusbar(GtkDiffTree *tree);
+static GtkWidget * gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
+static Status gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path);
+//static char * dup_and_add_slash (char *path);
+static gint gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event);
+static gint gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event);
+static gint tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2);
 static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * klass);
+static void gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right);
+static void gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area);
 static void gtk_diff_tree_finalize	 (GtkObject * object);
-
-guint gtk_diff_tree_get_type (void);
-GtkWidget * gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff);
-gint tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2);
-GtkWidget * gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
-void gtk_diff_tree_set_view (GtkDiffTree *tree, Status status);
-Status gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path);
-void gtk_diff_tree_display (GtkDiffTree *tree);
-char * dup_and_add_slash (char *path);
-GtkStatusbar * get_view_statusbar(GtkDiffTree *tree);
-void gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right);
+static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
 static void gtk_diff_tree_init (GtkDiffTree * tree);
-void gtk_diff_tree_show (GtkWidget *widget);
-void gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area);
-void gtk_diff_tree_realize (GtkWidget *widget);
-gint gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event);
-gint gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event);
-static void gtk_diff_tree_class_init (GtkDiffTreeClass * klass);
-static void gtk_diff_tree_finalize (GtkObject *object);
+static void gtk_diff_tree_realize (GtkWidget *widget);
+//static void gtk_diff_tree_set_view (GtkDiffTree *tree, Status status);
+static void gtk_diff_tree_show (GtkWidget *widget);
+
+GtkWidget * gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff);
+guint gtk_diff_tree_get_type (void);
 /*----------------------------------------------------------------------------*/
 
 //______________________________________________________________________________
@@ -84,7 +81,7 @@ gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff)
 	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL, diff);
 }
 
-gint 
+static gint 
 tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	const GtkCTreeRow *row1 = ptr1;
@@ -107,7 +104,7 @@ tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 	}
 }
 
-GtkWidget *
+static GtkWidget *
 gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], DiffOptions *diff)
 {
 	GtkWidget *widget = NULL;
@@ -176,7 +173,8 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], 
 	return widget;
 }
 
-void
+/*
+static void
 gtk_diff_tree_set_view (GtkDiffTree *tree, Status status)
 {
 	g_return_if_fail (tree != NULL);
@@ -185,8 +183,9 @@ gtk_diff_tree_set_view (GtkDiffTree *tree, Status status)
 
 	tree->view = status;
 }
+*/
 
-Status
+static Status
 gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
 {
 	regmatch_t      matches[MATCHES];
@@ -259,19 +258,8 @@ gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
 	return result;
 }
 
-void
-gtk_diff_tree_display (GtkDiffTree *tree)
-{
-	//g_print ("gtk_diff_tree_display\n");
-	tree_dialog_draw (tree, eFileAll);
-
-	//g_mem_chunk_print (GTK_CLIST (tree)->row_mem_chunk);
-	//g_print ("sizeof (DiffTreeRow) = %d\n", sizeof (DiffTreeRow));
-	//g_print ("sizeof (GtkCTreeRow) = %d\n", sizeof (GtkCTreeRow));
-	//g_print ("sizeof (GtkCListRow) = %d\n", sizeof (GtkCListRow));
-}
-
-char *
+/*
+static char *
 dup_and_add_slash (char *path)
 {
 	char *temp = NULL;
@@ -291,11 +279,12 @@ dup_and_add_slash (char *path)
 
 	return temp;
 }
+*/
 
 // TODO move this code out of the tree
 // get someone else to do the spawn / parse stuff (MDI maybe?)
-// gtk_diff_tree_display (TreeNode *nodes)
-GtkStatusbar *
+// tree_dialog_draw (tree, eFileAll);
+static GtkStatusbar *
 get_view_statusbar(GtkDiffTree *tree)
 {
 	//what if they change mode whilst we're working?
@@ -333,7 +322,7 @@ get_view_statusbar(GtkDiffTree *tree)
 	return status;
 }
 
-void
+static void
 gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 {
 	g_return_if_fail (tree  != NULL);
@@ -402,7 +391,7 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	//tree_print (tree->root, 0);	// temp
 
 	progress_free (progress);
-	gtk_diff_tree_display (tree);
+	tree_dialog_draw (tree, eFileAll);
 	}
 }
 
@@ -423,14 +412,14 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 	//g_print ("gtk_diff_tree_init\n");
 }
 
-void
+static void
 gtk_diff_tree_show (GtkWidget *widget)
 {
 	g_print ("gtk_diff_tree_show\n");
 	old_show_handler (widget);
 }
 
-void
+static void
 gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area)
 {
 	static gboolean drawn = FALSE;
@@ -447,7 +436,7 @@ gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area)
 	old_draw_handler (widget, area);
 }
 
-void
+static void
 gtk_diff_tree_realize (GtkWidget *widget)
 {
 	g_print ("gtk_diff_tree_realize\n");
@@ -455,14 +444,14 @@ gtk_diff_tree_realize (GtkWidget *widget)
 }
 
 
-gint
+static gint
 gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event)
 {
 	//g_print ("key press\n");
 	return old_key_handler (widget, event);
 }
 
-gint
+static gint
 gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
 	gboolean result = FALSE;

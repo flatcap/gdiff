@@ -1,4 +1,4 @@
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
@@ -27,13 +27,11 @@ typedef struct	_GtkDiffTree		GtkDiffTree;
 typedef struct	_GtkDiffTreeClass	GtkDiffTreeClass;
 
 guint		gtk_diff_tree_get_type		(void);
-GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
+//GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
 GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column, DiffOptions *diff);
 
-void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
-void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
-
-void		gtk_diff_tree_display		(GtkDiffTree *tree);
+//void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
+//void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
 
 // Signal handlers
 

@@ -1,4 +1,4 @@
-/* $Revision: 1.12 $ */
+/* $Revision: 1.13 $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,23 +9,15 @@
 #include "global.h"
 
 /*----------------------------------------------------------------------------*/
-FILE * tree_dialog_start_diff (GtkDiffTree *tree, char *options);
-char * get_status_text (Status actual, Status view, gboolean node);
-GtkStyle * get_status_style (Status status, gboolean node);
-void set_row_data (GList *list, TreeNode *data);
-void tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status);
-gboolean tree_dialog_redraw (GtkDiffTree *tree, Status status, gboolean add);
+static GtkStyle * get_status_style (Status status, gboolean node);
+static char * get_status_text (Status actual, Status view, gboolean node);
+static void set_row_data (GList *list, TreeNode *data);
+static void tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status);
+
 gboolean tree_dialog_draw (GtkDiffTree *tree, Status status);
-void tree_dialog_free (GtkDiffTree *tree);
 /*----------------------------------------------------------------------------*/
 
-FILE *
-tree_dialog_start_diff (GtkDiffTree *tree, char *options)
-{
-	return stdin;
-}
-
-char *
+static char *
 get_status_text (Status actual, Status view, gboolean node)
 {
 	char *result = "";
@@ -66,7 +58,7 @@ get_status_text (Status actual, Status view, gboolean node)
 	return g_strdup (result);
 }
 
-GtkStyle *
+static GtkStyle *
 get_status_style (Status status, gboolean node)
 {
 	GtkStyle *style = gtk_style_new ();
@@ -96,7 +88,7 @@ get_status_style (Status status, gboolean node)
 	return style;
 }
 
-void
+static void
 set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
 {
 	DiffTreeRow *diffrow = list->data;
@@ -138,7 +130,7 @@ set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
 	*/
 }
 
-void
+static void
 tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status)
 {
 	//GtkCTreeNode *new_node = NULL;
@@ -200,17 +192,6 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Stat
 }
 
 gboolean 
-tree_dialog_redraw (GtkDiffTree *tree, Status status, gboolean add)
-{
-	// This method will maintain the tree expansion
-	// freeze
-	// if add check not there
-	// if remove find and remove
-	// thaw
-	return FALSE;
-}
-
-gboolean 
 tree_dialog_draw (GtkDiffTree *tree, Status status)
 {
 	g_return_val_if_fail (tree,         FALSE);
@@ -237,16 +218,4 @@ tree_dialog_draw (GtkDiffTree *tree, Status status)
 
 	return TRUE;
 }
-
-void 
-tree_dialog_free (GtkDiffTree *tree)
-{
-	g_free (tree->left);
-	g_free (tree->right);
-
-	//node_free (tree->root);
-
-	g_free (tree);
-}
-
 

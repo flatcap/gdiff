@@ -1,4 +1,4 @@
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #include <stddef.h>
 #include <string.h>
@@ -6,14 +6,15 @@
 #include "node.h"
 
 /*----------------------------------------------------------------------------*/
-TreeNode * tree_node_new (char *name, char *path, Status status);
-void tree_node_free (TreeNode *node);
-void tree_print (GNode *node, int depth);
-GNode * tree_node_find (GNode *node, char *name);
+static GNode * tree_node_find (GNode *node, char *name);
+static TreeNode * tree_node_new (char *name, char *path, Status status);
+//static void tree_node_free (TreeNode *node);
+
 void tree_node_add (GNode *parent, char *path, Status status, char *orig_path);
+void tree_print (GNode *node, int depth);
 /*----------------------------------------------------------------------------*/
 
-TreeNode *
+static TreeNode *
 tree_node_new (char *name, char *path, Status status)
 {
 	TreeNode *node = (TreeNode*) g_malloc (sizeof (TreeNode));
@@ -28,7 +29,8 @@ tree_node_new (char *name, char *path, Status status)
 	return node;
 }
 
-void
+/*
+static void
 tree_node_free (TreeNode *node)
 {
 	if (node)
@@ -38,6 +40,7 @@ tree_node_free (TreeNode *node)
 		g_free (node);
 	}
 }
+*/
 
 void
 tree_print (GNode *node, int depth)
@@ -62,7 +65,7 @@ tree_print (GNode *node, int depth)
 	}
 }
 
-GNode *
+static GNode *
 tree_node_find (GNode *node, char *name)
 {
 	TreeNode *tree  = NULL;

@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.7 $ */
 
 #ifndef _NODE_H_
 #define _NODE_H_
@@ -15,9 +15,9 @@ struct _TreeNode
 	Status  status;
 };
 
-TreeNode * tree_node_new  (char *name, char *path, Status status);
-void       tree_node_free (TreeNode *node);
-GNode *    tree_node_find (GNode *node,   char *name);
+//TreeNode * tree_node_new  (char *name, char *path, Status status);
+//void       tree_node_free (TreeNode *node);
+//GNode *    tree_node_find (GNode *node,   char *name);
 void       tree_node_add  (GNode *parent, char *path, Status status, char *orig_path);
 void       tree_print     (GNode *node, int depth);
 

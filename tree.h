@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.7 $ */
 
 #ifndef _TREE_H_
 #define _TREE_H_
@@ -10,7 +10,7 @@
 //GtkDiffTree *	tree_dialog_new   (GtkWidget *parent);
 gboolean	tree_dialog_parse (GtkDiffTree *tree, char *left, char *right);
 gboolean	tree_dialog_draw  (GtkDiffTree *tree, Status status);
-void		tree_dialog_free  (GtkDiffTree *tree);
+//void		tree_dialog_free  (GtkDiffTree *tree);
 
 typedef struct _DiffTreeRow DiffTreeRow;
 

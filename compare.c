@@ -1,4 +1,4 @@
-/* $Revision: 1.16 $ */
+/* $Revision: 1.17 $ */
 
 #include <gnome.h>
 #include "compare.h"
@@ -16,38 +16,38 @@ diff	--old-line-format='left: %L'		\
 */
 
 /*----------------------------------------------------------------------------*/
-static void gtk_compare_init		 (GtkCompare * compare);
+static void gtk_compare (GtkCompare *compare);
 static void gtk_compare_class_init	 (GtkCompareClass * klass);
-void gtk_compare_show (GtkWidget *widget);
-void gtk_compare_realize (GtkWidget *widget);
-void gtk_compare_draw (GtkWidget *widget, GdkRectangle *area);
-guint gtk_compare_get_type (void);
-void gtk_compare_init (GtkCompare * compare);
-void gtk_compare_class_init (GtkCompareClass * klass);
+static void gtk_compare_draw (GtkWidget *widget, GdkRectangle *area);
+static void gtk_compare_init		 (GtkCompare * compare);
+static void gtk_compare_realize (GtkWidget *widget);
+static void gtk_compare_show (GtkWidget *widget);
+
 GtkWidget * gtk_compare_new (DiffOptions *diff);
-void gtk_compare (GtkCompare *compare);
-//XXX finalize?
+guint gtk_compare_get_type (void);
+void gtk_compare_class_init (GtkCompareClass * klass);
+void gtk_compare_init (GtkCompare * compare);
 /*----------------------------------------------------------------------------*/
 
 static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
 static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
 static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    = NULL;
 
-void
+static void
 gtk_compare_show (GtkWidget *widget)
 {
 	g_print ("gtk_compare_show\n");
 	old_show_handler (widget);
 }
 
-void
+static void
 gtk_compare_realize (GtkWidget *widget)
 {
 	g_print ("gtk_compare_realize\n");
 	old_realize_handler (widget);
 }
 
-void
+static void
 gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
 {
 	GtkCompare *compare  = GTK_COMPARE (widget);
@@ -163,7 +163,7 @@ gtk_compare_new (DiffOptions *diff)
 	return widget;
 }
 
-void
+static void
 gtk_compare (GtkCompare *compare)
 {
 	char buffer [1024];

@@ -1,4 +1,4 @@
-/* $Revision: 1.6 $ */
+/* $Revision: 1.7 $ */
 
 #include "options.h"
 
@@ -13,11 +13,12 @@ who will own the global options? refcount?
 */
 
 /*----------------------------------------------------------------------------*/
+//static Options * options_new (void);
+//static gboolean options_save_options (Options *options);
+//static gboolean options_set_options  (Options *options);
+//static void options_free (Options *options);
+
 Options * options_get_default (void);
-Options * options_new (void);
-void options_free (Options *options);
-gboolean options_set_options  (Options *options);
-gboolean options_save_options (Options *options);
 /*----------------------------------------------------------------------------*/
 
 Options *
@@ -28,25 +29,32 @@ options_get_default (void)
 	return g_malloc0 (sizeof (Options));
 }
 
-Options *
+/*
+static Options *
 options_new (void)
 {
 	return NULL;
 }
+*/
 
-void
+/*
+static void
 options_free (Options *options)
 {
 	g_free (options);
 }
+*/
 
-gboolean
+/*
+static gboolean
 options_set_options  (Options *options)
 {
 	return FALSE;
 }
+*/
 
-gboolean
+/*
+static gboolean
 options_save_options (Options *options)
 {
 	gboolean result = FALSE;
@@ -58,4 +66,5 @@ options_save_options (Options *options)
 
 	return result;
 }
+*/
 
