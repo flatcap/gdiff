@@ -201,6 +201,7 @@ progress (void)
 
 }
 
+#if 0
 void 
 threads (void)
 {
@@ -231,6 +232,7 @@ threads (void)
 		g_print ("no threads\n");
 	}
 }
+#endif
 
 void 
 gnome_color (void)

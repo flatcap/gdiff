@@ -5,20 +5,24 @@ void file_open_cb	(GtkWidget * widget, gpointer data);
 void file_close_cb	(GtkWidget * widget, gpointer data);
 void about_cb		(GtkWidget * widget, gpointer data);
 
-GnomeUIInfo file_menu[] =
+//static GnomeUIInfo options_menu[] =
+//{
+//};
+
+static GnomeUIInfo file_menu[] =
 {
 	GNOMEUIINFO_MENU_OPEN_ITEM  (file_open_cb,  NULL),
 	GNOMEUIINFO_MENU_CLOSE_ITEM (file_close_cb, NULL),
 	GNOMEUIINFO_END
 };
 
-GnomeUIInfo help_menu[] =
+static GnomeUIInfo help_menu[] =
 {
 	GNOMEUIINFO_MENU_ABOUT_ITEM (about_cb, NULL),
 	GNOMEUIINFO_END
 };
 
-GnomeUIInfo main_menu[] =
+static GnomeUIInfo main_menu[] =
 {
 	GNOMEUIINFO_MENU_FILE_TREE (file_menu),
 	GNOMEUIINFO_MENU_HELP_TREE (help_menu),
@@ -49,4 +53,5 @@ void file_close_cb (GtkWidget * widget, gpointer data)
 void about_cb (GtkWidget * widget, gpointer data)
 {
 }
+
 
