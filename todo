@@ -296,3 +296,6 @@ styles?
 one consistant set of left/right/etc enums
 
 two new colours -- left and right overview
+
+in the overview -- lines linking all the diff OR lines at set intervals
+
