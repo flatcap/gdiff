@@ -164,3 +164,5 @@ I _could_ stat any left/right file.  Any that turn out to be dirs, will need exp
 'find path' should do the trick (and all are left/right)
 
 always on top button
+
+try and remove the unixness of the path stuff -- there will be a few tripups for DOS ppl

@@ -3,6 +3,7 @@
 #include "node.h"
 #include "tree.h"
 #include "compare.h"
+#include "mdi.h"
 
 void file_open_cb	(GtkWidget * widget, gpointer data);
 void file_close_cb	(GtkWidget * widget, gpointer data);
@@ -200,6 +201,6 @@ void show_cb (GtkWidget * widget, gpointer data)
 	right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, dtr->path, NULL);
 
 	//g_print ("diff -u %s %s\n", left, right);
-	compare (left, right);
+	mdi_add_compare (mdi, left, right);
 }
 

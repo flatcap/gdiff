@@ -23,7 +23,7 @@ cdestroy (GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
-int
+GtkWidget *
 compare (char *left, char *right)
 {
 	char buffer [1024];
@@ -31,7 +31,7 @@ compare (char *left, char *right)
 	char *cols[] = { "line no.", "left", "right" };
 	char *text[3] = { number, NULL, NULL };
 	int line = 1;
-	GtkWidget *app = NULL;
+	//GtkWidget *app = NULL;
 	FILE *f = NULL;
 	GtkWidget *clist = NULL;
 	GtkWidget *scroll = NULL;
@@ -56,10 +56,10 @@ compare (char *left, char *right)
 	int right_count = 0;
 	char *cmdline = NULL;
 
-	app = gnome_app_new (COMPARE_APPNAME, COMPARE_WINNAME);
-	gtk_window_set_default_size (GTK_WINDOW (app), 500, 700);
+	//app = gnome_app_new (COMPARE_APPNAME, COMPARE_WINNAME);
+	//gtk_window_set_default_size (GTK_WINDOW (app), 500, 700);
 
-	gtk_signal_connect (GTK_OBJECT (app), "destroy", (GtkSignalFunc) cdestroy, NULL);
+	//gtk_signal_connect (GTK_OBJECT (app), "destroy", (GtkSignalFunc) cdestroy, NULL);
 
 	clist = gtk_clist_new_with_titles (3, cols);
 
@@ -70,9 +70,9 @@ compare (char *left, char *right)
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER(scroll), clist);
 
-	gnome_app_set_contents (GNOME_APP (app), scroll);
+	//gnome_app_set_contents (GNOME_APP (app), scroll);
 
-	gtk_widget_show_all (app);
+	gtk_widget_show_all (scroll);
 	while (gtk_events_pending ())
 		gtk_main_iteration();
 
@@ -214,8 +214,15 @@ compare (char *left, char *right)
 	gtk_clist_thaw             (GTK_CLIST (clist));
 
 	fclose (f);
-	gtk_main();
+	//gtk_main();
 
-	return 0;
+	if (0)
+	{
+		GtkWidget *b = gtk_button_new_with_label ("button");
+		gtk_widget_show_all (b);
+		return b;
+	}
+
+	return scroll;
 }
 

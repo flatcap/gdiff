@@ -3,6 +3,7 @@
 #include "mdi.h"
 #include "menu.h"
 #include "derived.h"
+#include "compare.h"
 
 /*
 typedef GtkWidget *(*GnomeMDIChildViewCreator) (GnomeMDIChild *, gpointer);
@@ -32,6 +33,13 @@ tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 	{
 		return strcmp (text1, text2);
 	}
+}
+
+GtkWidget *
+my_child_create_compare_view (GnomeMDIChild * child, gpointer data)
+{
+	DiffOptions *diff = data;
+	return compare (diff->left, diff->right);
 }
 
 GtkWidget *
@@ -169,7 +177,7 @@ mdi_new (gchar *appname, gchar *title)
 	mdi = GNOME_MDI (gnome_mdi_new (appname, title));
 
 	mdi->tab_pos = GTK_POS_TOP;		// GTK_POS_LEFT, GTK_POS_RIGHT, GTK_POS_TOP, GTK_POS_BOTTOM
-	gnome_mdi_set_mode (mdi, GNOME_MDI_TOPLEVEL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
+	gnome_mdi_set_mode (mdi, GNOME_MDI_NOTEBOOK); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
 
 	gtk_signal_connect (GTK_OBJECT (mdi), "app_created",  GTK_SIGNAL_FUNC (app_created),  NULL);
 	gtk_signal_connect (GTK_OBJECT (mdi), "destroy",      GTK_SIGNAL_FUNC (destroy),      NULL);
@@ -183,6 +191,36 @@ mdi_new (gchar *appname, gchar *title)
 	gnome_mdi_set_child_list_path(mdi, _("Children/"));
 
 	return mdi;
+}
+
+void
+mdi_add_compare (GnomeMDI *mdi, char *left, char *right)
+{
+	static gint counter = 42;
+	gchar       name[32];
+	GnomeMDIGenericChild *child;
+	DiffOptions *diff = diffoptions_new ();
+
+	diff->left = left;
+	diff->right = right;
+
+	sprintf (name, "%s\n%s", left, right);
+
+	//gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
+	child = gnome_mdi_generic_child_new (name);
+
+	gnome_mdi_generic_child_set_view_creator (child, my_child_create_compare_view, diff);
+	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      diff);
+	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, diff);
+	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         diff);
+
+	gtk_object_set_user_data (GTK_OBJECT (child), GINT_TO_POINTER (counter));
+
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child)); /* add the child to MDI */
+	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child)); /* and add a new view of the child */
+	// yes both of these are necessary to perform all the init
+
+	counter++;
 }
 
 void
