@@ -1,6 +1,6 @@
 CC	= gcc
-CFLAGS	= `gnome-config --cflags gnomeui gnome gtk glib` -c -g -Wall
-LIBS	= `gnome-config --libs   gnomeui gnome gtk glib`
+CFLAGS	= `gnome-config --cflags gnomeui gnome` -c -g -Wall
+LIBS	= `gnome-config --libs   gnomeui gnome`
 
 POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findme.o
 
