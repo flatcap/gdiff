@@ -55,3 +55,7 @@ need to derive a new app class for the menu callbacks
 need to derive a diff class (widget) to display the diffs in
 
 if _I_ expand tabs, then I need to keep the original text cached if they change the tabstops
+
+hide rows by regex
+each regex has a checkbox to en/disable
+

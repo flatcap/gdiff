@@ -35,5 +35,5 @@ tags:	$(SOURCE) $(HEADERS)
 	ctags -i+p *.[ch] gdk/*.[ch] glib/*.[ch] gnome/*.[ch] gnomeui/*.[ch] gtk/*.[ch]
 
 clean:
-	rm -f *.o tags $(PROG)
+	rm -f *.o tags $(PROGS)
 
