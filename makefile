@@ -34,25 +34,29 @@ clean:
 veryclean: clean
 	rm -f tags libtags
 
+test:
+	gd /usr/src/linux-2.2.13 /usr/src/linux-2.3.22 &
+
 phony:
 
 args.o: args.c args.h options.h diff.h
 canvas.o: canvas.c
 compare.o: compare.c compare.h diff.h spawn.h
-derived.o: derived.c derived.h diff.h spawn.h progress.h global.h node.h tree.h menu.h mdi.h options.h
+derived.o: derived.c derived.h diff.h spawn.h progress.h global.h options.h node.h tree.h menu.h mdi.h
 diff.o: diff.c diff.h
 exclude.o: exclude.c
 file.o: file.c file.h options.h diff.h mdi.h args.h
 gd.o: gd.c config.h args.h options.h diff.h mdi.h global.h
-global.o: global.c global.h icons/open.xpm icons/closed.xpm icons/leaf.xpm
+global.o: global.c global.h options.h icons/open.xpm icons/closed.xpm icons/leaf.xpm
 mdi.o: mdi.c mdi.h options.h diff.h menu.h derived.h compare.h global.h
 menu.o: menu.c config.h menu.h mdi.h options.h diff.h derived.h node.h tree.h compare.h file.h exclude.h
-node.o: node.c node.h derived.h diff.h
-options.o: options.c config.h options.h preferences.c
+node.o: node.c node.h derived.h diff.h allocator.h
+options.o: options.c config.h options.h style.h global.h preferences.c
 preferences.o: preferences.c
 progress.o: progress.c progress.h
 spawn.o: spawn.c spawn.h
-tree.o: tree.c tree.h node.h derived.h diff.h global.h
+style.o: style.c style.h
+tree.o: tree.c tree.h node.h derived.h diff.h global.h options.h
 
 ################################################################################
 
@@ -63,8 +67,8 @@ testgtk: testgtk.o
 
 ################################################################################
 
-SOURCE	= args.c canvas.c compare.c derived.c diff.c exclude.c file.c gd.c global.c mdi.c menu.c node.c options.c preferences.c progress.c spawn.c tree.c style.c
-HEADER	= args.h compare.h config.h derived.h diff.h exclude.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h style.h
+SOURCE	= args.c canvas.c compare.c derived.c diff.c exclude.c file.c gd.c global.c mdi.c menu.c node.c options.c preferences.c progress.c spawn.c style.c tree.c
+HEADER	= allocator.h args.h compare.h config.h derived.h diff.h exclude.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h style.h tree.h
 EXTRA	= makefile todo
 FILES	= $(SOURCE) $(HEADER) $(EXTRA)
 

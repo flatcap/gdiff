@@ -17,12 +17,13 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.10 $ */
+/* $Revision: 1.11 $ */
 
 #include <stddef.h>
 #include <string.h>
 #include <gtk/gtk.h>
 #include "node.h"
+#include "allocator.h"
 
 /*----------------------------------------------------------------------------*/
 static GNode * tree_node_find (GNode *node, char *name);
@@ -148,6 +149,7 @@ tree_node_add (GNode *parent, char *path, Status status, char *orig_path)
 		else
 		{
 			//XXX desperately need some helper functions
+			//XXX parse it once at the out level?
 
 			//g_print ("new node: %s (%d)\n", root->str, status);
 

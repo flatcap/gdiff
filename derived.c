@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.26 $ */
+/* $Revision: 1.27 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -135,10 +135,8 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], 
 	g_return_val_if_fail (tree_column >= 0,       NULL);
 	g_return_val_if_fail (tree_column <  columns, NULL);
 
-	//g_print ("gtk_diff_tree_new\n");
-
 	widget = gtk_widget_new (GTK_TYPE_DIFF_TREE,
-				 "n_columns",   columns,
+				 "n_columns",   columns, //XXX always create max cols then hide xs
 				 "tree_column", tree_column,
 				 NULL);
 
@@ -152,36 +150,23 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], 
 	tree->tree_column = tree_column;
 	difftree->diff = diff;
 
-	//gtk_ctree_construct (tree, columns, tree_column, titles);
-
 	if (titles)
 	{
 		int i;
 		for (i = 0; i < columns; i++)
 		{
-			//g_print ("col %d, title %s\n", i, titles[i]);
 			gtk_clist_set_column_title (list, i, titles[i]);
 		}
 
 		gtk_clist_column_titles_show (list);
-
-		//g_print ("row = %p, cell = %p\n", list->row_mem_chunk, list->cell_mem_chunk);
 	}
 
 	// Nobody can be using these chunks, yet...
 	g_mem_chunk_destroy (list->row_mem_chunk);
-	list->row_mem_chunk = g_mem_chunk_new ("clist row mem chunk",
+	list->row_mem_chunk = g_mem_chunk_new ("DiffTreeRow mem chunk",
 						sizeof (DiffTreeRow),
 						sizeof (DiffTreeRow) * 512, 
 						G_ALLOC_AND_FREE);
-	//g_print ("chunk = %p\n", list->row_mem_chunk);
-	//g_print ("chunk1 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
-	//g_print ("chunk2 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
-	//g_print ("chunk3 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
-	//g_print ("chunk4 = %p\n", g_chunk_new (GtkCTreeRow, list->row_mem_chunk));
-	//g_print ("chunk5 = %p\n", g_chunk_new (GtkCTreeRow, list->row_mem_chunk));
-	//g_print ("chunk6 = %p\n", g_chunk_new (GtkCListRow, list->row_mem_chunk));
-	//g_print ("chunk7 = %p\n", g_chunk_new (GtkCListRow, list->row_mem_chunk));
 
 	gtk_clist_set_selection_mode     (list, GTK_SELECTION_BROWSE);
 	gtk_clist_set_auto_sort          (list, TRUE);

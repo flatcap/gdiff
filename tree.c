@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,19 +45,12 @@ get_status_text (Status actual, Status view, gboolean node)
 	{
 		GString *s = g_string_new ("");
 
-		//g_print ("left = %d\t", actual & eFileLeft);
-		if (actual & eFileLeft & view)  g_string_append (s, "left ");
-		//g_print ("right = %d\t", actual & eFileRight);
+		if (actual & eFileLeft  & view) g_string_append (s, "left ");
 		if (actual & eFileRight & view) g_string_append (s, "right ");
-		//g_print ("diff = %d\t", actual & eFileDiff);
-		if (actual & eFileDiff & view)  g_string_append (s, "diff ");
-		//g_print ("same = %d\t", actual & eFileSame);
-		if (actual & eFileSame & view)  g_string_append (s, "");
-		//g_print ("type = %d\t", actual & eFileType);
-		if (actual & eFileType & view)  g_string_append (s, "type ");
-		//g_print ("error = %d\t", actual & eFileError);
+		if (actual & eFileDiff  & view) g_string_append (s, "diff ");
+		if (actual & eFileSame  & view) g_string_append (s, "");
+		if (actual & eFileType  & view) g_string_append (s, "type ");
 		if (actual & eFileError & view) g_string_append (s, "error ");
-		//g_print ("'%s'\n", s->str);
 
 		result = s->str;
 	}
@@ -111,42 +104,10 @@ static void
 set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
 {
 	DiffTreeRow *diffrow = list->data;
-	//GtkCTreeRow *treerow = list->data;
-	//GtkCListRow *listrow = list->data;
 
 	diffrow->name   = g_strdup (data->name);
 	diffrow->path   = g_strdup (data->path);
 	diffrow->status = data->status;
-
-	//g_print ("row = %p\n", list->data);
-	/*
-	g_print ("%p\n", list);
-	g_print ("\tcell = %p, ", listrow->cell);
-	g_print ("state = %d, ", listrow->state);
-	//g_print ("fg = %ld, %d, %d, %d, ", listrow->foreground.pixel, listrow->foreground.red, listrow->foreground.green, listrow->foreground.blue);
-	//g_print ("bg = %ld, %d, %d, %d, ", listrow->background.pixel, listrow->background.red, listrow->background.green, listrow->background.blue);
-	g_print ("style = %p, ", listrow->style);
-	g_print ("data = %p, ", listrow->data);
-	g_print ("notify = %p, ", listrow->destroy);
-	//g_print ("fg_set = %d, ", listrow->fg_set);
-	//g_print ("bg_set = %d, ", listrow->bg_set);
-	//g_print ("selectable = %d\n", listrow->selectable);
-	g_print ("\n");
-
-	g_print ("\tparent = %p, ", treerow->parent);
-	g_print ("sibling = %p, ", treerow->sibling);
-	g_print ("children = %p, ", treerow->children);
-	//g_print ("pixmap_closed = %p, ", treerow->pixmap_closed);
-	//g_print ("mask_closed = %p, ", treerow->mask_closed);
-	//g_print ("pixmap_opened = %p, ", treerow->pixmap_opened);
-	//g_print ("mask_opened = %p, ", treerow->mask_opened);
-	g_print ("level = %d, ", treerow->level);
-	g_print ("is_leaf = %d, ", treerow->is_leaf);
-	g_print ("expanded = %d\n", treerow->expanded);
-
-	g_print ("\tname = %s, ", diffrow->name);
-	g_print ("status = %d\n", diffrow->status);
-	*/
 }
 
 static void

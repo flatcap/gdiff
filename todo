@@ -71,6 +71,12 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+a change of style for list or file -> new 'view' of same data!
+obviously changing 'display right' has to work on the same tree.
+
+write filenames/dirnames to status bar
+two panels -- can put names in title segment of clist
+
 can I show an hourglass cursor until the prefs dialog is realized (signal)?
 
 create an "Are you sure?" dialog which takes a parameter of a options struct member.
@@ -226,6 +232,8 @@ EVERYTHING on thee settings menu is GLOBAL
 
 ________________________________________________________________________________
 WISH LIST - blue sky
+
+explorer list view -- tree in left column, file in centre, info in right
 
 object user data isn't any good for libraries -- would have to invent consts
 window list in a tree form

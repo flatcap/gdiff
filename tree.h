@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.8 $ */
+/* $Revision: 1.9 $ */
 
 #ifndef _TREE_H_
 #define _TREE_H_
@@ -41,6 +41,8 @@ struct _DiffTreeRow
 	char *path;
 	Status  status;
 
+	//XXX FUTURE
+	TreeNode *node;
 };
 
 #if 0

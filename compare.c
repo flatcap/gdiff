@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.20 $ */
+/* $Revision: 1.21 $ */
 
 #include <gnome.h>
 #include "compare.h"
@@ -38,17 +38,17 @@ diff	--old-line-format='left: %L'		\
 //XXX finalize?
 
 /*----------------------------------------------------------------------------*/
-static void gtk_compare (GtkCompare *compare);
-static void gtk_compare_class_init	 (GtkCompareClass * klass);
-static void gtk_compare_draw (GtkWidget *widget, GdkRectangle *area);
-static void gtk_compare_init		 (GtkCompare * compare);
-static void gtk_compare_realize (GtkWidget *widget);
-static void gtk_compare_show (GtkWidget *widget);
+static void	gtk_compare		(GtkCompare *compare);
+static void	gtk_compare_class_init	(GtkCompareClass *klass);
+static void	gtk_compare_draw	(GtkWidget *widget, GdkRectangle *area);
+static void	gtk_compare_init	(GtkCompare *compare);
+static void	gtk_compare_realize	(GtkWidget *widget);
+static void	gtk_compare_show	(GtkWidget *widget);
 
-GtkWidget * gtk_compare_new (DiffOptions *diff);
-guint gtk_compare_get_type (void);
-void gtk_compare_class_init (GtkCompareClass * klass);
-void gtk_compare_init (GtkCompare * compare);
+GtkWidget *	gtk_compare_new		(DiffOptions *diff);
+guint		gtk_compare_get_type	(void);
+void		gtk_compare_class_init	(GtkCompareClass *klass);
+void		gtk_compare_init	(GtkCompare *compare);
 /*----------------------------------------------------------------------------*/
 
 static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
@@ -112,7 +112,7 @@ gtk_compare_get_type (void)
 }
 
 void
-gtk_compare_init (GtkCompare * compare)
+gtk_compare_init (GtkCompare *compare)
 {
 	compare->diff = NULL;
 	compare->mdi_child = NULL;
@@ -121,7 +121,7 @@ gtk_compare_init (GtkCompare * compare)
 }
 
 void
-gtk_compare_class_init (GtkCompareClass * klass)
+gtk_compare_class_init (GtkCompareClass *klass)
 {
 	GtkWidgetClass *widget_class = NULL;
 
@@ -152,7 +152,7 @@ gtk_compare_new (DiffOptions *diff)
 
 	//g_print ("gtk_compare_new\n");
 	widget = gtk_widget_new (GTK_TYPE_COMPARE,
-				 "n_columns",   columns,
+				 "n_columns",   columns, //XXX always create max cols then hide xs
 				 NULL);
 
 	g_return_val_if_fail (widget != NULL, NULL);
@@ -160,26 +160,18 @@ gtk_compare_new (DiffOptions *diff)
 	list = GTK_CLIST (widget);
 	compare = GTK_COMPARE (widget);
 
-	list->columns     = columns;
+	list->columns = columns;
 	compare->diff = diff;
 
 	gtk_clist_append (list, text);
 
-	//gtk_clist_construct (list, columns, NULL);// alread constructed
-	/*
-	if (titles)
-	{
-		int i;
-		for (i = 0; i < columns; i++)
-		{
-			//g_print ("col %d, title %s\n", i, titles[i]);
-			gtk_clist_set_column_title (list, i, titles[i]);
-		}
+	// Nobody can be using these chunks, yet...
+	g_mem_chunk_destroy (list->row_mem_chunk);
+	list->row_mem_chunk = g_mem_chunk_new ("CompareRow mem chunk",
+						sizeof (CompareRow),
+						sizeof (CompareRow) * 1024, 
+						G_ALLOC_AND_FREE);
 
-		gtk_clist_column_titles_show (list);
-		//g_print ("row = %p, cell = %p\n", list->row_mem_chunk, list->cell_mem_chunk);
-	}
-	*/
 
 	return widget;
 }

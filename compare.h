@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.10 $ */
+/* $Revision: 1.11 $ */
 
 #ifndef _COMPARE_H_
 #define _COMPARE_H_
@@ -32,6 +32,8 @@
 
 typedef struct	_GtkCompare		GtkCompare;
 typedef struct	_GtkCompareClass	GtkCompareClass;
+typedef struct	_CompareRow		CompareRow;
+typedef struct	_CompareLine		CompareLine;
 
 guint		gtk_compare_get_type	(void);
 GtkWidget *	gtk_compare_new		(DiffOptions *diff);
@@ -57,6 +59,21 @@ struct _GtkCompareClass
 	GtkCListClass parent_class;
 
 	// Signal handlers
+};
+
+struct _CompareLine
+{
+	GList     glist;
+
+	gchar    *raw_text;
+	DiffType  type;
+};
+
+struct _CompareRow
+{
+	GtkCListRow  clist_row;
+
+	CompareLine *line;
 };
 
 #endif // _COMPARE_H_
