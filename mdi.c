@@ -1,4 +1,4 @@
-/* $Revision: 1.19 $ */
+/* $Revision: 1.20 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -123,7 +123,7 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 
 	diff = data;
 
-	g_print ("gd_mdi_create_menus (w = %s) (p = %s) (pp = %s) (ppp = %s) (pppp = %s)\n", gtk_widget_get_name (view), gtk_widget_get_name (view->parent), gtk_widget_get_name (view->parent->parent), gtk_widget_get_name (view->parent->parent->parent), gtk_widget_get_name (view->parent->parent->parent->parent));
+	//g_print ("gd_mdi_create_menus (w = %s) (p = %s) (pp = %s) (ppp = %s) (pppp = %s)\n", gtk_widget_get_name (view), gtk_widget_get_name (view->parent), gtk_widget_get_name (view->parent->parent), gtk_widget_get_name (view->parent->parent->parent), gtk_widget_get_name (view->parent->parent->parent->parent));
 	menu_list = NULL;
 
 	/* the Child menu */

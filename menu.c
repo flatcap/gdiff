@@ -1,5 +1,7 @@
-/* $Revision: 1.20 $ */
+/* $Revision: 1.21 $ */
 
+#include "config.h"
+#include <gnome.h>
 #include "menu.h"
 #include "derived.h"
 #include "node.h"
@@ -149,7 +151,19 @@ void view_cb (GtkWidget * widget, gpointer data)
 
 void about_cb (GtkWidget * widget, gpointer data)
 {
-	g_print ("about_cb\n");
+	GtkWidget      *about;
+	const char     *authors[] =
+	{"jim <jim@@ait.co.uk>", "bob <bob@@nrma.com.au>", "dave <dave@@vmware.com>", NULL};
+	const char     *copyright = "Copyright 1999";
+	const char     *extra = "Extra information";
+
+	about = gnome_about_new (PACKAGE, VERSION, copyright, authors, extra, NULL);
+
+	//gtk_window_set_transient_for (GTK_WINDOW (about), GTK_WINDOW (app));
+
+	gtk_widget_show (about);
+
+	return;
 }
 
 GtkWidget *

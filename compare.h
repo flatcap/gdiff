@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.6 $ */
 
 #ifndef _COMPARE_H_
 #define _COMPARE_H_
@@ -31,6 +31,7 @@ struct _GtkCompare
 	GnomeMDIChild *mdi_child;
 
 	gint flag1;
+	guint drawn;
 };
 
 struct _GtkCompareClass

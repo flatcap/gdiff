@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.15 $ */
 
 #include <gnome.h>
 #include "compare.h"
@@ -20,28 +20,26 @@ gtk_compare_show (GtkWidget *widget)
 }
 
 void
-gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
+gtk_compare_realize (GtkWidget *widget)
 {
-	static gboolean drawn = FALSE;
-	GtkCompare *compare = GTK_COMPARE (widget);
-
-	g_print ("gtk_compare_draw\n");
-
-	if (!drawn)
-	{
-		drawn = TRUE;
-		gtk_compare (compare);
-	}
-
-	old_draw_handler (widget, area);
+	g_print ("gtk_compare_realize\n");
+	old_realize_handler (widget);
 }
 
 void
-gtk_compare_realize (GtkWidget *widget)
+gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
 {
-	g_print ("gtk_compare_realize %d\n", GTK_WIDGET_REALIZED (widget));
-	old_realize_handler (widget);
-	g_print ("gtk_compare_realize %d\n", GTK_WIDGET_REALIZED (widget));
+	GtkCompare *compare  = GTK_COMPARE (widget);
+
+	g_print ("gtk_compare_draw\n");
+
+	old_draw_handler (widget, area);
+
+	if (compare->drawn == FALSE)
+	{
+		compare->drawn = TRUE;
+		gtk_compare (compare);
+	}
 }
 
 
@@ -87,6 +85,7 @@ gtk_compare_init (GtkCompare * compare)
 	compare->diff = NULL;
 	compare->mdi_child = NULL;
 	compare->flag1 = 0;
+	compare->drawn = FALSE;
 }
 
 void
@@ -113,6 +112,7 @@ gtk_compare_class_init (GtkCompareClass * klass)
 GtkWidget *
 gtk_compare_new (DiffOptions *diff)
 {
+	char *text[1] = { "Please wait..." };
 	GtkWidget *widget = NULL;
 	GtkCList  *list	  = NULL;
 	GtkCompare *compare = NULL;
@@ -130,6 +130,8 @@ gtk_compare_new (DiffOptions *diff)
 
 	list->columns     = columns;
 	compare->diff = diff;
+
+	gtk_clist_append (list, text);
 
 	//gtk_clist_construct (list, columns, NULL);// alread constructed
 	/*
@@ -185,6 +187,7 @@ gtk_compare (GtkCompare *compare)
 	//clist = gtk_clist_new_with_titles (3, cols);
 	clist = GTK_CLIST (compare);
 
+	//XXX this should be in the initialise (once off)
 	gtk_clist_set_selection_mode    (clist, GTK_SELECTION_BROWSE);
 	gtk_clist_column_titles_passive (clist);
 
@@ -209,6 +212,7 @@ gtk_compare (GtkCompare *compare)
 		gtk_main_iteration();
 
 	gtk_clist_freeze (clist);
+	gtk_clist_clear  (clist);
 
 	style_left  = gtk_style_new();
 	style_right = gtk_style_new();
