@@ -1,4 +1,4 @@
-/* $Revision: 1.9 $ */
+/* $Revision: 1.10 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -7,15 +7,23 @@
 
 typedef struct _Options Options;
 
+typedef struct _PrefColours PrefColours;
+
+struct _PrefColours
+{
+	GdkColor fg;
+	GdkColor bg;
+};
+
 struct _Options
 {
-	GtkStyle	*DirStyleSame;
-	GtkStyle	*DirStyleLeft;
-	GtkStyle	*DirStyleRight;
-	GtkStyle	*DirStyleDiff;
-	GtkStyle	*DirStyleError;
-	GtkStyle	*FileStyleLeft;
-	GtkStyle	*FileStyleRight;
+	PrefColours	DirStyleSame;
+	PrefColours	DirStyleLeft;
+	PrefColours	DirStyleRight;
+	PrefColours	DirStyleDiff;
+	PrefColours	DirStyleError;
+	PrefColours	FileStyleLeft;
+	PrefColours	FileStyleRight;
 
 	guint		ConfirmOnClose;
 	guint		ConfirmOnExit;
@@ -53,17 +61,17 @@ struct _Options
 
 typedef enum
 {
-	Default = 0,
-	Style   = 0,
-	Confirmation,
-	View,
-	Tree,
-	Compare,
-	Diff,
-	MDI,
-	Exclusions,
+	PageDefault = 0,
+	PageStyle   = 0,
+	PageConfirmation,
+	PageView,
+	PageTree,
+	PageCompare,
+	PageDiff,
+	PageMDI,
+	PageExclusions,
 
-	MaxPage
+	PageMax
 } PrefsPage;
 
 typedef struct _PrefOption PrefOption;

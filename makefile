@@ -1,6 +1,7 @@
 CC	= gcc
 CFLAGS	= `gnome-config --cflags gnomeui gnome` -c -g -Wall
 LIBS	= `gnome-config --libs   gnomeui gnome`
+EXTRAS	= 
 
 POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findme.o
 
@@ -10,7 +11,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 all:	gd tags libtags
 
 gd:	args.o compare.o derived.o diff.o file.o gd.o global.o mdi.o menu.o node.o options.o progress.o spawn.o tree.o
-	$(CC) $(LIBS) $^ -o $@
+	$(CC) $(EXTRAS) $(LIBS) $^ -o $@
 	#$@ &
 
 libtags:

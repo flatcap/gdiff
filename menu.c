@@ -1,4 +1,4 @@
-/* $Revision: 1.32 $ */
+/* $Revision: 1.33 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -268,7 +268,7 @@ preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 		parent = gnome_mdi_get_active_window (mdi);
 		if (parent)
 		{
-			prefs = get_preferences (GTK_WINDOW (parent), Default);
+			prefs = get_preferences (GTK_WINDOW (parent), PageStyle);
 			if (prefs)
 			{
 				gtk_signal_connect (GTK_OBJECT (prefs), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);
