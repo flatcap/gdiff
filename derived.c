@@ -54,10 +54,10 @@ gtk_diff_tree_get_type (void)
 }
 
 GtkWidget *
-gtk_diff_tree_new (gint columns, gint tree_column)
+gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff)
 {
 	//g_print ("gtk_diff_tree_new\n");
-	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL, NULL);
+	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL, diff);
 }
 
 GtkWidget *

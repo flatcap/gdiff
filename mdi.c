@@ -53,21 +53,22 @@ my_child_create_compare_view (GnomeMDIChild * child, gpointer data)
 GtkWidget *
 my_child_create_view (GnomeMDIChild * child, gpointer data)
 {
-	static char *cols[] = { "Left", "Right" };
 	GtkWidget      *scroll = NULL;
 	GtkWidget      *tree   = NULL;
 	DiffOptions    *diff   = NULL;
 
-	//g_print ("my_child_create_view\n");
-	//XXX (gtk_object_get_user_data (GTK_OBJECT (child))));
+	g_return_val_if_fail (child != NULL, NULL);
+	g_return_val_if_fail (data  != NULL, NULL);
 
 	scroll = gtk_scrolled_window_new (NULL, NULL);
+
+	g_return_val_if_fail (scroll != NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 	diff = data;
-	tree = gtk_diff_tree_new_with_titles (2, 0, cols, diff);
+	tree = gtk_diff_tree_new (2, 0, diff);
 
-	//gtk_ctree_set_line_style         (GTK_CTREE (tree), GTK_CTREE_LINES_TABBED);
+	/*XXX move this into the derived code*/
 	gtk_clist_set_selection_mode     (GTK_CLIST (tree), GTK_SELECTION_BROWSE);
 	gtk_clist_set_auto_sort          (GTK_CLIST (tree), TRUE);
 	gtk_clist_set_compare_func       (GTK_CLIST (tree), tree_compare);
@@ -76,28 +77,8 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 
 	gtk_container_add (GTK_CONTAINER (scroll), tree);
 
-	//g_print ("l/r %s/%s\n", diff->left, diff->right);
-	//gtk_diff_tree_compare(GTK_DIFF_TREE (tree), diff->left, diff->right);
-
 	gtk_widget_show_all (scroll);
-
 	return scroll;
-	/*
-	DiffOptions *diff = NULL;
-	char *text [1] = { "hello" };
-	GtkWidget *compare = gtk_compare_new (diff);
-	gtk_widget_show_all (compare);
-	gtk_clist_append (GTK_CLIST (compare), text);
-	
-	return compare;
-	*/
-}
-
-gchar *
-my_child_get_config_string (GnomeMDIChild * child, gpointer data)
-{
-	//g_print ("my_child_get_config_string\n");
-	return g_strdup_printf ("%d", GPOINTER_TO_INT (gtk_object_get_user_data (GTK_OBJECT (child))));
 }
 
 GtkWidget *
@@ -216,50 +197,41 @@ mdi_new (gchar *appname, gchar *title)
 }
 
 void
-mdi_add_compare (GnomeMDI *mdi, char *left, char *right)
-{
-	static gint counter = 42;
-	gchar       name[32];
-	GnomeMDIGenericChild *child;
-	DiffOptions *diff = diffoptions_new ();
-
-	diff->left = left;
-	diff->right = right;
-
-	sprintf (name, "%s\n%s", left, right);
-
-	//gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL GNOME_MDI_DEFAULT_MODE
-	child = gnome_mdi_generic_child_new (name);
-
-	gnome_mdi_generic_child_set_view_creator (child, my_child_create_compare_view, diff);
-	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      diff);
-	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, diff);
-	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         diff);
-
-	gtk_object_set_user_data (GTK_OBJECT (child), GINT_TO_POINTER (counter));
-
-	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child)); /* add the child to MDI */
-	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child)); /* and add a new view of the child */
-	// yes both of these are necessary to perform all the init
-
-	counter++;
-}
-
-void
-mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)	// what about options???
+mdi_add_compare (GnomeMDI *mdi, DiffOptions *diff)
 {
 	GnomeMDIGenericChild	*child = NULL;
 	char			*name  = NULL;
 
+	g_return_if_fail (mdi  != NULL);
+	g_return_if_fail (diff != NULL);
+
 	name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
 	child = gnome_mdi_generic_child_new (name);
 
-	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       diff); //XXX Check each of these NEEDS diff
-	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      diff); //XXX Check each of these NEEDS diff
-	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, diff); //XXX Check each of these NEEDS diff
-	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         diff); //XXX Check each of these NEEDS diff
+	gnome_mdi_generic_child_set_view_creator (child, my_child_create_compare_view, diff);
+	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      diff);
+	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         diff);
 
-	//XXX gtk_object_set_user_data (GTK_OBJECT (child), GINT_TO_POINTER (counter)); // do I need any extra data?
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));			/* Add one child to the MDI */
+	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));			/* Display one view of that child */
+}
+
+void
+mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)	//XXX what about options???
+{
+	GnomeMDIGenericChild	*child = NULL;
+	char			*name  = NULL;
+
+	g_return_if_fail (mdi  != NULL);
+	g_return_if_fail (diff != NULL);
+
+	name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
+	child = gnome_mdi_generic_child_new (name);
+
+	g_return_if_fail (child != NULL);
+	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,  diff);
+	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus, diff);//XXX
+	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,    diff);
 
 	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));			/* Add one child to the MDI */
 	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));			/* Display one view of that child */

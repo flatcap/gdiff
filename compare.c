@@ -37,8 +37,9 @@ gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
 void
 gtk_compare_realize (GtkWidget *widget)
 {
-	g_print ("gtk_compare_realize\n");
+	g_print ("gtk_compare_realize %d\n", GTK_WIDGET_REALIZED (widget));
 	old_realize_handler (widget);
+	g_print ("gtk_compare_realize %d\n", GTK_WIDGET_REALIZED (widget));
 }
 
 
@@ -193,6 +194,7 @@ gtk_compare (GtkCompare *compare)
 	while (gtk_events_pending ())
 		gtk_main_iteration();
 
+	sleep (5); //XXX
 	cmdline = g_strdup_printf ("diff"
 				   " --old-line-format="       COMPARE_LEFT  "%%L"
 				   " --unchanged-line-format=" COMPARE_SAME  "%%L"

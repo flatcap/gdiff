@@ -26,7 +26,7 @@ typedef struct	_GtkDiffTreeClass	GtkDiffTreeClass;
 
 guint		gtk_diff_tree_get_type		(void);
 GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
-GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column);
+GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column, DiffOptions *diff);
 
 void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
 void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);

@@ -150,57 +150,69 @@ void about_cb (GtkWidget * widget, gpointer data)
 	g_print ("about_cb\n");
 }
 
+GtkWidget *
+get_current_view (GnomeMDI *mdi)
+{
+	GtkWidget *widget = NULL;
+	GtkBin    *bin    = NULL;
+
+	g_return_val_if_fail (mdi != NULL, NULL);
+	widget = gnome_mdi_get_active_view (mdi);
+
+	g_return_val_if_fail (widget != NULL, NULL);
+	bin = GTK_BIN (widget);
+
+	g_return_val_if_fail (bin != NULL, NULL);
+	return bin->child;
+}
+
+DiffOptions *
+get_current_selection (GnomeMDI *mdi)
+{
+	GtkWidget	*view		= NULL;
+	GtkDiffTree	*tree		= NULL;
+	GtkCList	*clist		= NULL;
+	GList		*selection	= NULL;
+	GList		*list		= NULL;
+	DiffTreeRow	*treerow	= NULL;
+	DiffOptions	*options	= NULL;
+
+	view = get_current_view (mdi);
+	
+	g_return_val_if_fail (view != NULL, NULL);
+	tree  = GTK_DIFF_TREE (view);
+	clist = GTK_CLIST     (tree);
+
+	g_return_val_if_fail (clist != NULL, NULL);
+	selection = clist->selection;
+
+	g_return_val_if_fail (selection != NULL, NULL);
+	list    = (selection->data);
+
+	g_return_val_if_fail (list != NULL, NULL);
+	treerow = (DiffTreeRow*) list->data;
+
+	g_return_val_if_fail (treerow != NULL, NULL);
+	options = diffoptions_new();
+
+	g_return_val_if_fail (options != NULL, NULL);
+	options->left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, treerow->path, NULL);
+
+	return options;
+}
+
 void show_cb (GtkWidget * widget, gpointer data)
 {
-	GnomeMDI *mdi = NULL;
-	GtkWidget *w = NULL;
-	GtkBin *bin = NULL;
-	GtkWidget *child = NULL;
-	GtkDiffTree *tree = NULL;
-	GtkCList *list = NULL;
-	GList *sel = NULL;
-	GList *sel_end =NULL;
-	GtkCListRow *row = NULL;
-	//TreeNode *node = NULL;
-	DiffTreeRow *dtr = NULL;
-	GList *l2 = NULL;
-	char *left = NULL;
-	char *right = NULL;
+	GnomeMDI    *mdi  = NULL;
+	DiffOptions *diff = NULL;
 
 	mdi = GNOME_MDI (data);
-	w = gnome_mdi_get_active_view (mdi);
-	bin = GTK_BIN (w);
-	child = bin->child;
-	tree = GTK_DIFF_TREE (child);
-	list = GTK_CLIST (tree);
+	g_return_if_fail (mdi != NULL);
 
-	//g_mem_chunk_print (list->row_mem_chunk);
+	diff = get_current_selection (mdi);
 
-	sel = list->selection;
-	sel_end = list->selection_end;
-
-	l2 = (GList*) (sel->data);
-	row = (GtkCListRow*) (l2->data);
-
-	dtr = (DiffTreeRow*) row;
-	//node = row->data;
-
-	/*
-	g_print ("show_cb\n");
-	g_print ("mdi = %p\n", mdi);
-	g_print ("view = %p\n", w);
-	g_print ("child = %p, %s\n", child, gtk_widget_get_name (GTK_WIDGET (child)));
-	g_print ("l/r = %s/%s\n", tree->left, tree->right);
-	g_print ("sel = %p\n", sel);
-
-	g_print ("show_cb %s, %d, %s\n", dtr->name, dtr->status, dtr->path);
-	*/
-	//g_print ("show_cb %d\n", dtr->status);
-
-	left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, dtr->path, NULL);
-	right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, dtr->path, NULL);
-
-	//g_print ("diff -u %s %s\n", left, right);
-	mdi_add_compare (mdi, left, right);
+	g_return_if_fail (diff != NULL);
+	mdi_add_compare (mdi, diff);
 }
 
