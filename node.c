@@ -151,3 +151,140 @@ GtkCTreeNode * CNode::AddNode (GtkCTreeNode *pParent, GtkCTreeNode *pSibling, ch
 	return pSibling;
 }
 
+TreeNode * tree_node_new (char *name, Status status)
+{
+	TreeNode *node = (TreeNode*) g_malloc (sizeof (TreeNode));
+
+	if (node)
+	{
+		node->name   = g_strdup (name);
+		node->status = status;
+	}
+	
+	return node;
+}
+
+void tree_node_free (TreeNode *node)
+{
+	if (node)
+	{
+		g_free (node->name);
+		g_free (node);
+	}
+}
+
+GNode * tree_node_find (GNode *node, char *name)
+{
+	g_return_val_if_fail (node, NULL);
+	g_return_val_if_fail (name, NULL);
+
+	TreeNode *tree  = NULL;
+	GNode    *match = NULL;
+	GNode    *child = node->children;
+
+	//g_print ("child = %p\n", child);
+	while (child)
+	{
+		tree = (TreeNode*) child->data;
+		if (tree)
+		{
+			//g_print ("find: %s/%s\n", tree->name, name);
+			if (strcmp (name, tree->name) == 0)
+			{
+				match = child;
+				break;
+			}
+		}
+
+		child = child->next;
+	}
+
+	return match;
+}
+
+void print_tree (GNode *node, int depth)
+{
+	static char *space = "                                                ";
+
+	g_return_if_fail (node);
+	//g_return_if_fail (node->data);
+
+	TreeNode *data  = NULL;
+	GNode    *child = node->children;
+	while (child)
+	{
+		data = (TreeNode*) child->data;
+		if (data)
+		{
+			g_print ("%.*s%s (%d)\n", depth, space, data->name, data->status);
+			print_tree (child, depth + 2);
+		}
+		child = child->next;
+	}
+}
+void tree_node_add (GNode *node, char *path, Status status)
+{
+	GNode    *parent = NULL;
+	GNode    *exists = NULL;
+	GNode    *newnode = NULL;
+	GString  *root   = NULL;
+	GString  *rest   = NULL;
+	char     *slash  = NULL;
+	TreeNode *data   = NULL;
+
+	g_return_if_fail (node);
+	g_return_if_fail (path);
+
+	root   = g_string_new (NULL);
+	rest   = g_string_new (NULL);
+	slash  = strchr (path, G_DIR_SEPARATOR);
+
+	//g_print ("path = %s\n", path);
+
+	parent = g_node_get_root (node);
+	//g_print ("max height = %d\n", g_node_max_height (parent));
+	//print_tree (node, 0);
+
+	//int n = g_node_n_nodes (parent, G_TRAVERSE_ALL);
+	//g_print ("num nodes = %d\n", n);
+
+	//g_print ("root = %p, node = %p, d %p, n %p, p %p, parent %p, children %p\n", parent, node, node->data, node->next, node->prev, node->parent, node->children);
+	print_tree (parent, 0);
+
+	g_string_assign (root, path);
+	if (slash)
+	{
+		g_string_truncate (root, (slash - path));
+		g_string_assign   (rest, (slash + 1));
+
+		//g_print ("root = %s\n", root->str);
+		exists = tree_node_find (node, root->str);
+		if (exists)
+		{
+			tree_node_add (exists, rest->str, status);
+		}
+		else
+		{
+			data = tree_node_new (root->str, status);
+			newnode = g_node_append_data (node, data);
+			tree_node_add (newnode, rest->str, status);
+		}
+	}
+	else
+	{
+		data = tree_node_new (root->str, status);
+		newnode = g_node_append_data (node, data);
+	}
+
+	/*
+	if (parent)
+	{
+		tree_node_add (parent, root->str, status);
+		g_node_append_data (parent, parent);
+	}
+	*/
+
+	g_string_free (root, TRUE);
+	g_string_free (rest, TRUE);
+}
+

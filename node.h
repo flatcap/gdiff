@@ -3,15 +3,30 @@
 
 #include <gtk/gtk.h>
 
-enum Status
+enum _Status
 {
-	eFileSame,
-	eFileLeft,
-	eFileRight,
-	eFileDiff,
-	eFileType,
-	eFileError
+	eFileSame  = 1 << 0,		// Obviously these are mutually exclusive for files,
+	eFileLeft  = 1 << 1,		// but directories can accumulate them.
+	eFileRight = 1 << 2,
+	eFileDiff  = 1 << 3,
+	eFileType  = 1 << 4,
+	eFileError = 1 << 5
 };
+
+typedef enum   _Status   Status;
+
+struct _TreeNode
+{
+	char   *name;
+	Status  status;
+};
+
+typedef struct _TreeNode TreeNode;
+
+TreeNode * tree_node_new  (char *name, Status status);
+void       tree_node_free (TreeNode *node);
+GNode *    tree_node_find (GNode *node, char *name);
+void       tree_node_add (GNode *node, char *path, Status status);
 
 class CNode
 {
