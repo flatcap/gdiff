@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.41 $ */
+/* $Revision: 1.42 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -624,6 +624,23 @@ dump_templates (GnomeApp *app)
 	recurse_template (child);
 }
 
+static void
+set_state_tree_menu (GnomeUIInfo *menu)
+{
+	GtkWidget *sort = NULL;
+
+	g_return_if_fail (menu != NULL);
+
+	sort = menu[1].widget;
+
+	gtk_widget_set_sensitive (sort, FALSE);	//XXX NYI
+}
+
+static void
+set_state_file_menu (GnomeUIInfo *menu)
+{
+}
+
 void
 set_menu_state (GnomeMDI *mdi)
 {
@@ -634,41 +651,53 @@ set_menu_state (GnomeMDI *mdi)
 	GtkWidget   *bin        = NULL;
 	GnomeUIInfo *main_menu  = NULL;
 	GnomeUIInfo *child_menu = NULL;
-	//GtkWidget   *file_save  = NULL;
-	//GtkWidget   *file_close = NULL;
+	GnomeUIInfo *file_menu  = NULL;
+	GtkWidget   *file_save  = NULL;
+	GtkWidget   *file_close = NULL;
 	GtkWidget   *windows    = NULL;
 
 	g_return_if_fail (mdi != NULL);
 
 	app  = mdi->active_window;
 	bin  = mdi->active_view;
-
 	if (bin)
 	{
 		view = GTK_BIN (bin)->child;
-		if (view)
-		{
-			tree    = GTK_IS_DIFF_TREE (view);
-			compare = GTK_IS_COMPARE   (view);
-		}
-	}
 
-	g_print ("tree = %d, compare = %d\n", tree, compare);
+		tree    = GTK_IS_DIFF_TREE (view);
+		compare = GTK_IS_COMPARE   (view);
+	}
 
 	main_menu  = gtk_object_get_data (GTK_OBJECT (app), GNOME_MDI_MENUBAR_INFO_KEY);
 	child_menu = gtk_object_get_data (GTK_OBJECT (app), GNOME_MDI_CHILD_MENU_INFO_KEY);
 
-	// XXX HUGE AMOUNT OF SANITY CHECKING
+	file_menu = main_menu[0].moreinfo;
+	windows   = main_menu[2].widget;
 
-	windows = main_menu[2].widget;
+	g_return_if_fail (file_menu);
+	g_return_if_fail (windows);
 
-	gtk_widget_set_sensitive (windows, (tree || compare));
+	file_save  = file_menu[2].widget;
+	file_close = file_menu[4].widget;
+
+	gtk_widget_set_sensitive (windows,    (tree || compare));
+	gtk_widget_set_sensitive (file_save,  tree);
+	gtk_widget_set_sensitive (file_close, (tree || compare));
+
+	if (tree)
+	{
+		set_state_tree_menu (child_menu);
+	}
+	else
+	{
+		set_state_file_menu (child_menu);
+	}
 }
 
 void
 dump_menu (GnomeApp *app)
 {
-	//recurse_menu (GTK_MENU_SHELL (app->menubar), 0);
+	recurse_menu (GTK_MENU_SHELL (app->menubar), 0);
 	dump_templates (app);
 }
 

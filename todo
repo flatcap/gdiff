@@ -71,6 +71,8 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+pane -> panel
+
 when displaying the tabs/menu items for dirs, list the root path for each on separate lines
 for files...? left-root right-root \n relative/Filename
 
