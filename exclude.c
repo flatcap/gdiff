@@ -4,12 +4,18 @@
 #define X_WINNAME "Exclude"
 #define X_VERSION "0.0.1"
 
-GtkWidget *app		= NULL;
-GtkWidget *scroll	= NULL;
-GtkWidget *table	= NULL;
-GtkWidget *clist	= NULL;
-GtkWidget *bbox		= NULL;
-GtkWidget *text		= NULL;
+static GtkWidget *app		= NULL;
+static GtkWidget *scroll	= NULL;
+static GtkWidget *table		= NULL;
+static GtkWidget *clist		= NULL;
+static GtkWidget *bbox		= NULL;
+static GtkWidget *text		= NULL;
+static GtkWidget *add		= NULL;
+static GtkWidget *bremove	= NULL;
+static GtkWidget *bclose		= NULL;
+static GtkAccelGroup *accel    	= NULL;
+
+int selection = -1;
 
 void
 destroy (GtkWidget *widget, gpointer *data)
@@ -36,14 +42,23 @@ remove_text (GtkWidget *widget, gpointer *data)
 	g_print ("remove\n");
 }
 
+void
+select_row (GtkCList *clist, gint row, gint column, GdkEvent *event)
+{
+	g_print ("selected row %d\n", row);
+	gtk_widget_set_sensitive (bremove, TRUE);
+}
+
+void
+unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event)
+{
+	g_print ("unselected row %d\n", row);
+	gtk_widget_set_sensitive (bremove, FALSE);
+}
+
 int
 main (int argc, char *argv[])
 {
-	GtkWidget *add		= NULL;
-	GtkWidget *remove	= NULL;
-	GtkWidget *close	= NULL;
-	GtkAccelGroup *accel    = NULL;
-
 	gnome_init (X_APPNAME, X_VERSION, argc, argv);
 
 	app	= gnome_app_new (X_APPNAME, X_WINNAME);
@@ -53,20 +68,20 @@ main (int argc, char *argv[])
 	text	= gtk_entry_new();
 	bbox	= gtk_hbutton_box_new();
 	add   	= gtk_button_new_with_label ("Add");
-	remove	= gtk_button_new_with_label ("Remove");
-	close 	= gtk_button_new_with_label ("Close");
+	bremove	= gtk_button_new_with_label ("Remove");
+	bclose 	= gtk_button_new_with_label ("Close");
 
 	gtk_label_set_pattern (GTK_LABEL (GTK_BIN (add)   ->child), "_");
-	gtk_label_set_pattern (GTK_LABEL (GTK_BIN (remove)->child), "_");
-	gtk_label_set_pattern (GTK_LABEL (GTK_BIN (close) ->child), "_");
+	gtk_label_set_pattern (GTK_LABEL (GTK_BIN (bremove)->child), "_");
+	gtk_label_set_pattern (GTK_LABEL (GTK_BIN (bclose) ->child), "_");
 
 	accel = gtk_accel_group_new ();
 
 	gtk_accel_group_attach (accel, GTK_OBJECT (app));
 
 	gtk_widget_add_accelerator (add,    "clicked", accel, GDK_a, GDK_MOD1_MASK, 0);
-	gtk_widget_add_accelerator (remove, "clicked", accel, GDK_r, GDK_MOD1_MASK, 0);
-	gtk_widget_add_accelerator (close,  "clicked", accel, GDK_c, GDK_MOD1_MASK, 0);
+	gtk_widget_add_accelerator (bremove, "clicked", accel, GDK_r, GDK_MOD1_MASK, 0);
+	gtk_widget_add_accelerator (bclose,  "clicked", accel, GDK_c, GDK_MOD1_MASK, 0);
 
 	gtk_button_box_set_layout     (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
 	gtk_button_box_set_spacing    (GTK_BUTTON_BOX (bbox), 10);
@@ -79,17 +94,19 @@ main (int argc, char *argv[])
 
 	gtk_container_add (GTK_CONTAINER (scroll), clist);
 	gtk_container_add (GTK_CONTAINER (bbox),   add);
-	gtk_container_add (GTK_CONTAINER (bbox),   remove);
-	gtk_container_add (GTK_CONTAINER (bbox),   close);
+	gtk_container_add (GTK_CONTAINER (bbox),   bremove);
+	gtk_container_add (GTK_CONTAINER (bbox),   bclose);
 
-	gtk_signal_connect (GTK_OBJECT (add),    "clicked", (GtkSignalFunc) add_text,    NULL);
-	gtk_signal_connect (GTK_OBJECT (remove), "clicked", (GtkSignalFunc) remove_text, NULL);
-	gtk_signal_connect (GTK_OBJECT (close),  "clicked", (GtkSignalFunc) destroy,     NULL);
-	gtk_signal_connect (GTK_OBJECT (app),    "destroy", (GtkSignalFunc) destroy,     NULL);
+	gtk_signal_connect (GTK_OBJECT (add),    "clicked",    (GtkSignalFunc) add_text,    NULL);
+	gtk_signal_connect (GTK_OBJECT (bremove), "clicked",    (GtkSignalFunc) remove_text, NULL);
+	gtk_signal_connect (GTK_OBJECT (bclose),  "clicked",    (GtkSignalFunc) destroy,     NULL);
+	gtk_signal_connect (GTK_OBJECT (app),    "destroy",    (GtkSignalFunc) destroy,     NULL);
+	gtk_signal_connect (GTK_OBJECT (clist),  "select_row", (GtkSignalFunc) select_row,  NULL);
+	gtk_signal_connect (GTK_OBJECT (clist),  "unselect_row", (GtkSignalFunc) unselect_row,  NULL);
 	
 	gtk_window_set_default_size (GTK_WINDOW (app), 0, 300);
 
-	gtk_widget_set_sensitive (remove, FALSE);
+	gtk_widget_set_sensitive (bremove, FALSE);
 	gtk_widget_grab_focus	 (text);
 
 	gtk_widget_show_all (app);

@@ -305,21 +305,21 @@ main (int argc, char *argv[])
 
 	gnome_app_create_menus (GNOME_APP (app), main_menu);
 
-	app2 = gnome_app_new (APPNAME, WINNAME);
+	//app2 = gnome_app_new (APPNAME, WINNAME);
 
-	gtk_signal_connect (GTK_OBJECT (app2), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
+	//gtk_signal_connect (GTK_OBJECT (app2), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
 
-	gnome_app_create_menus (GNOME_APP (app2), main_menu);
+	//gnome_app_create_menus (GNOME_APP (app2), main_menu);
 
-	g_print ("accel_group = %p\n", GNOME_APP (app2)->accel_group);
+	//g_print ("accel_group = %p\n", GNOME_APP (app2)->accel_group);
 
 	//buttons ();
-	checks();
+	//checks();
 	//progress();
 	//threads();
 
 	gtk_widget_show_all (app);
-	gtk_widget_show_all (app2);
+	//gtk_widget_show_all (app2);
 	gtk_main ();
 
 	//gnome_rc();

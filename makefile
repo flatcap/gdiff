@@ -15,6 +15,7 @@ richard: richard.o derived.o menu.o progress.o global.o spawn.o
 
 exclude: exclude.o
 	$(CC) $(LIBS) $^ -o $@
+	$@ &
 
 fork: fork.o
 	$(CC) $(LIBS) $^ -o $@
