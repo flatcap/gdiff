@@ -4,16 +4,16 @@
 #define X_WINNAME "Exclude"
 #define X_VERSION "0.0.1"
 
-static GtkWidget *app		= NULL;
-static GtkWidget *scroll	= NULL;
-static GtkWidget *table		= NULL;
-static GtkWidget *list		= NULL;
-static GtkWidget *bbox		= NULL;
-static GtkWidget *text		= NULL;
-static GtkWidget *add		= NULL;
-static GtkWidget *bremove	= NULL;
-static GtkWidget *bclose		= NULL;
 static GtkAccelGroup *accel    	= NULL;
+static GtkWidget *add		= NULL;
+static GtkWidget *app		= NULL;
+static GtkWidget *bbox		= NULL;
+static GtkWidget *bclose	= NULL;
+static GtkWidget *bremove	= NULL;
+static GtkWidget *list		= NULL;
+static GtkWidget *scroll	= NULL;
+static GtkWidget *text		= NULL;
+static GtkWidget *vbox		= NULL;
 
 int selection = -1;
 
@@ -29,7 +29,7 @@ add_text (GtkWidget *widget, gpointer data)
 	GtkWidget       *check  = NULL;
 	GtkToggleButton *toggle = NULL;
 	GtkWidget       *label  = NULL;
-	GtkWidget       *table  = NULL;
+	GtkWidget       *hbox   = NULL;
 	GtkWidget       *item   = NULL;
 	GString         *str    = g_string_new (gtk_entry_get_text (GTK_ENTRY (text)));
 
@@ -43,15 +43,16 @@ add_text (GtkWidget *widget, gpointer data)
 	item   = gtk_list_item_new();
 	check  = gtk_check_button_new();
 	label  = gtk_label_new (str->str);
-	table  = gtk_table_new (1, 2, FALSE);
+	hbox   = gtk_hbox_new (FALSE, 0);
 	toggle = GTK_TOGGLE_BUTTON (check);
 
+	GTK_WIDGET_SET_FLAGS (toggle, GTK_CAN_DEFAULT);
 	toggle->active = TRUE;
 
-	gtk_table_attach (GTK_TABLE (table), check, 0, 1, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
-	gtk_table_attach (GTK_TABLE (table), label, 1, 2, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), check, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE,  0);
 
-	gtk_container_add (GTK_CONTAINER (item), table);
+	gtk_container_add (GTK_CONTAINER (item), hbox);
 	gtk_container_add (GTK_CONTAINER (list), item);
 
 	gtk_widget_show_all (item);
@@ -117,7 +118,7 @@ selection_changed (GtkWidget *widget, gpointer data)
 void
 select_child (GtkWidget *widget, gpointer data)
 {
-	g_print ("select_child\n");
+	g_print ("select_child %s\n", gtk_widget_get_name (widget));
 	gtk_widget_set_sensitive (bremove, TRUE);
 }
 
@@ -128,6 +129,12 @@ unselect_child (GtkWidget *widget, gpointer data)
 	gtk_widget_set_sensitive (bremove, FALSE);
 }
 
+void
+no_default (GtkWidget *widget, gpointer data)
+{
+	//GTK_WIDGET_UNSET_FLAGS (add, GTK_HAS_DEFAULT);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -135,7 +142,7 @@ main (int argc, char *argv[])
 	gnome_init (X_APPNAME, X_VERSION, argc, argv);
 
 	app	= gnome_app_new (X_APPNAME, X_WINNAME);
-	table	= gtk_table_new (3, 1, FALSE);
+	vbox	= gtk_vbox_new (FALSE, 5);
 	scroll	= gtk_scrolled_window_new (NULL, NULL);
 	//clist	= gtk_clist_new_with_titles (2, cols);
 	list	= gtk_list_new();
@@ -156,7 +163,7 @@ main (int argc, char *argv[])
 	gtk_button_box_set_layout     (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
 	gtk_button_box_set_spacing    (GTK_BUTTON_BOX (bbox), 10);
 
-	gnome_app_set_contents (GNOME_APP (app), table);
+	gnome_app_set_contents (GNOME_APP (app), vbox);
 
 	//gtk_container_add (GTK_CONTAINER (scroll), list);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scroll), list);
@@ -166,9 +173,9 @@ main (int argc, char *argv[])
 	gtk_container_add (GTK_CONTAINER (bbox),   bremove);
 	gtk_container_add (GTK_CONTAINER (bbox),   bclose);
 
-	gtk_table_attach (GTK_TABLE (table), scroll, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
-	gtk_table_attach (GTK_TABLE (table), text,   0, 1, 1, 2, GTK_FILL, GTK_FILL, 10, 10);
-	gtk_table_attach (GTK_TABLE (table), bbox,   0, 1, 2, 3, GTK_FILL, GTK_FILL, 5, 5);
+	gtk_box_pack_start (GTK_BOX (vbox), scroll, TRUE,  TRUE,  0);
+	gtk_box_pack_start (GTK_BOX (vbox), text,   FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), bbox,   FALSE, FALSE, 0);
 
 	gtk_signal_connect (GTK_OBJECT (add),    "clicked",    (GtkSignalFunc) add_text,    NULL);
 	gtk_signal_connect (GTK_OBJECT (bremove), "clicked",    (GtkSignalFunc) remove_text, NULL);
@@ -178,12 +185,24 @@ main (int argc, char *argv[])
 	gtk_signal_connect (GTK_OBJECT (list),  "select_child", (GtkSignalFunc) select_child,  NULL);
 	gtk_signal_connect (GTK_OBJECT (list),  "unselect_child", (GtkSignalFunc) unselect_child,  NULL);
 	
+	gtk_signal_connect_object (GTK_OBJECT (text), "focus_in_event",
+				   (GtkSignalFunc) gtk_widget_grab_default,
+				   GTK_OBJECT (add));
+
+	/*
+	gtk_signal_connect_object (GTK_OBJECT (text), "focus_in_event",
+				   (GtkSignalFunc) gtk_widget_grab_default,
+				   GTK_OBJECT (add));
+	*/
+
+	//gtk_signal_connect (GTK_OBJECT (text), "focus_out_event", (GtkSignalFunc) no_default, add);
+
 	gtk_signal_connect_object (GTK_OBJECT (text), "activate",
 				  (GtkSignalFunc) gtk_button_clicked, GTK_OBJECT (add));
 
 	gtk_window_set_default_size (GTK_WINDOW (app), 0, 300);
 
-	//gtk_clist_set_selection_mode (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
+	gtk_list_set_selection_mode  (GTK_LIST (list), GTK_SELECTION_BROWSE);
 	gtk_widget_set_sensitive     (bremove, FALSE);
 	gtk_widget_grab_focus	     (text);
 	gtk_widget_grab_default      (add);
