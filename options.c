@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.21 $ */
+/* $Revision: 1.22 $ */
 
 #include "config.h"
 #include "options.h"
@@ -343,8 +343,10 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	gtk_box_pack_end   (GTK_BOX (hbox), fg,    FALSE, FALSE, GNOME_PAD_SMALL);
 	//gtk_box_pack_end   (GTK_BOX (hbox), check, FALSE, FALSE, GNOME_PAD_SMALL); //XXX enable colours
 
+	gtk_container_add (cont, hbox);
+	gtk_widget_show_all (cont);
+
 	gtk_widget_set_sensitive (entry, FALSE);
-	gtk_widget_show (entry);
 	gtk_entry_set_text (GTK_ENTRY (entry), _("Sample text"));
 
 	//g_print ("fg   = %ld %d %d %d\n", colour->fg.pixel, colour->fg.red, colour->fg.green, colour->fg.blue);
@@ -353,10 +355,10 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	//style = gtk_style_copy (gtk_widget_get_default_style());
 	//style = gtk_widget_get_style (entry);
 
-	//style->fg  [GTK_STATE_INSENSITIVE] = style->fg  [GTK_STATE_NORMAL];
-	//style->bg  [GTK_STATE_INSENSITIVE] = style->bg  [GTK_STATE_NORMAL];
-	//style->base[GTK_STATE_INSENSITIVE] = style->base[GTK_STATE_NORMAL];
-	//style->text[GTK_STATE_INSENSITIVE] = style->text[GTK_STATE_NORMAL];
+	style->fg  [GTK_STATE_INSENSITIVE] = style->fg  [GTK_STATE_NORMAL];
+	style->bg  [GTK_STATE_INSENSITIVE] = style->bg  [GTK_STATE_NORMAL];
+	style->base[GTK_STATE_INSENSITIVE] = style->base[GTK_STATE_NORMAL];
+	style->text[GTK_STATE_INSENSITIVE] = style->text[GTK_STATE_NORMAL];
 
 	//g_print ("style= %ld %d %d %d\n", style->fg[GTK_STATE_NORMAL].pixel, style->fg[GTK_STATE_NORMAL].red, style->fg[GTK_STATE_NORMAL].green, style->fg[GTK_STATE_NORMAL].blue);
 	//g_print ("style= %ld %d %d %d\n", style->base[GTK_STATE_NORMAL].pixel, style->base[GTK_STATE_NORMAL].red, style->base[GTK_STATE_NORMAL].green, style->base[GTK_STATE_NORMAL].blue);
@@ -392,14 +394,8 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	//g_print ("style= %ld %d %d %d\n", style->fg[GTK_STATE_INSENSITIVE].pixel, style->fg[GTK_STATE_INSENSITIVE].red, style->fg[GTK_STATE_INSENSITIVE].green, style->fg[GTK_STATE_INSENSITIVE].blue);
 	//g_print ("style= %ld %d %d %d\n", style->base[GTK_STATE_INSENSITIVE].pixel, style->base[GTK_STATE_INSENSITIVE].red, style->base[GTK_STATE_INSENSITIVE].green, style->base[GTK_STATE_INSENSITIVE].blue);
 	//g_print ("as: fg %ld, bg %ld\n", colour->fg.pixel, colour->base.pixel);
-#if 0
-	if ((random () & 255) > 128)
-	{
-		gtk_widget_set_style (entry, style);
-	}
-#else
+
 	gtk_widget_set_style (entry, style);
-#endif
 
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (fg),   colour->fg.red,   colour->fg.green,   colour->fg.blue, 0);
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (base), colour->base.red, colour->base.green, colour->base.blue, 0);
@@ -410,9 +406,11 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 		gtk_widget_set_sensitive (GTK_WIDGET (entry), TRUE);
 		gtk_widget_set_sensitive (GTK_WIDGET (entry), TRUE);
 	}
+	if ((random () & 255) > 128)
+	{
+		gtk_widget_set_style (entry, style);
+	}
 #endif
-
-	gtk_container_add (cont, hbox);
 
 	return 1;
 }
