@@ -4,13 +4,16 @@ LIBS	= `gnome-config --libs   gnomeui`
 
 SOURCE	= chunk.c color.c config.c derived.c font.c global.c gnome.c main.c menu.c node.c progress.c richard.c spawn.c tree.c
 HEADERS	= color.h confdefs.h config.h derived.h font.h global.h main.h menu.h node.h progress.h spawn.h tree.h
-
+PROGS	= main g testgtk richard file compare fork
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	compare
+all:	fork
 
 richard: richard.o derived.o menu.o progress.o global.o spawn.o
+	$(CC) $(LIBS) $^ -o $@
+
+fork: fork.o
 	$(CC) $(LIBS) $^ -o $@
 
 compare: compare.o
@@ -32,5 +35,5 @@ tags:	$(SOURCE) $(HEADERS)
 	ctags -i+p *.[ch] gdk/*.[ch] glib/*.[ch] gnome/*.[ch] gnomeui/*.[ch] gtk/*.[ch]
 
 clean:
-	rm -f *.o main g testgtk richard tags file compare
+	rm -f *.o tags $(PROG)
 
