@@ -19,6 +19,7 @@ exclude: exclude.o
 
 canvas:	canvas.o
 	$(CC) $(LIBS) $^ -o $@
+	$@ &
 
 auto:	auto.o
 	$(CC) $(LIBS) $^ -o $@

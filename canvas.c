@@ -173,11 +173,35 @@ scaled_canvas (GtkWidget *app)
 					"y1", 0.01,
 					"x2", 0.99,
 					"y2", 0.99,
-					"fill_color_rgba", 0x3cb371FF,
+					"fill_color_rgba", 0x008000FF,
 					//"outline_color", "pink",
 					//"width_units", 0.04,
 					NULL);
-	gtk_signal_connect (GTK_OBJECT (item), "event", (GtkSignalFunc) item_event, NULL);
+	//gtk_signal_connect (GTK_OBJECT (item), "event", (GtkSignalFunc) item_event, NULL);
+
+	item = gnome_canvas_item_new (group,
+					gnome_canvas_rect_get_type (),
+					"x1", 0.48,
+					"y1", 0.01,
+					"x2", 0.52,
+					"y2", 0.99,
+					"fill_color_rgba", 0x800000FF,
+					//"outline_color", "pink",
+					//"width_units", 0.04,
+					NULL);
+	//gtk_signal_connect (GTK_OBJECT (item), "event", (GtkSignalFunc) item_event, NULL);
+
+	item = gnome_canvas_item_new (group,
+					gnome_canvas_rect_get_type (),
+					"x1", 0.01,
+					"y1", 0.48,
+					"x2", 0.99,
+					"y2", 0.52,
+					"fill_color_rgba", 0x000080FF,
+					//"outline_color", "pink",
+					//"width_units", 0.04,
+					NULL);
+	//gtk_signal_connect (GTK_OBJECT (item), "event", (GtkSignalFunc) item_event, NULL);
 
 	gtk_signal_connect (GTK_OBJECT (canvas), "size_request",  (GtkSignalFunc) size_request,  NULL);
 	gtk_signal_connect (GTK_OBJECT (canvas), "size_allocate", (GtkSignalFunc) size_allocate, NULL);
