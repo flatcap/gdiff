@@ -1,4 +1,4 @@
-/* $Revision: 1.30 $ */
+/* $Revision: 1.31 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -159,6 +159,7 @@ about_cb (GtkWidget *widget, GnomeMDI *mdi)
 	g_return_if_fail (mdi != NULL);
 	g_return_if_fail (GNOME_IS_MDI (mdi));
 
+	//XXX race condition to set about?
 	if (about)
 	{
 		gdk_window_show  (about->window);
@@ -267,7 +268,7 @@ preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 		parent = gnome_mdi_get_active_window (mdi);
 		if (parent)
 		{
-			prefs = NULL;// get_prefs (GTK_WINDOW (parent));
+			prefs = get_preferences (GTK_WINDOW (parent));
 			if (prefs)
 			{
 				gtk_signal_connect (GTK_OBJECT (prefs), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);

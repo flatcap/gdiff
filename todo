@@ -72,7 +72,7 @@ make the colour scheme a separate .rc file
 GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
 This could allow me to have my exlusions list with check boxes
 
-the overview wiget:	A click means change the view to one centred HERE
+the overview widget:	A click means change the view to one centred HERE
 			A drag should send scroll messages to the window (up/down) to match the mouse posn
 
 now that I'm not using a text widget, can I implement highlight / copy
@@ -231,6 +231,7 @@ If I cannot parse the diff output, write an explanation and quote it verbatim:
 ...
 
 how do I launch help?
+let gnome do it automatically
 
 xref all methods -- make sure all local methods are static
 make sure all non-static methods are called from more than one place
@@ -241,3 +242,20 @@ GtkWidget* gtk_widget_get_ancestor (GtkWidget *widget, GtkType    widget_type)
 GtkWidget* gtk_widget_get_toplevel (GtkWidget *widget)
 
 should view ident/diff/left/right be global or per tree?
+
+sort by diff-type, eg 1st=same,2nd=left,3rd=right,4th=diff,5th=error (alphabetic within groups)
+
+option to automatically open file/open/browse don't just give focus to the entry field 
+
+add a file count to the tree
+
+right click on tree
+	refresh WHOLE tree
+	refresh from here
+	new view from here
+
+make key bindings configurable?
+
+use GNOME regex!
+how about gnome_exec too
+

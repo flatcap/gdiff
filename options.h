@@ -1,4 +1,4 @@
-/* $Revision: 1.6 $ */
+/* $Revision: 1.7 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -17,6 +17,7 @@ struct _Options
 //Options *	options_new (void);
 Options *	options_get_default (void);
 //void		options_free (Options *options);
+GtkWidget *	get_preferences (GtkWindow *parent);
 
 //gboolean	options_set_options  (Options *options);
 //gboolean	options_save_options (Options *options);

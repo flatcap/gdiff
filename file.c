@@ -1,4 +1,4 @@
-/* $Revision: 1.6 $ */
+/* $Revision: 1.7 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -49,6 +49,35 @@ get_filename (GtkFileSelection *dialog)
 	}
 }
 
+//static gboolean
+//gnome_dialog_quit_run(GnomeDialog *dialog,
+		      //struct GnomeDialogRunInfo *runinfo)
+void
+new_file (GnomeMDI *mdi, GtkWindow *parent)
+{
+	static GtkWidget *dialog = NULL;
+	static GtkWidget *left   = NULL;
+	static GtkWidget *right  = NULL;
+
+	GtkWidget *table = NULL;
+	GtkBox *box = NULL;
+	int i = 0;
+
+	dialog = gnome_dialog_new ("Select files or directories to be compared", GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
+
+	box = GTK_BOX ((GNOME_DIALOG (dialog))->vbox);
+
+	gtk_box_pack_start (box, gtk_entry_new(), TRUE, TRUE, 0);
+	gtk_box_pack_start (box, gtk_entry_new(), TRUE, TRUE, 0);
+
+	gnome_dialog_set_parent (GNOME_DIALOG (dialog), parent);
+	gtk_window_set_default_size (GTK_WINDOW (dialog), 100, 100);
+
+	gtk_widget_show_all (dialog);
+	gnome_dialog_run (GNOME_DIALOG (dialog));
+}
+
+#if 0
 void
 new_file (GnomeMDI *mdi, GtkWindow *parent)
 {
@@ -113,4 +142,5 @@ new_file (GnomeMDI *mdi, GtkWindow *parent)
 						//(GtkSignalFunc) gtk_button_clicked,
 						//GTK_OBJECT (filesel->ok_button));
 }
+#endif
 
