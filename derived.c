@@ -6,6 +6,7 @@
 #include "global.h"
 #include "node.h"
 #include "tree.h"
+#include "menu.h"
 
 static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
 static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * class);
@@ -196,13 +197,13 @@ gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
 void
 gtk_diff_tree_display (GtkDiffTree *tree)
 {
-	g_print ("gtk_diff_tree_display\n");
+	//g_print ("gtk_diff_tree_display\n");
 	tree_dialog_draw (tree, eFileAll);
 
-	g_mem_chunk_print (GTK_CLIST (tree)->row_mem_chunk);
-	g_print ("sizeof (DiffTreeRow) = %d\n", sizeof (DiffTreeRow));
-	g_print ("sizeof (GtkCTreeRow) = %d\n", sizeof (GtkCTreeRow));
-	g_print ("sizeof (GtkCListRow) = %d\n", sizeof (GtkCListRow));
+	//g_mem_chunk_print (GTK_CLIST (tree)->row_mem_chunk);
+	//g_print ("sizeof (DiffTreeRow) = %d\n", sizeof (DiffTreeRow));
+	//g_print ("sizeof (GtkCTreeRow) = %d\n", sizeof (GtkCTreeRow));
+	//g_print ("sizeof (GtkCListRow) = %d\n", sizeof (GtkCListRow));
 }
 
 char *
@@ -245,16 +246,16 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	tree->right = g_strdup (right);
 
 	{
-	char	 buffer[_POSIX_PATH_MAX * 2 + 50];
+	char	 buffer[_POSIX_PATH_MAX * 2 + 50]; // XXX possible buffer overrun here
 	FILE	*f       = NULL;
 	char    *base    = NULL;
 	GString *path    = g_string_new (NULL);
 	GString *old_loc = g_string_new (NULL);
 	GString *new_loc = g_string_new (NULL);
 	Status   status  = eFileError;
-	GtkWidget *progress = NULL;
+	Progress *progress = NULL;
 
-	progress = progress_new ();
+	progress = progress_new (global_statusbar);
 
 	// P -> no 'right' files! will need to stat left/right files
 	//f = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
@@ -291,6 +292,7 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	fclose (f);			// temp
 	//tree_print (tree->root, 0);	// temp
 
+	progress_free (progress);
 	gtk_diff_tree_display (tree);
 	}
 }
@@ -323,6 +325,8 @@ gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
 	gboolean result = FALSE;
 
+	//g_print ("button %d\n", event->button);	// 1,2,3
+	//g_print ("state %d\n", event->state);	// shift, ctrl, alt etc
 	if (event->type == GDK_2BUTTON_PRESS)
 	{
 		// my handler
@@ -338,7 +342,7 @@ gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
 	else if (event->type == GDK_BUTTON_PRESS)
 	{
 		g_print ("single click\n");
-		result = TRUE;
+		result 	= TRUE;
 	}
 	*/
 	else

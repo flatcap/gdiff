@@ -3,8 +3,18 @@
 
 #include <gnome.h>
 
-GtkWidget *	progress_new		(void);
-void		progress_set_text	(GtkWidget *progress, char *text);
+typedef struct _Progress Progress;
+
+Progress *	progress_new		(GtkStatusbar *status);
+void		progress_free		(Progress *progress);
+void		progress_set_text	(Progress *progress, char *text);
+
+struct _Progress
+{
+	GtkStatusbar *status;
+	char *message;
+	guint context;
+};
 
 #endif // _PROGRESS_H_
 

@@ -10,6 +10,8 @@ void view_cb		(GtkWidget * widget, gpointer data);
 void about_cb		(GtkWidget * widget, gpointer data);
 void show_cb		(GtkWidget * widget, gpointer data);
 
+GtkStatusbar *global_statusbar = NULL;
+
 static GnomeUIInfo file_menu[] =
 {
 	GNOMEUIINFO_MENU_OPEN_ITEM  (file_open_cb,  NULL),
@@ -110,6 +112,7 @@ void menu_create (GnomeMDI *mdi, GnomeApp *app)
 	menu_set_view_defaults (GTK_MENU_SHELL (app->menubar));
 
 	status = gtk_statusbar_new();
+	global_statusbar = GTK_STATUSBAR (status);
 
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), status);
@@ -196,7 +199,7 @@ void show_cb (GtkWidget * widget, gpointer data)
 	left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, dtr->path, NULL);
 	right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, dtr->path, NULL);
 
-	g_print ("diff -u %s %s\n", left, right);
+	//g_print ("diff -u %s %s\n", left, right);
 	compare (left, right);
 }
 

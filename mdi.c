@@ -44,7 +44,7 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 	GtkWidget      *tree   = NULL;
 	DiffOptions    *diff   = NULL;
 
-	g_print ("my_child_create_view\n");
+	//g_print ("my_child_create_view\n");
 	sprintf (label, "Child %d",
 		 GPOINTER_TO_INT (gtk_object_get_user_data (GTK_OBJECT (child))));
 
@@ -61,7 +61,7 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 	gtk_clist_column_titles_passive  (GTK_CLIST (tree));
 
 	diff = data;
-	g_print ("l/r %s/%s\n", diff->left, diff->right);
+	//g_print ("l/r %s/%s\n", diff->left, diff->right);
 	gtk_diff_tree_compare(GTK_DIFF_TREE (tree), diff->left, diff->right);
 
 	gtk_container_add (GTK_CONTAINER (scroll), tree);
@@ -75,7 +75,7 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 gchar   *
 my_child_get_config_string (GnomeMDIChild * child, gpointer data)
 {
-	g_print ("my_child_get_config_string\n");
+	//g_print ("my_child_get_config_string\n");
 	return g_strdup_printf ("%d", GPOINTER_TO_INT (gtk_object_get_user_data (GTK_OBJECT (child))));
 }
 
@@ -86,7 +86,7 @@ my_child_set_label (GnomeMDIChild * child,
 {
 	//GtkWidget      *hbox, *pixmap, *label;
 	GtkWidget      *hbox, *label;
-	g_print ("my_child_set_label\n");
+	//g_print ("my_child_set_label\n");
 	if (old_label == NULL)
 	{
 		/* if old_label is NULL, we have to create a new label */
@@ -116,7 +116,7 @@ my_child_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 	GList          *menu_list;
 	GtkWidget      *menu, *w;
 
-	g_print ("my_child_create_menus\n");
+	//g_print ("my_child_create_menus\n");
 	menu_list = NULL;
 
 	/* the Child menu */
@@ -157,7 +157,7 @@ destroy (GnomeMDI *mdi)
 gint
 remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 {
-	g_print ("remove child\n");
+	//g_print ("remove child\n");
 	return TRUE;			// yes let it die
 }
 

@@ -5,5 +5,7 @@
 
 void menu_create (GnomeMDI *mdi, GnomeApp *app);
 
+extern GtkStatusbar *global_statusbar;
+
 #endif // _MENU_H_
 

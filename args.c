@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <gnome.h>
 #include <popt.h>
 #include "options.h"
 #include "diff.h"
@@ -41,14 +41,14 @@ gnome_init_and_parse_args (const char *app_id,
 	
 	while ((opt = poptGetNextOpt (context)) > 0)
 	{
-		//printf ("option %c\n", opt);
+		//g_print ("option %c\n", opt);
 		//poptPrintUsage (context, stdout, 0);
 		//poptPrintHelp (context, stdout, 0);
 	}
 
 	if (opt < -1)
 	{
-		printf ("bad option: %s: %s\n", poptBadOption (context, POPT_BADOPTION_NOALIAS), poptStrerror (opt));
+		g_print ("bad option: %s: %s\n", poptBadOption (context, POPT_BADOPTION_NOALIAS), poptStrerror (opt));
 	}
 	else
 	{
@@ -70,11 +70,11 @@ gnome_init_and_parse_args (const char *app_id,
 
 		if (!left && !right)
 		{
-			printf ("no args!\n");
+			g_print ("no args!\n");
 		}
 		else if (extra)
 		{
-			printf ("too many options = %s\n", extra);
+			g_print ("too many options = %s\n", extra);
 		}
 		else
 		{
@@ -87,8 +87,8 @@ gnome_init_and_parse_args (const char *app_id,
 				left = ".";
 			}
 
-			printf ("left  %s\n", left);
-			printf ("right %s\n", right);
+			//g_print ("left  %s\n", left);
+			//g_print ("right %s\n", right);
 
 			g_free (diff->left);
 			g_free (diff->right);

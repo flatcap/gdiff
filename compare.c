@@ -81,7 +81,7 @@ compare (char *left, char *right)
 				   " --unchanged-line-format=" COMPARE_SAME  "%%L"
 				   " --new-line-format="       COMPARE_RIGHT "%%L"
 				   " %s %s", left, right);
-	g_print ("cmdline = %s\n", cmdline);
+	//g_print ("cmdline = %s\n", cmdline);
 	f = run_diff (cmdline);
 
 	gtk_clist_freeze (GTK_CLIST (clist));
