@@ -132,6 +132,10 @@ main (int argc, char *argv[])
 	bremove	= gtk_button_new_with_accel ("_Remove", accel);
 	bclose 	= gtk_button_new_with_accel ("_Close",  accel);
 
+	GTK_WIDGET_SET_FLAGS (add,     GTK_CAN_DEFAULT);
+	GTK_WIDGET_SET_FLAGS (bremove, GTK_CAN_DEFAULT);
+	GTK_WIDGET_SET_FLAGS (bclose,  GTK_CAN_DEFAULT);
+
 	gtk_accel_group_attach (accel, GTK_OBJECT (app));
 
 	gtk_button_box_set_layout     (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -155,11 +159,15 @@ main (int argc, char *argv[])
 	gtk_signal_connect (GTK_OBJECT (clist),  "select_row", (GtkSignalFunc) select_row,  NULL);
 	gtk_signal_connect (GTK_OBJECT (clist),  "unselect_row", (GtkSignalFunc) unselect_row,  NULL);
 	
+	gtk_signal_connect_object (GTK_OBJECT (text), "activate",
+				  (GtkSignalFunc) gtk_button_clicked, GTK_OBJECT (add));
+
 	gtk_window_set_default_size (GTK_WINDOW (app), 0, 300);
 
 	gtk_clist_set_selection_mode (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
 	gtk_widget_set_sensitive     (bremove, FALSE);
 	gtk_widget_grab_focus	     (text);
+	gtk_widget_grab_default      (add);
 
 	gtk_widget_show_all (app);
 	gtk_main();
