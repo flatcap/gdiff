@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.45 $ */
+/* $Revision: 1.46 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -198,6 +198,8 @@ static GnomeUIInfo file_list_view_menu[] =
 {
 	{ GNOME_APP_UI_TOGGLEITEM, "_Line Numbers", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, "_Previous Difference", "", prev_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F9, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "_Next Difference",     "", next_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F10, (GdkModifierType) 0, NULL },
 	{ GNOME_APP_UI_ITEM, "Refresh", 	    "", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_SUBTREE_STOCK, "_Style", NULL, file_style_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_END
@@ -460,12 +462,15 @@ new_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 	new_file (mdi, parent);
 }
 
+static gint option = TRUE;
+
 static void
 next_diff_cb (GtkWidget *widget, GnomeMDIChild *child)
 {
 	//mdichild - then I can figure out what the view is of
 	g_print ("next_diff_cb\n");
-	exclude_dialog(); //XXX temp
+	//exclude_dialog(); //XXX temp
+	option = TRUE;
 }
 
 static void
@@ -484,10 +489,72 @@ preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 }
 
 static void
+toggle_option (GtkCheckButton *button, gint *option)
+{
+	g_return_if_fail (option != NULL);
+
+	(*option) = !(*option);
+}
+
+gboolean
+confirm (gchar *text, gint *option, GtkWindow *parent)
+{
+	GnomeDialog *msgbox = NULL;
+	GtkWidget   *check  = NULL;
+	gboolean     result = TRUE;			// by default, do nothing
+
+	g_return_val_if_fail (text != NULL, TRUE);
+
+	if ((option == NULL) ||
+	   (*option == TRUE))
+	{
+		msgbox = GNOME_DIALOG (gnome_message_box_new (text,
+							      GNOME_MESSAGE_BOX_QUESTION,
+							      GNOME_STOCK_BUTTON_YES,
+							      GNOME_STOCK_BUTTON_NO,
+							      NULL));
+
+		gtk_window_set_modal (GTK_WINDOW (msgbox), TRUE);
+		gnome_dialog_set_default (msgbox, 1);
+
+		if (option != NULL)
+		{
+			check = gtk_check_button_new_with_label ("(Don't ask me this question next time)");
+			gtk_widget_show (check);
+			gtk_box_pack_start (GTK_BOX (msgbox->vbox), check, FALSE, FALSE, 0);
+
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check), (*option == 0));
+			gtk_signal_connect (GTK_OBJECT (check), "toggled", toggle_option, option);
+		}
+
+		if (parent)
+		{
+			gnome_dialog_set_parent (msgbox, parent);
+		}
+
+		result = (GNOME_YES == gnome_dialog_run_and_close (msgbox));
+	}
+
+	return result;
+}
+static void
 prev_diff_cb (GtkWidget *widget, GnomeMDIChild *child)
 {
 	//mdichild - then I can figure out what the view is of
-	g_print ("prev_diff_cb\n");
+	//g_print ("prev_diff_cb\n");
+	GnomeApp *app = NULL;
+
+	app = GNOME_MDI (child->parent)->active_window;
+
+	//XXX ought to ask the child for the app
+	if (confirm ("Are you sure you want to quit?", &option, GTK_WINDOW (app)))
+	{
+		g_print ("QUIT\n");
+	}
+	else
+	{
+		g_print ("Do nothing\n");
+	}
 }
 
 static void

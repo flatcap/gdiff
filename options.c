@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.23 $ */
+/* $Revision: 1.24 $ */
 
 #include "config.h"
 #include "options.h"
@@ -157,6 +157,7 @@ add_check (GtkContainer *cont, PrefOption *list, Options *options)
 	pint = (guint*)ptr;
 
 	(GTK_TOGGLE_BUTTON (toggle))->active = (*pint != 0);
+	//XXX gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check), (*option == 0));
 
 	gtk_signal_connect (GTK_OBJECT (toggle), "toggled", check_toggled, ptr);
 
@@ -190,7 +191,21 @@ STUPID STUPID STUPID -- where am I going to store all these structs?
 static void
 radio_pressed (GtkWidget *radio, gpointer data)
 {
-	g_print ("radio pressed %p\n", data);
+	GtkWidget *props;
+
+	g_print ("radio pressed %d\n", GPOINTER_TO_UINT (data));
+	//*number = !*number;
+
+	//XXX
+	//	Can I use user_data to attach enough things to each widget?
+	//	How many data items does each control need?
+	//XXX
+
+	props = gtk_widget_get_ancestor (GTK_WIDGET (radio), gnome_property_box_get_type());
+	if (props)
+	{
+		gnome_property_box_changed (GNOME_PROPERTY_BOX (props));
+	}
 }
 
 static int
@@ -221,9 +236,10 @@ add_radio (GtkContainer *cont, PrefOption *list, Options *options)
 	return count;
 }
 
-typedef struct _StyleGroup StyleGroup;
+/*
+typedef struct _RadioGroup RadioGroup;
 
-struct _StyleGroup
+struct _RadioGroup
 {
 	GtkLabel	 *label;
 	GnomeColorPicker *fg;
@@ -231,6 +247,19 @@ struct _StyleGroup
 	GtkEntry	 *entry;
 	Options		 *options;
 	guint		 offset;
+};
+*/
+
+typedef struct _StyleGroup StyleGroup;
+
+struct _StyleGroup
+{
+	//GtkLabel	 *label;
+	//GnomeColorPicker *fg;
+	//GnomeColorPicker *base;
+	GtkEntry	 *entry;
+	Options		 *options;	// these two could be replaced with
+	guint		 offset;	// PrefColours*
 };
 
 static Options *global_options = NULL;
@@ -267,8 +296,6 @@ colour_changed (GnomeColorPicker *picker, guint r, guint g, guint b, gboolean fg
 		style->base[GTK_STATE_INSENSITIVE] = colour->base;
 	}
 
-	//g_print ("stylefg   = %ld %d %d %d\n", style->fg[GTK_STATE_INSENSITIVE].pixel, style->fg[GTK_STATE_INSENSITIVE].red, style->fg[GTK_STATE_INSENSITIVE].green, style->fg[GTK_STATE_INSENSITIVE].blue);
-	//g_print ("stylebase = %ld %d %d %d\n", style->base[GTK_STATE_INSENSITIVE].pixel, style->base[GTK_STATE_INSENSITIVE].red, style->base[GTK_STATE_INSENSITIVE].green, style->base[GTK_STATE_INSENSITIVE].blue);
 	gtk_widget_set_style (GTK_WIDGET (group->entry), style);
 
 	props = gtk_widget_get_ancestor (GTK_WIDGET (picker), gnome_property_box_get_type());
@@ -304,6 +331,7 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	PrefColours *colour = NULL;
 	char        *ptr    = NULL;
 	StyleGroup  *group  = NULL;
+	char        *temp   = NULL;
 
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 
@@ -319,20 +347,31 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	base  = gnome_color_picker_new();
 	//check = gtk_check_button_new();
 
+	temp = g_strdup_printf ("Pick a foreground colour for '%s'", list->label);
+	gnome_color_picker_set_title (GNOME_COLOR_PICKER (fg), temp);
+	g_free (temp);
+
+	temp = g_strdup_printf ("Pick a background colour for '%s'", list->label);
+	gnome_color_picker_set_title (GNOME_COLOR_PICKER (base), temp);
+	g_free (temp);
+
 	group = g_malloc (sizeof (StyleGroup));		//XXX who's going to free this?
 	g_return_val_if_fail (group != NULL, 0);
 
-	group->label	= GTK_LABEL (label);
-	group->fg	= GNOME_COLOR_PICKER (fg);
-	group->base	= GNOME_COLOR_PICKER (base);
+	//group->label	= GTK_LABEL (label);
+	//group->fg	= GNOME_COLOR_PICKER (fg);
+	//group->base	= GNOME_COLOR_PICKER (base);
 	group->entry	= GTK_ENTRY (entry);
 	group->options	= options;
 	group->offset	= list->offset;
       
-	gtk_object_set_user_data (GTK_OBJECT (label),  group);
+	// #define OBJECT_DATA_ENTRY
+	// #define OBJECT_DATA_OPTION
+
+	//gtk_object_set_user_data (GTK_OBJECT (label),  group);
 	gtk_object_set_user_data (GTK_OBJECT (fg),     group);
 	gtk_object_set_user_data (GTK_OBJECT (base),   group);
-	gtk_object_set_user_data (GTK_OBJECT (entry),  group);
+	//gtk_object_set_user_data (GTK_OBJECT (entry),  group);
 
 	gtk_signal_connect (GTK_OBJECT (fg),   "color_set", fg_changed, NULL);
 	gtk_signal_connect (GTK_OBJECT (base), "color_set", bg_changed, NULL);
@@ -350,68 +389,39 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	gtk_widget_set_sensitive (entry, FALSE);
 	gtk_entry_set_text (GTK_ENTRY (entry), _("Sample text"));
 
-	//g_print ("fg   = %ld %d %d %d\n", colour->fg.pixel, colour->fg.red, colour->fg.green, colour->fg.blue);
 	//XXX unref the old style
 	style = gtk_style_copy (gtk_widget_get_style (entry));
-	//style = gtk_style_copy (gtk_widget_get_default_style());
-	//style = gtk_widget_get_style (entry);
 
-	style->fg  [GTK_STATE_INSENSITIVE] = style->fg  [GTK_STATE_NORMAL];
+	style->fg  [GTK_STATE_INSENSITIVE] = style->fg  [GTK_STATE_NORMAL];//these THREE are nec
 	style->bg  [GTK_STATE_INSENSITIVE] = style->bg  [GTK_STATE_NORMAL];
 	style->base[GTK_STATE_INSENSITIVE] = style->base[GTK_STATE_NORMAL];
-	style->text[GTK_STATE_INSENSITIVE] = style->text[GTK_STATE_NORMAL];
 
-	//g_print ("style= %ld %d %d %d\n", style->fg[GTK_STATE_NORMAL].pixel, style->fg[GTK_STATE_NORMAL].red, style->fg[GTK_STATE_NORMAL].green, style->fg[GTK_STATE_NORMAL].blue);
-	//g_print ("style= %ld %d %d %d\n", style->base[GTK_STATE_NORMAL].pixel, style->base[GTK_STATE_NORMAL].red, style->base[GTK_STATE_NORMAL].green, style->base[GTK_STATE_NORMAL].blue);
 	if (colour->fg.pixel == PIXEL_DEFAULT)
 	{
-		//C style->fg[GTK_STATE_INSENSITIVE].pixel	= PIXEL_COLOUR;
-		//C style->fg[GTK_STATE_INSENSITIVE]	= style->fg[GTK_STATE_NORMAL];
 		colour->fg				= style->fg[GTK_STATE_NORMAL];
 		colour->fg.pixel			= PIXEL_DEFAULT;
 	}
 	else
 	{
 		style->fg[GTK_STATE_INSENSITIVE]	= colour->fg;
-		//C style->fg[GTK_STATE_INSENSITIVE].pixel	= PIXEL_COLOUR;
 		colour->fg.pixel			= PIXEL_COLOUR;
 	}
 
-	//g_print ("base = %ld %d %d %d\n", colour->base.pixel, colour->base.red, colour->base.green, colour->base.blue);
 	if (colour->base.pixel == PIXEL_DEFAULT)
 	{
-		//C style->base[GTK_STATE_INSENSITIVE].pixel = PIXEL_COLOUR;
-		//C style->base[GTK_STATE_INSENSITIVE]	 = style->base[GTK_STATE_NORMAL];
 		colour->base				 = style->base[GTK_STATE_NORMAL];
 		colour->base.pixel			 = PIXEL_DEFAULT;
 	}
 	else
 	{
 		style->base[GTK_STATE_INSENSITIVE]	 = colour->base;
-		//C style->base[GTK_STATE_INSENSITIVE].pixel = PIXEL_COLOUR;
 		colour->base.pixel			 = PIXEL_COLOUR;
 	}
-
-	//g_print ("style= %ld %d %d %d\n", style->fg[GTK_STATE_INSENSITIVE].pixel, style->fg[GTK_STATE_INSENSITIVE].red, style->fg[GTK_STATE_INSENSITIVE].green, style->fg[GTK_STATE_INSENSITIVE].blue);
-	//g_print ("style= %ld %d %d %d\n", style->base[GTK_STATE_INSENSITIVE].pixel, style->base[GTK_STATE_INSENSITIVE].red, style->base[GTK_STATE_INSENSITIVE].green, style->base[GTK_STATE_INSENSITIVE].blue);
-	//g_print ("as: fg %ld, bg %ld\n", colour->fg.pixel, colour->base.pixel);
 
 	gtk_widget_set_style (entry, style);
 
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (fg),   colour->fg.red,   colour->fg.green,   colour->fg.blue, 0);
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (base), colour->base.red, colour->base.green, colour->base.blue, 0);
-
-#if 0
-	if ((random () & 255) > 128)
-	{
-		gtk_widget_set_sensitive (GTK_WIDGET (entry), TRUE);
-		gtk_widget_set_sensitive (GTK_WIDGET (entry), TRUE);
-	}
-	if ((random () & 255) > 128)
-	{
-		gtk_widget_set_style (entry, style);
-	}
-#endif
 
 	return 1;
 }
@@ -498,6 +508,8 @@ get_preferences (GtkWindow *parent, PrefsPage /*XXX unused*/page_sel)
 	GtkContainer     *cont  = NULL;
 	GtkContainer     *page  = NULL;
 	Options		 *options = NULL;
+
+	//XXX NEED TO COPY OPTIONS FIRST, then commit / emit on apply/OK
 
 	options = options_get_default (options_list);
 	global_options = options;

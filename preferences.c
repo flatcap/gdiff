@@ -21,7 +21,7 @@
 
 PrefOption options_list[] =
 {
-#if 0
+#if 1
 	{ PrefPage,	N_("Style"),					"Style" },
 	{ PrefFrame,	N_("Directory") },
 	{ PrefStyle,	N_("List Same"),				"DirStyleSame",			G_STRUCT_OFFSET (Options, DirStyleSame) },
