@@ -1,3 +1,5 @@
+/* $Revision: 1.28 $ */
+
 #include <gnome.h>
 #include "file.h"
 
