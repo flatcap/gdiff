@@ -1,4 +1,4 @@
-/* $Revision: 1.25 $ */
+/* $Revision: 1.26 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -206,7 +206,7 @@ static gint
 remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 {
 	//XXX ask config for confirm, if compare just close, if tree 'close all compares, too?'
-	//g_print ("remove child\n");
+	g_print ("remove child\n");
 	//XXX update menus
 	return TRUE;			// yes let it die
 }

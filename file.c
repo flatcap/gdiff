@@ -1,4 +1,4 @@
-/* $Revision: 1.28 $ */
+/* $Revision: 1.6 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -50,7 +50,7 @@ get_filename (GtkFileSelection *dialog)
 }
 
 void
-new_file (void)
+new_file (GnomeMDI *mdi, GtkWindow *parent)
 {
 	static GtkWidget *dialog = NULL;
 

@@ -1,4 +1,4 @@
-/* $Revision: 1.18 $ */
+/* $Revision: 1.19 $ */
 
 #include <gnome.h>
 #include "compare.h"
@@ -204,7 +204,7 @@ gtk_compare (GtkCompare *compare)
 	while (gtk_events_pending ())
 		gtk_main_iteration();
 
-	sleep (5); //XXX
+	//sleep (5); //XXX
 	cmdline = g_strdup_printf ("diff"
 				   " --old-line-format="       COMPARE_LEFT  "%%L"
 				   " --unchanged-line-format=" COMPARE_SAME  "%%L"

@@ -1,4 +1,4 @@
-/* $Revision: 1.4 $ */
+/* $Revision: 1.5 $ */
 
 #include <stdlib.h>
 #include "global.h"
@@ -51,20 +51,20 @@ global_init (GnomeMDI *mdi)
 
 	if (!initialised)
 	{
-		g_return_val_if_fail (mdi                != NULL, FALSE);
-		g_return_val_if_fail (mdi->windows       != NULL, FALSE);
-		g_return_val_if_fail (mdi->windows->data != NULL, FALSE);	// mdi has no windows!
-
-		widget = GTK_WIDGET (mdi->windows->data);
+		g_return_val_if_fail (mdi != NULL, FALSE);
 
 		regex_ok = ((regcomp (&reg_same, re_same, 0) == 0)	&&
 			    (regcomp (&reg_diff, re_diff, 0) == 0)	&&
 			    (regcomp (&reg_only, re_only, 0) == 0)	&&
 			    (regcomp (&reg_type, re_type, 0) == 0));
 
-		pixmap_open	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_open,   NULL, open_xpm);
-		pixmap_closed	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_closed, NULL, closed_xpm);
-		pixmap_leaf	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_leaf,   NULL, leaf_xpm);
+		widget = GTK_WIDGET (gnome_mdi_get_active_window (mdi));
+		if (widget)
+		{
+			pixmap_open	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_open,   NULL, open_xpm);
+			pixmap_closed	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_closed, NULL, closed_xpm);
+			pixmap_leaf	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_leaf,   NULL, leaf_xpm);
+		}
 
 		initialised = pixmap_open && pixmap_closed && pixmap_leaf && regex_ok;
 	}

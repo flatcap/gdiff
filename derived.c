@@ -1,4 +1,4 @@
-/* $Revision: 1.20 $ */
+/* $Revision: 1.21 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -9,6 +9,7 @@
 #include "node.h"
 #include "tree.h"
 #include "menu.h"
+#include "mdi.h"
 
 static gint (* old_button_handler)  (GtkWidget *widget, GdkEventButton *event) = NULL;
 static gint (* old_key_handler)     (GtkWidget *widget, GdkEventKey    *event) = NULL;
@@ -318,43 +319,19 @@ dup_and_add_slash (char *path)
 // TODO move this code out of the tree
 // get someone else to do the spawn / parse stuff (MDI maybe?)
 // tree_dialog_draw (tree, eFileAll);
+
 static GtkStatusbar *
 get_view_statusbar(GtkDiffTree *tree)
 {
-	//XXX maybe just iterate through all the mdi->windows!
-	//what if they change mode whilst we're working?
-	GnomeMDIMode mode = GNOME_MDI_NOTEBOOK;		// derive from the tree's mdi child parent
-
-	// all we can do, is climb that tree!
-	GtkScrolledWindow *scroll   = NULL;
-	GtkNotebook	  *notebook = NULL;
-	GnomeDock	  *dock	    = NULL;
-	GtkVBox		  *vbox	    = NULL;
-	GnomeApp	  *app	    = NULL;
-	GtkStatusbar	  *status   = NULL;
+	GnomeApp *app = NULL;
 
 	g_return_val_if_fail (tree != NULL, NULL);
 
-	g_print ("before horrendous code\n");
+	app = gnome_mdi_get_app_from_view (GTK_WIDGET (tree));
 
-	scroll		= GTK_SCROLLED_WINDOW	(GTK_WIDGET (tree)	->parent);
-	if (mode == GNOME_MDI_NOTEBOOK)
-	{
-		notebook= GTK_NOTEBOOK		(GTK_WIDGET (scroll)	->parent);
-		dock	= GNOME_DOCK		(GTK_WIDGET (notebook)	->parent);
-	}
-	else
-	{
-		dock	= GNOME_DOCK		(GTK_WIDGET (scroll)	->parent);
-	}
-	vbox		= GTK_VBOX		(GTK_WIDGET (dock)	->parent);
-	app		= GNOME_APP		(GTK_WIDGET (vbox)	->parent);
+	g_return_val_if_fail (app != NULL, NULL);
 
-	status		= GTK_STATUSBAR		(app->statusbar);
-
-	g_print ("after horrendous code\n");
-
-	return status;
+	return GTK_STATUSBAR (app->statusbar);
 }
 
 static void
@@ -489,7 +466,16 @@ gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event)
 static gint
 gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
+	DiffOptions *diff = NULL;
 	gboolean result = FALSE;
+	GtkDiffTree *tree = NULL;
+	GnomeMDIChild *child = NULL;
+	GnomeMDI *mdi = NULL;
+
+	g_return_val_if_fail (widget != NULL, FALSE);
+	g_return_val_if_fail (GTK_IS_DIFF_TREE (widget), FALSE);
+
+	tree = GTK_DIFF_TREE (widget);
 
 	//g_print ("button %d\n", event->button);	// 1,2,3
 	//g_print ("state %d\n", event->state);	// shift, ctrl, alt etc
@@ -497,6 +483,10 @@ gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
 	{
 		// my handler
 		g_print ("double click\n");
+		diff = get_current_selection (tree);
+		child = gnome_mdi_get_child_from_view (widget->parent); // not tree but scrolled window
+		mdi = GNOME_MDI (child->parent);
+		mdi_add_diff (mdi, diff);
 		result = TRUE;
 	}
 	/*

@@ -1,4 +1,4 @@
-/* $Revision: 1.11 $ */
+/* $Revision: 1.12 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
@@ -41,7 +41,7 @@ struct _GtkDiffTree
 	GtkCTree ctree;
 
 	DiffOptions *diff;
-	GnomeMDIChild *mdi_child;
+	GnomeMDIChild *mdi_child;	// do we need this more/less than mdi?
 
 	char	*left;
 	char	*right;
@@ -52,6 +52,8 @@ struct _GtkDiffTree
 	gint flag1;
 	//XXX collection of compares
 	//XXX selection?
+	//XXX GnomeMDI *mdi;
+	//XXX GtkWidget *view;		shortcut in case we wrap up anything more
 };
 
 struct _GtkDiffTreeClass

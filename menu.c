@@ -1,4 +1,4 @@
-/* $Revision: 1.29 $ */
+/* $Revision: 1.30 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -27,7 +27,7 @@ static void contents_cb       (GtkWidget *, GnomeMDI *);
 static void exit_gdiff_cb     (GtkWidget *, GnomeMDI *);
 static void new_diff_cb       (GtkWidget *, GnomeMDI *);
 static void next_diff_cb      (GtkWidget *, GnomeMDI *);
-static void preferences_cb    (GtkWidget *, GnomeApp *);
+static void preferences_cb    (GtkWidget *, GnomeMDI *);
 static void prev_diff_cb      (GtkWidget *, GnomeMDI *);
 static void rescan_cb         (GtkWidget *, GnomeMDI *);
 static void save_file_list_cb (GtkWidget *, GnomeMDI *);
@@ -109,12 +109,6 @@ void
 menu_create (GnomeMDI *mdi, GnomeApp *app)
 {
 	GtkWidget *status = NULL;
-	GnomeUIInfo *window = NULL;
-
-	//GtkMenuBar *menubar = NULL;
-
-	window = &settings_menu[1];
-	window->user_data = (gpointer) 0x1234;
 
 	gnome_app_create_menus_with_data (app, main_menu, mdi);
 
@@ -123,22 +117,14 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 	status = gtk_statusbar_new();
 
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
-	gnome_app_set_statusbar (GNOME_APP (app), status);
+	gnome_app_set_statusbar (GNOME_APP (app), gtk_statusbar_new());
 
-	window = &main_menu[4];
-	gtk_widget_set_sensitive (window->widget, FALSE);
-
-	window = &settings_menu[1];
-	g_print ("mdi       = %p\n", mdi);
-	g_print ("app       = %p\n", app);
-	g_print ("user_data = %p\n", window->user_data);
-	g_print ("user_data = %p\n", gtk_object_get_data (GTK_OBJECT (window->widget), GNOMEUIINFO_KEY_UIDATA));
-	g_print ("user_data = %p\n", gtk_object_get_data (GTK_OBJECT (window->widget), GNOMEUIINFO_KEY_UIBDATA));
 }
 
 static void
 menu_set_view_defaults (GtkMenuShell *shell)
 {
+	GnomeUIInfo *window = NULL;
 	GtkCheckMenuItem *item = NULL;
 	int i;
 
@@ -150,6 +136,11 @@ menu_set_view_defaults (GtkMenuShell *shell)
 			item->active = TRUE;
 		}
 	}
+
+	//XXX window = get_menu_item_by_name ("_WINDOWS"); // safety
+	//XXX also useful for en/disabling menu items
+	window = &main_menu[4];
+	gtk_widget_set_sensitive (window->widget, FALSE);
 }
 
 //______________________________________________________________________________
@@ -159,11 +150,14 @@ menu_set_view_defaults (GtkMenuShell *shell)
 static void
 about_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	//app (window)
 	static GtkWidget *about     = NULL;
 	const char       *authors[] = { "Richard Russon <Richard.Russon@ait.co.uk>", NULL };
 	const char       *copyright = "Copyright 1999";
 	const char       *extra     = NULL;
+	GnomeApp         *parent    = NULL;
+
+	g_return_if_fail (mdi != NULL);
+	g_return_if_fail (GNOME_IS_MDI (mdi));
 
 	if (about)
 	{
@@ -176,7 +170,11 @@ about_cb (GtkWidget *widget, GnomeMDI *mdi)
 
 		gtk_signal_connect (GTK_OBJECT (about), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &about);
 
-		//gtk_window_set_transient_for (GTK_WINDOW (about), GTK_WINDOW (app));
+		parent = gnome_mdi_get_active_window (mdi);
+		if (parent)
+		{
+			gtk_window_set_transient_for (GTK_WINDOW (about), GTK_WINDOW (parent));
+		}
 
 		gtk_widget_show_all (about);
 	}
@@ -185,8 +183,16 @@ about_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 close_view_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	//MDIChild or MDI and current view
-	g_print ("close_view_cb\n");
+	GnomeMDIChild *child = NULL;
+
+	g_return_if_fail (mdi != NULL);
+	g_return_if_fail (GNOME_IS_MDI (mdi));
+
+	child = gnome_mdi_get_active_child (mdi);
+
+	g_return_if_fail (child != NULL);
+
+	gnome_mdi_remove_child (mdi, child, FALSE);
 }
 
 static void
@@ -226,8 +232,13 @@ exit_gdiff_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 new_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	//mdi app(window)
-	new_file();
+	GtkWindow *parent = NULL;
+
+	g_return_if_fail (mdi != NULL);
+
+	parent = GTK_WINDOW (gnome_mdi_get_active_window (mdi));
+
+	new_file (mdi, parent);
 }
 
 static void
@@ -238,16 +249,32 @@ next_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 }
 
 static void
-preferences_cb (GtkWidget *widget, GnomeApp *app)
+preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	// NONE
-	g_print ("preferences_cb\n");
-	g_print ("toplevel widget = %s\n", gtk_widget_get_name (gtk_widget_get_toplevel (widget)));
-	g_print ("toplevel app    = %s\n", gtk_widget_get_name (gtk_widget_get_toplevel (GTK_WIDGET (app))));
-	g_print ("user_data       = %p\n", gtk_object_get_data (GTK_OBJECT (widget), GNOMEUIINFO_KEY_UIDATA));
-	g_print ("user_data       = %p\n", gtk_object_get_data (GTK_OBJECT (widget), GNOMEUIINFO_KEY_UIBDATA));
-	g_print ("user_data       = %p\n", gtk_object_get_data (GTK_OBJECT (app), GNOMEUIINFO_KEY_UIDATA));
-	g_print ("user_data       = %p\n", gtk_object_get_data (GTK_OBJECT (app), GNOMEUIINFO_KEY_UIBDATA));
+	static GtkWidget *prefs  = NULL;
+	GnomeApp         *parent = NULL;
+
+	g_return_if_fail (mdi != NULL);
+	g_return_if_fail (GNOME_IS_MDI (mdi));
+
+	if (prefs)
+	{
+		gdk_window_show  (prefs->window);
+		gdk_window_raise (prefs->window);
+	}
+	else
+	{
+		parent = gnome_mdi_get_active_window (mdi);
+		if (parent)
+		{
+			prefs = NULL;// get_prefs (GTK_WINDOW (parent));
+			if (prefs)
+			{
+				gtk_signal_connect (GTK_OBJECT (prefs), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);
+				gtk_widget_show_all (prefs);
+			}
+		}
+	}
 }
 
 static void
