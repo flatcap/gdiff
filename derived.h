@@ -1,7 +1,8 @@
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
 
-#include <gtk/gtk.h>
+#include <gnome.h>
+#include "diff.h"
 
 #define GTK_TYPE_DIFF_TREE		(gtk_diff_tree_get_type ())
 #define GTK_DIFF_TREE(obj)		GTK_CHECK_CAST (obj, gtk_diff_tree_get_type (), GtkDiffTree)
@@ -24,7 +25,7 @@ typedef struct	_GtkDiffTree		GtkDiffTree;
 typedef struct	_GtkDiffTreeClass	GtkDiffTreeClass;
 
 guint		gtk_diff_tree_get_type		(void);
-GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[]);
+GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
 GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column);
 
 void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
@@ -32,20 +33,31 @@ void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
 
 void		gtk_diff_tree_display		(GtkDiffTree *tree);
 
+// Signal handlers
+void gtk_diff_tree_real_populate (GtkWidget *widget, gpointer data);
+
 struct _GtkDiffTree
 {
-	GtkCTree widget;
+	GtkCTree ctree;
+
+	DiffOptions *diff;
+	GnomeMDIChild *mdi_child;
 
 	char	*left;
 	char	*right;
 	Status	 view;
 
 	GNode	*root;
+
+	gint flag1;
 };
 
 struct _GtkDiffTreeClass
 {
 	GtkCTreeClass parent_class;
+
+	// Signal handlers
+	void (*populate_handler) (GtkWidget *widget, gpointer data);
 };
 
 #endif // _DERIVED_H_

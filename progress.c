@@ -46,7 +46,7 @@ progress_set_text (Progress *progress, char *text)
 	message = g_strdup_printf ("Comparing: %s", text);
 	msgid = gtk_statusbar_push (progress->status, progress->context, message);
 
-	//g_print ("%s\n", text);
+	//g_print ("%s\n", message);
 	while (gtk_events_pending())
 	{
 		gtk_main_iteration();

@@ -39,8 +39,15 @@ tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 GtkWidget *
 my_child_create_compare_view (GnomeMDIChild * child, gpointer data)
 {
-	DiffOptions *diff = data;
-	return compare (diff->left, diff->right);
+	DiffOptions *diff    = data;
+	GtkWidget   *compare = gtk_compare_new (diff);
+	GtkWidget   *scroll  = gtk_scrolled_window_new (NULL, NULL);
+
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_container_add (GTK_CONTAINER (scroll), compare);
+
+	gtk_widget_show_all (scroll);
+	return scroll;
 }
 
 GtkWidget *
@@ -57,7 +64,8 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 	scroll = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
+	diff = data;
+	tree = gtk_diff_tree_new_with_titles (2, 0, cols, diff);
 
 	//gtk_ctree_set_line_style         (GTK_CTREE (tree), GTK_CTREE_LINES_TABBED);
 	gtk_clist_set_selection_mode     (GTK_CLIST (tree), GTK_SELECTION_BROWSE);
@@ -66,15 +74,23 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 	gtk_clist_set_column_auto_resize (GTK_CLIST (tree), 0, TRUE);
 	gtk_clist_column_titles_passive  (GTK_CLIST (tree));
 
-	diff = data;
-	//g_print ("l/r %s/%s\n", diff->left, diff->right);
-	gtk_diff_tree_compare(GTK_DIFF_TREE (tree), diff->left, diff->right);
-
 	gtk_container_add (GTK_CONTAINER (scroll), tree);
+
+	//g_print ("l/r %s/%s\n", diff->left, diff->right);
+	//gtk_diff_tree_compare(GTK_DIFF_TREE (tree), diff->left, diff->right);
 
 	gtk_widget_show_all (scroll);
 
 	return scroll;
+	/*
+	DiffOptions *diff = NULL;
+	char *text [1] = { "hello" };
+	GtkWidget *compare = gtk_compare_new (diff);
+	gtk_widget_show_all (compare);
+	gtk_clist_append (GTK_CLIST (compare), text);
+	
+	return compare;
+	*/
 }
 
 gchar *
@@ -129,7 +145,7 @@ my_child_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 	GList          *menu_list;
 	GtkWidget      *menu, *w;
 
-	//g_print ("my_child_create_menus\n");
+	g_print ("my_child_create_menus (w = %s) (p = %s) (pp = %s) (ppp = %s) (pppp = %s)\n", gtk_widget_get_name (view), gtk_widget_get_name (view->parent), gtk_widget_get_name (view->parent->parent), gtk_widget_get_name (view->parent->parent->parent), gtk_widget_get_name (view->parent->parent->parent->parent));
 	menu_list = NULL;
 
 	/* the Child menu */

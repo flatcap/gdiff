@@ -7,13 +7,12 @@ typedef struct _DiffOptions DiffOptions;
 
 struct _DiffOptions
 {
-	gchar *left;
-	gchar *right;
+	gchar *left;				// The left  file/dir relative to path
+	gchar *right;				// The right file/dir relative to path
+
+	gboolean dir;				// File or directory?
 
 	GNode *root;
-	//----------
-	char *path; // from which left and right are relative
-	gboolean dir; // file or directory?
 	gpointer compare_stuff;
 };
 

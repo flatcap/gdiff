@@ -9,10 +9,18 @@
 #include "menu.h"
 
 static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
-static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * class);
+static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * klass);
 static void gtk_diff_tree_finalize	 (GtkObject * object);
 
 #define MATCHES 8
+
+enum
+{
+	POPULATE,
+	LAST_SIGNAL
+};
+
+static guint difftree_signals[LAST_SIGNAL] = { 0 };
 
 //______________________________________________________________________________
 //
@@ -49,15 +57,16 @@ GtkWidget *
 gtk_diff_tree_new (gint columns, gint tree_column)
 {
 	//g_print ("gtk_diff_tree_new\n");
-	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL);
+	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL, NULL);
 }
 
 GtkWidget *
-gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
+gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], DiffOptions *diff)
 {
 	GtkWidget *widget = NULL;
 	GtkCList  *list	  = NULL;
 	GtkCTree  *tree	  = NULL;
+	GtkDiffTree *difftree = NULL;
 
 	g_return_val_if_fail (columns     >  0,       NULL);
 	g_return_val_if_fail (tree_column >= 0,       NULL);
@@ -74,9 +83,11 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
 
 	list = GTK_CLIST (widget);
 	tree = GTK_CTREE (widget);
+	difftree = GTK_DIFF_TREE (widget);
 
 	list->columns     = columns;
 	tree->tree_column = tree_column;
+	difftree->diff = diff;
 
 	//gtk_ctree_construct (tree, columns, tree_column, titles);
 
@@ -230,6 +241,44 @@ dup_and_add_slash (char *path)
 // TODO move this code out of the tree
 // get someone else to do the spawn / parse stuff (MDI maybe?)
 // gtk_diff_tree_display (TreeNode *nodes)
+GtkStatusbar *
+get_view_statusbar(GtkDiffTree *tree)
+{
+	//what if they change mode whilst we're working?
+	GnomeMDIMode mode = GNOME_MDI_NOTEBOOK;		// derive from the tree's mdi child parent
+
+	// all we can do, is climb that tree!
+	GtkScrolledWindow *scroll   = NULL;
+	GtkNotebook	  *notebook = NULL;
+	GnomeDock	  *dock	    = NULL;
+	GtkVBox		  *vbox	    = NULL;
+	GnomeApp	  *app	    = NULL;
+	GtkStatusbar	  *status   = NULL;
+
+	g_return_val_if_fail (tree != NULL, NULL);
+
+	g_print ("before horrendous code\n");
+
+	scroll		= GTK_SCROLLED_WINDOW	(GTK_WIDGET (tree)	->parent);
+	if (mode == GNOME_MDI_NOTEBOOK)
+	{
+		notebook= GTK_NOTEBOOK		(GTK_WIDGET (scroll)	->parent);
+		dock	= GNOME_DOCK		(GTK_WIDGET (notebook)	->parent);
+	}
+	else
+	{
+		dock	= GNOME_DOCK		(GTK_WIDGET (scroll)	->parent);
+	}
+	vbox		= GTK_VBOX		(GTK_WIDGET (dock)	->parent);
+	app		= GNOME_APP		(GTK_WIDGET (vbox)	->parent);
+
+	status		= GTK_STATUSBAR		(app->statusbar);
+
+	g_print ("after horrendous code\n");
+
+	return status;
+}
+
 void
 gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 {
@@ -240,6 +289,9 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	g_free (tree->left);
 	g_free (tree->right);
 
+	g_print ("before signal emit\n");
+	gtk_signal_emit (GTK_OBJECT (tree), difftree_signals[POPULATE], 0x1234);
+	g_print ("after signal emit\n");
 	//tree->left  = dup_and_add_slash (left);
 	//tree->right = dup_and_add_slash (right);
 	tree->left  = g_strdup (left);
@@ -255,7 +307,8 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	Status   status  = eFileError;
 	Progress *progress = NULL;
 
-	progress = progress_new (global_statusbar);
+	progress = progress_new (get_view_statusbar(tree));
+	//progress = progress_new (global_statusbar);
 
 	// P -> no 'right' files! will need to stat left/right files
 	//f = run_diff (g_strdup_printf ("diff -qrsP %s %s", tree->left, tree->right));
@@ -277,6 +330,10 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 		g_string_assign (new_loc, path->str);
 
 		base = g_basename (new_loc->str);
+		if (base == new_loc->str)			// just a file in the root directory
+		{
+			g_string_assign (new_loc, ".");
+		}
 
 		g_string_truncate (new_loc, (base - new_loc->str) - 1);
 		//g_print ("new_loc = %s, old_loc = %s\n", new_loc->str, old_loc->str);
@@ -284,6 +341,7 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 		if ((strcmp (new_loc->str, old_loc->str) != 0))// &&
 		    //(strlen (new_loc->str) > strlen (old_loc->str)))		// files between dirs in list!
 		{
+			//g_print ("progress %s\n", new_loc->str);
 			progress_set_text (progress, new_loc->str);
 			g_string_assign (old_loc, new_loc->str);
 		}
@@ -295,6 +353,7 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	progress_free (progress);
 	gtk_diff_tree_display (tree);
 	}
+	g_print ("leaving method (after signal emit)\n");
 }
 
 //______________________________________________________________________________
@@ -309,17 +368,54 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 	tree->left  = NULL;					// initialise values
 	tree->right = NULL;
 	tree->view  = eFileAll;
+	tree->diff  = NULL;
 
 	//g_print ("gtk_diff_tree_init\n");
 }
 
-static gint (* old_button_handler) (GtkWidget *widget, GdkEventButton *event) = NULL;
-static gint (* old_key_handler)    (GtkWidget *widget, GdkEventKey    *event) = NULL;
+static gint (* old_button_handler)  (GtkWidget *widget, GdkEventButton *event) = NULL;
+static gint (* old_key_handler)     (GtkWidget *widget, GdkEventKey    *event) = NULL;
+static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
+static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
+static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    = NULL;
+
 
 #if 0
 double click prototype needs to be:
 int handler (GtkWidget *tree, TreeNode *node);
 #endif
+
+void
+gtk_diff_tree_show (GtkWidget *widget)
+{
+	g_print ("gtk_diff_tree_show\n");
+	old_show_handler (widget);
+}
+
+void
+gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area)
+{
+	static gboolean drawn = FALSE;
+	GtkDiffTree *tree = GTK_DIFF_TREE (widget);
+
+	g_print ("gtk_diff_tree_draw\n");
+
+	if (!drawn)
+	{
+		gtk_diff_tree_compare (tree, tree->diff->left, tree->diff->right);
+		drawn = TRUE;
+	}
+
+	old_draw_handler (widget, area);
+}
+
+void
+gtk_diff_tree_realize (GtkWidget *widget)
+{
+	g_print ("gtk_diff_tree_realize\n");
+	old_realize_handler (widget);
+}
+
 
 gint
 gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event)
@@ -369,17 +465,43 @@ gtk_diff_tree_class_init (GtkDiffTreeClass * klass)
 
 	g_return_if_fail (klass != NULL);
 
+	//g_print ("gtk_diff_tree_class_init\n");
+
 	// override methods
 	object_class = (GtkObjectClass*) klass;
 	object_class->finalize = gtk_diff_tree_finalize;
 
 	widget_class = (GtkWidgetClass*) klass;
+
 	old_button_handler = widget_class->button_press_event;
 	old_key_handler    = widget_class->key_press_event;
+	old_show_handler   = widget_class->show;
+	old_realize_handler= widget_class->realize;
+	old_draw_handler   = widget_class->draw;
+
 	widget_class->button_press_event = gtk_diff_tree_button_press_event;
 	widget_class->key_press_event    = gtk_diff_tree_key_press_event;
+	widget_class->show               = gtk_diff_tree_show;
+	widget_class->draw               = gtk_diff_tree_draw;
+	widget_class->realize            = gtk_diff_tree_realize;
 
-	//g_print ("gtk_diff_tree_class_init\n");
+	klass->populate_handler = gtk_diff_tree_real_populate;
+
+	difftree_signals [POPULATE] = gtk_signal_new ("populate",
+						      GTK_RUN_FIRST,
+						      object_class->type,
+						      GTK_SIGNAL_OFFSET (GtkDiffTreeClass, populate_handler),
+						      gtk_marshal_NONE__POINTER,
+						      GTK_TYPE_NONE, 1,
+						      GTK_TYPE_POINTER);
+	g_print ("class init: signal = %d\n", difftree_signals[POPULATE]);
+	gtk_object_class_add_signals (object_class, difftree_signals, LAST_SIGNAL);
+}
+
+void
+gtk_diff_tree_real_populate (GtkWidget *widget, gpointer data)
+{
+	g_print ("POPULATE!!! (%p)\n", data);
 }
 
 static void

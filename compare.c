@@ -6,6 +6,42 @@
 #define COMPARE_RIGHT	"rght:\t"
 #define COMPARE_SAME	"same:\t"
 
+static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
+static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
+static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    = NULL;
+
+void
+gtk_compare_show (GtkWidget *widget)
+{
+	g_print ("gtk_compare_show\n");
+	old_show_handler (widget);
+}
+
+void
+gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
+{
+	static gboolean drawn = FALSE;
+	GtkCompare *compare = GTK_COMPARE (widget);
+
+	g_print ("gtk_compare_draw\n");
+
+	if (!drawn)
+	{
+		drawn = TRUE;
+		gtk_compare (compare);
+	}
+
+	old_draw_handler (widget, area);
+}
+
+void
+gtk_compare_realize (GtkWidget *widget)
+{
+	g_print ("gtk_compare_realize\n");
+	old_realize_handler (widget);
+}
+
+
 /*
 diff	--old-line-format='left: %L'		\
 	--unchanged-line-format='same: %L'	\
@@ -13,17 +49,115 @@ diff	--old-line-format='left: %L'		\
 	read1.c read2.c
 */
 
+static void gtk_compare_init		 (GtkCompare * compare);
+static void gtk_compare_class_init	 (GtkCompareClass * klass);
+
+guint
+gtk_compare_get_type (void)
+{
+	static guint compare_type = 0;
+	static const GtkTypeInfo compare_info =
+	{
+		"GtkCompare",
+		sizeof (GtkCompare),
+		sizeof (GtkCompareClass),
+		(GtkClassInitFunc)  gtk_compare_class_init,
+		(GtkObjectInitFunc) gtk_compare_init,
+		/* reserved */ NULL,
+		/* reserved */ NULL,
+		(GtkClassInitFunc) NULL,
+	};
+
+	//g_print ("gtk_compare_get_type\n");
+	if (!compare_type)
+	{
+		// has to be 'derived' from clist to be able to cast to it!
+		compare_type = gtk_type_unique (gtk_clist_get_type(), &compare_info);
+	}
+
+	return compare_type;
+}
+
+void
+gtk_compare_init (GtkCompare * compare)
+{
+	compare->diff = NULL;
+	compare->mdi_child = NULL;
+	compare->flag1 = 0;
+}
+
+void
+gtk_compare_class_init (GtkCompareClass * klass)
+{
+	GtkWidgetClass *widget_class = NULL;
+
+	g_return_if_fail (klass != NULL);
+
+	//g_print ("gtk_compare_class_init\n");
+
+	// override methods
+	widget_class = (GtkWidgetClass*) klass;
+
+	old_show_handler   = widget_class->show;
+	old_realize_handler= widget_class->realize;
+	old_draw_handler   = widget_class->draw;
+
+	widget_class->show               = gtk_compare_show;
+	widget_class->draw               = gtk_compare_draw;
+	widget_class->realize            = gtk_compare_realize;
+}
+
 GtkWidget *
-compare (char *left, char *right)
+gtk_compare_new (DiffOptions *diff)
+{
+	GtkWidget *widget = NULL;
+	GtkCList  *list	  = NULL;
+	GtkCompare *compare = NULL;
+	int columns = 1;
+
+	//g_print ("gtk_compare_new\n");
+	widget = gtk_widget_new (GTK_TYPE_COMPARE,
+				 "n_columns",   columns,
+				 NULL);
+
+	g_return_val_if_fail (widget != NULL, NULL);
+
+	list = GTK_CLIST (widget);
+	compare = GTK_COMPARE (widget);
+
+	list->columns     = columns;
+	compare->diff = diff;
+
+	//gtk_clist_construct (list, columns, NULL);// alread constructed
+	/*
+	if (titles)
+	{
+		int i;
+		for (i = 0; i < columns; i++)
+		{
+			//g_print ("col %d, title %s\n", i, titles[i]);
+			gtk_clist_set_column_title (list, i, titles[i]);
+		}
+
+		gtk_clist_column_titles_show (list);
+		//g_print ("row = %p, cell = %p\n", list->row_mem_chunk, list->cell_mem_chunk);
+	}
+	*/
+
+	return widget;
+}
+
+void
+gtk_compare (GtkCompare *compare)
 {
 	char buffer [1024];
 	char number [10];
-	char *cols[] = { "line no.", "left", "right" };
+	//char *cols[] = { "line no.", "left", "right" };
 	char *text[3] = { number, NULL, NULL };
 	int line = 1;
 	FILE *f = NULL;
-	GtkWidget *clist = NULL;
-	GtkWidget *scroll = NULL;
+	GtkCList *clist = NULL;
+	//GtkWidget *scroll = NULL;
 	GtkStyle *style_left = NULL;
 	GtkStyle *style_right = NULL;
 	GtkStyle *style_same = NULL;
@@ -45,16 +179,17 @@ compare (char *left, char *right)
 	int right_count = 0;
 	char *cmdline = NULL;
 
-	clist = gtk_clist_new_with_titles (3, cols);
+	//clist = gtk_clist_new_with_titles (3, cols);
+	clist = GTK_CLIST (compare);
 
-	gtk_clist_set_selection_mode    (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
-	gtk_clist_column_titles_passive (GTK_CLIST (clist));
+	gtk_clist_set_selection_mode    (clist, GTK_SELECTION_BROWSE);
+	gtk_clist_column_titles_passive (clist);
 
-	scroll = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER(scroll), clist);
+	//scroll = gtk_scrolled_window_new (NULL, NULL);
+	//gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	//gtk_container_add (GTK_CONTAINER(scroll), clist);
 
-	gtk_widget_show_all (scroll);
+	//gtk_widget_show_all (scroll);
 	while (gtk_events_pending ())
 		gtk_main_iteration();
 
@@ -62,11 +197,14 @@ compare (char *left, char *right)
 				   " --old-line-format="       COMPARE_LEFT  "%%L"
 				   " --unchanged-line-format=" COMPARE_SAME  "%%L"
 				   " --new-line-format="       COMPARE_RIGHT "%%L"
-				   " %s %s", left, right);
+				   " %s %s", compare->diff->left, compare->diff->right);
 	//g_print ("cmdline = %s\n", cmdline);
 	f = run_diff (cmdline);
 
-	gtk_clist_freeze (GTK_CLIST (clist));
+	while (gtk_events_pending ())
+		gtk_main_iteration();
+
+	gtk_clist_freeze (clist);
 
 	style_left  = gtk_style_new();
 	style_right = gtk_style_new();
@@ -111,8 +249,8 @@ compare (char *left, char *right)
 
 	//gtk_widget_set_style (clist, style_none);
 
-	gtk_clist_set_column_visibility (GTK_CLIST (clist), 0, FALSE);
-	gtk_clist_set_column_visibility (GTK_CLIST (clist), 2, FALSE);
+	gtk_clist_set_column_visibility (clist, 0, FALSE);
+	gtk_clist_set_column_visibility (clist, 2, FALSE);
 
 	while (fgets (buffer, sizeof (buffer), f))
 	{
@@ -121,14 +259,16 @@ compare (char *left, char *right)
 
 		if (strncmp (buffer, COMPARE_LEFT, 6) == 0)
 		{
-			text[1] = buffer + 6;
-			text[2] = "";
+			text[0] = buffer + 6;
+			//text[1] = buffer + 6;
+			//text[2] = "";
 			style_col2 = style_left;
 			style_col3 = style_disc;
 
-			row = gtk_clist_append (GTK_CLIST (clist), text);
-			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
-			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
+			row = gtk_clist_append (clist, text);
+			//gtk_clist_set_cell_style (clist, row, 1, style_col2);
+			//gtk_clist_set_cell_style (clist, row, 2, style_col3);
+			gtk_clist_set_cell_style (clist, row, 0, style_col2);
 
 			left_count++;
 		}
@@ -136,8 +276,9 @@ compare (char *left, char *right)
 		{
 			if (one_pane)
 			{
-				text[1] = buffer + 6;
-				text[2] = "";
+				text[0] = buffer + 6;
+				//text[1] = buffer + 6;
+				//text[2] = "";
 			}
 			else
 			{
@@ -149,23 +290,24 @@ compare (char *left, char *right)
 
 			if ((right_count <= left_count) && (left_count != 0) && (!one_pane))
 			{
-				//row = gtk_clist_append (GTK_CLIST (clist), text);
-				gtk_clist_set_text (GTK_CLIST (clist), row - left_count + right_count + 1, 2, buffer + 6);
-				//gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
-				gtk_clist_set_cell_style (GTK_CLIST (clist), row -left_count + right_count + 1, 2, style_col3);
+				//row = gtk_clist_append (clist, text);
+				gtk_clist_set_text (clist, row - left_count + right_count + 1, 2, buffer + 6);
+				//gtk_clist_set_cell_style (clist, row, 1, style_col2);
+				gtk_clist_set_cell_style (clist, row -left_count + right_count + 1, 2, style_col3);
 			}
 			else
 			{
-				row = gtk_clist_append (GTK_CLIST (clist), text);
+				row = gtk_clist_append (clist, text);
 				if (one_pane)
 				{
-					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col3);
-					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col2);
+					gtk_clist_set_cell_style (clist, row, 0, style_col3);
+					//gtk_clist_set_cell_style (clist, row, 1, style_col3);
+					//gtk_clist_set_cell_style (clist, row, 2, style_col2);
 				}
 				else
 				{
-					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
-					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
+					gtk_clist_set_cell_style (clist, row, 1, style_col2);
+					gtk_clist_set_cell_style (clist, row, 2, style_col3);
 				}
 			}
 
@@ -173,29 +315,34 @@ compare (char *left, char *right)
 		}
 		else if (strncmp (buffer, COMPARE_SAME, 6) == 0)
 		{
-			text[1] = buffer + 6;
-			text[2] = buffer + 6;
+			text[0] = buffer + 6;
+			//text[1] = buffer + 6;
+			//text[2] = buffer + 6;
 			style_col2 = style_same;
 			style_col3 = style_same;
 
-			row = gtk_clist_append (GTK_CLIST (clist), text);
-			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
-			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
+			row = gtk_clist_append (clist, text);
+			gtk_clist_set_cell_style (clist, row, 0, style_col2);
+			//gtk_clist_set_cell_style (clist, row, 1, style_col2);
+			//gtk_clist_set_cell_style (clist, row, 2, style_col3);
 
 			left_count = 0;
 			right_count = 0;
 		}
 
-		gtk_clist_set_cell_style (GTK_CLIST (clist), row, 0, style_none);
+		//gtk_clist_set_cell_style (clist, row, 0, style_none);
 		line++;
 	}
 
 	fclose (f);
 
-	//gtk_clist_set_shadow_type (GTK_CLIST (clist), GTK_SHADOW_NONE);
-	gtk_clist_columns_autosize (GTK_CLIST (clist));
-	gtk_clist_thaw             (GTK_CLIST (clist));
+	//gtk_clist_set_shadow_type (clist, GTK_SHADOW_NONE);
+	gtk_clist_columns_autosize (clist);
+	gtk_clist_thaw             (clist);
 
-	return scroll;
+	while (gtk_events_pending ())
+		gtk_main_iteration();
+
+	//return scroll;
 }
 

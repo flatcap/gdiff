@@ -187,3 +187,13 @@ new notebook for each diff, all compares join parent diff
 double click on a directory should open/close it
 
 view scrollbar, overview, both
+
+if you close a diff "Do you want to close all the compares too?"
+Yes - close all, No - close the diff, Cancel - do nothing
+
+Preferences menu, those marked with a * will only be visible after restarting the application
+
+implement get/set args on the derived objects
+
+add gnu copyright
+add ident / rcs header
