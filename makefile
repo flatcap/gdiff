@@ -1,14 +1,14 @@
 CC	= gcc
-CFLAGS	= `gnome-config --cflags gnomeui` -c -g -Wall
+CFLAGS	= `gnome-config --cflags gnomeui gnome` -c -g -Wall
 LIBS	= `gnome-config --libs   gnomeui`
 
 SOURCE	= chunk.c color.c config.c derived.c font.c global.c gnome.c main.c menu.c node.c progress.c richard.c spawn.c tree.c
 HEADERS	= color.h confdefs.h config.h derived.h font.h global.h main.h menu.h node.h progress.h spawn.h tree.h
-PROGS	= main g testgtk richard file compare fork exclude
+PROGS	= main g testgtk richard file compare fork exclude lang
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	exclude
+all:	lang
 
 richard: richard.o derived.o menu.o progress.o global.o spawn.o
 	$(CC) $(LIBS) $^ -o $@
@@ -17,7 +17,10 @@ exclude: exclude.o
 	$(CC) $(LIBS) $^ -o $@
 	$@ &
 
-fork: fork.o
+lang:	lang.o
+	$(CC) $(LIBS) $^ -o $@
+
+fork:	fork.o
 	$(CC) $(LIBS) $^ -o $@
 
 compare: compare.o
