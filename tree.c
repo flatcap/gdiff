@@ -93,13 +93,14 @@ void
 set_row_data (GList *list, TreeNode *data)	// list is base class of GtkCTreeNode
 {
 	DiffTreeRow *diffrow = list->data;
-	GtkCTreeRow *treerow = list->data;
-	GtkCListRow *listrow = list->data;
+	//GtkCTreeRow *treerow = list->data;
+	//GtkCListRow *listrow = list->data;
 
 	diffrow->name   = g_strdup (data->name);
+	diffrow->path   = g_strdup (data->path);
 	diffrow->status = data->status;
 
-	g_print ("row = %p\n", list->data);
+	//g_print ("row = %p\n", list->data);
 	/*
 	g_print ("%p\n", list);
 	g_print ("\tcell = %p, ", listrow->cell);

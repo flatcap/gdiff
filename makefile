@@ -27,6 +27,23 @@ veryclean: clean
 
 phony:
 
+deps:
+	gcc -MM `gnome-config --cflags gnomeui gnome gtk glib` *.c
+	
+args.o: args.c options.h diff.h
+compare.o: compare.c compare.h spawn.h
+derived.o: derived.c derived.h spawn.h progress.h global.h node.h tree.h
+diff.o: diff.c diff.h
+gd.o: gd.c config.h args.h options.h diff.h mdi.h global.h
+global.o: global.c global.h icons/open.xpm icons/closed.xpm icons/leaf.xpm
+mdi.o: mdi.c options.h mdi.h diff.h menu.h derived.h
+menu.o: menu.c menu.h derived.h node.h tree.h compare.h
+node.o: node.c node.h derived.h
+options.o: options.c options.h
+progress.o: progress.c progress.h
+spawn.o: spawn.c spawn.h
+tree.o: tree.c tree.h node.h derived.h global.h
+
 ################################################################################
 
 richard: richard.o derived.o menu.o progress.o global.o #spawn.o
@@ -67,6 +84,6 @@ testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
 co:
-	co -l args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo
+	co -l args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo compare.h
 ci:
-	ci args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo
+	ci args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo compare.h

@@ -17,6 +17,7 @@ struct _DiffTreeRow
 	GtkCTreeRow row;
 
 	char   *name;
+	char *path;
 	Status  status;
 
 };

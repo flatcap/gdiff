@@ -1,8 +1,14 @@
 #include <gnome.h>
+#include "compare.h"
+#include "spawn.h"
 
 #define COMPARE_APPNAME "compare"
 #define COMPARE_WINNAME "Compare files"
 #define COMPARE_VERSION "0.0.1"
+
+#define COMPARE_LEFT	"left:\t"
+#define COMPARE_RIGHT	"rght:\t"
+#define COMPARE_SAME	"same:\t"
 
 /*
 diff	--old-line-format='left: %L'		\
@@ -14,11 +20,11 @@ diff	--old-line-format='left: %L'		\
 void
 cdestroy (GtkWidget *widget, gpointer data)
 {
-	gtk_exit (0);
+	gtk_main_quit();
 }
 
 int
-compare (int argc, char *argv[])
+compare (char *left, char *right)
 {
 	char buffer [1024];
 	char number [10];
@@ -48,8 +54,7 @@ compare (int argc, char *argv[])
 	gboolean one_pane = TRUE;
 	int left_count = 0;
 	int right_count = 0;
-
-	gnome_init (COMPARE_APPNAME, COMPARE_VERSION, argc, argv);
+	char *cmdline = NULL;
 
 	app = gnome_app_new (COMPARE_APPNAME, COMPARE_WINNAME);
 	gtk_window_set_default_size (GTK_WINDOW (app), 500, 700);
@@ -71,7 +76,13 @@ compare (int argc, char *argv[])
 	while (gtk_events_pending ())
 		gtk_main_iteration();
 
-	f = stdin;
+	cmdline = g_strdup_printf ("diff"
+				   " --old-line-format="       COMPARE_LEFT  "%%L"
+				   " --unchanged-line-format=" COMPARE_SAME  "%%L"
+				   " --new-line-format="       COMPARE_RIGHT "%%L"
+				   " %s %s", left, right);
+	g_print ("cmdline = %s\n", cmdline);
+	f = run_diff (cmdline);
 
 	gtk_clist_freeze (GTK_CLIST (clist));
 
@@ -123,9 +134,10 @@ compare (int argc, char *argv[])
 
 	while (fgets (buffer, sizeof (buffer), f))
 	{
+		//g_print ("buffer = %s", buffer);
 		sprintf (number, "%d", line);
 
-		if (strncmp (buffer, "left: ", 6) == 0)
+		if (strncmp (buffer, COMPARE_LEFT, 6) == 0)
 		{
 			text[1] = buffer + 6;
 			text[2] = "";
@@ -138,7 +150,7 @@ compare (int argc, char *argv[])
 
 			left_count++;
 		}
-		else if (strncmp (buffer, "rght: ", 6) == 0)
+		else if (strncmp (buffer, COMPARE_RIGHT, 6) == 0)
 		{
 			if (one_pane)
 			{
@@ -177,7 +189,7 @@ compare (int argc, char *argv[])
 
 			right_count++;
 		}
-		else if (strncmp (buffer, "same: ", 6) == 0)
+		else if (strncmp (buffer, COMPARE_SAME, 6) == 0)
 		{
 			text[1] = buffer + 6;
 			text[2] = buffer + 6;
@@ -201,7 +213,7 @@ compare (int argc, char *argv[])
 	gtk_clist_columns_autosize (GTK_CLIST (clist));
 	gtk_clist_thaw             (GTK_CLIST (clist));
 
-	// fclose (f);
+	fclose (f);
 	gtk_main();
 
 	return 0;

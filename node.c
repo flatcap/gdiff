@@ -3,13 +3,14 @@
 #include <gtk/gtk.h>
 #include "node.h"
 
-TreeNode * tree_node_new (char *name, Status status)
+TreeNode * tree_node_new (char *name, char *path, Status status)
 {
 	TreeNode *node = (TreeNode*) g_malloc (sizeof (TreeNode));
 
 	if (node)
 	{
 		node->name   = g_strdup (name);
+		node->path   = g_strdup (path);
 		node->status = status;
 	}
 	
@@ -21,6 +22,7 @@ void tree_node_free (TreeNode *node)
 	if (node)
 	{
 		g_free (node->name);
+		g_free (node->path);
 		g_free (node);
 	}
 }
@@ -75,7 +77,7 @@ GNode * tree_node_find (GNode *node, char *name)
 	return match;
 }
 
-void tree_node_add (GNode *parent, char *path, Status status)
+void tree_node_add (GNode *parent, char *path, Status status, char *orig_path)
 {
 	GNode    *node  = NULL;
 	GString  *root  = NULL;
@@ -101,22 +103,22 @@ void tree_node_add (GNode *parent, char *path, Status status)
 		if (node)
 		{
 			//g_print ("recurse: %s (%d)\n", rest->str, status);
-			tree_node_add (node, rest->str, status);
+			tree_node_add (node, rest->str, status, orig_path);
 			data = (TreeNode*) node->data;
 			data->status |= status;
 		}
 		else
 		{
 			//g_print ("new node: %s (%d)\n", root->str, status);
-			data = tree_node_new (root->str, status);
+			data = tree_node_new (root->str, orig_path, status);
 			node = g_node_append_data (parent, data);
-			tree_node_add (node, rest->str, status);
+			tree_node_add (node, rest->str, status, orig_path);
 		}
 	}
 	else
 	{
 		//g_print ("new leaf: %s (%d)\n", root->str, status);
-		data = tree_node_new (root->str, status);
+		data = tree_node_new (root->str, orig_path, status);
 		node = g_node_append_data (parent, data);
 	}
 

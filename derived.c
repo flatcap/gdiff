@@ -96,8 +96,8 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[])
 	// Nobody can be using these chunks, yet...
 	g_mem_chunk_destroy (list->row_mem_chunk);
 	list->row_mem_chunk = g_mem_chunk_new ("clist row mem chunk",
-						512,//sizeof (DiffTreeRow),
-						512*128,//sizeof (DiffTreeRow) * 128, 
+						sizeof (DiffTreeRow),
+						sizeof (DiffTreeRow) * 512, 
 						G_ALLOC_AND_FREE);
 	//g_print ("chunk = %p\n", list->row_mem_chunk);
 	//g_print ("chunk1 = %p\n", g_chunk_new (DiffTreeRow, list->row_mem_chunk));
@@ -271,7 +271,7 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 		status = gtk_diff_tree_parse_line (tree, buffer, path);
 		//g_print ("parsed: %s\n", path->str);
 
-		tree_node_add (tree->root, path->str, status);
+		tree_node_add (tree->root, path->str, status, path->str);
 
 		g_string_assign (new_loc, path->str);
 
@@ -311,16 +311,59 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 	//g_print ("gtk_diff_tree_init\n");
 }
 
+static gint (* old_button_handler) (GtkWidget *widget, GdkEventButton *event) = NULL;
+
+#if 0
+double click prototype needs to be:
+int handler (GtkWidget *tree, TreeNode *node);
+#endif
+
+gint
+gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event)
+{
+	gboolean result = FALSE;
+
+	if (event->type == GDK_2BUTTON_PRESS)
+	{
+		// my handler
+		g_print ("double click\n");
+		result = TRUE;
+	}
+	/*
+	else if (event->type == GDK_3BUTTON_PRESS)
+	{
+		g_print ("triple click\n");
+		result = TRUE;
+	}
+	else if (event->type == GDK_BUTTON_PRESS)
+	{
+		g_print ("single click\n");
+		result = TRUE;
+	}
+	*/
+	else
+	{
+		result = old_button_handler (widget, event);
+	}
+
+	return result;
+}
+
 static void
-gtk_diff_tree_class_init (GtkDiffTreeClass * class)
+gtk_diff_tree_class_init (GtkDiffTreeClass * klass)
 {
 	GtkObjectClass *object_class = NULL;
+	GtkWidgetClass *widget_class = NULL;
 
-	g_return_if_fail (class != NULL);
+	g_return_if_fail (klass != NULL);
 
 	// override methods
-	object_class = (GtkObjectClass*) class;
+	object_class = (GtkObjectClass*) klass;
 	object_class->finalize = gtk_diff_tree_finalize;
+
+	widget_class = (GtkWidgetClass*) klass;
+	old_button_handler = widget_class->button_press_event;
+	widget_class->button_press_event = gtk_diff_tree_button_press_event;
 
 	//g_print ("gtk_diff_tree_class_init\n");
 }

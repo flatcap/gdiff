@@ -2,6 +2,7 @@
 #include "derived.h"
 #include "node.h"
 #include "tree.h"
+#include "compare.h"
 
 void file_open_cb	(GtkWidget * widget, gpointer data);
 void file_close_cb	(GtkWidget * widget, gpointer data);
@@ -159,6 +160,8 @@ void show_cb (GtkWidget * widget, gpointer data)
 	//TreeNode *node = NULL;
 	DiffTreeRow *dtr = NULL;
 	GList *l2 = NULL;
+	char *left = NULL;
+	char *right = NULL;
 
 	mdi = GNOME_MDI (data);
 	w = gnome_mdi_get_active_view (mdi);
@@ -178,6 +181,7 @@ void show_cb (GtkWidget * widget, gpointer data)
 	dtr = (DiffTreeRow*) row;
 	//node = row->data;
 
+	/*
 	g_print ("show_cb\n");
 	g_print ("mdi = %p\n", mdi);
 	g_print ("view = %p\n", w);
@@ -185,7 +189,14 @@ void show_cb (GtkWidget * widget, gpointer data)
 	g_print ("l/r = %s/%s\n", tree->left, tree->right);
 	g_print ("sel = %p\n", sel);
 
-	g_print ("show_cb %s, %d\n", dtr->name, dtr->status);
+	g_print ("show_cb %s, %d, %s\n", dtr->name, dtr->status, dtr->path);
+	*/
 	//g_print ("show_cb %d\n", dtr->status);
+
+	left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, dtr->path, NULL);
+	right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, dtr->path, NULL);
+
+	g_print ("diff -u %s %s\n", left, right);
+	compare (left, right);
 }
 

@@ -163,3 +163,4 @@ don't allow the selection of directories
 I _could_ stat any left/right file.  Any that turn out to be dirs, will need expanding
 'find path' should do the trick (and all are left/right)
 
+always on top button
