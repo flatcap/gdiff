@@ -1,7 +1,5 @@
-config_get_color (Enum Object)
-config_get_int (Enum Object)
-config_get_font (Enum Object)
-
-
+#define PACKAGE   "GDiff"
+#define VERSION   "0.0.1"
+#define LOCALEDIR "/usr/src/src/locale"
 
 

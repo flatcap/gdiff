@@ -1,15 +1,15 @@
 CC	= gcc
-CFLAGS	= `gnome-config --cflags gnomeui gnome` -c -g -Wall
+CFLAGS	= `gnome-config --cflags gnomeui gnome` -c -g -Wall -DENABLE_NLS
 LIBS	= `gnome-config --libs   gnomeui`
 
-SOURCE	= chunk.c color.c config.c derived.c font.c global.c gnome.c main.c menu.c node.c progress.c richard.c spawn.c tree.c
-HEADERS	= color.h confdefs.h config.h derived.h font.h global.h main.h menu.h node.h progress.h spawn.h tree.h
-PROGS	= main g testgtk richard file compare fork exclude lang auto window mdi canvas spawn args p
+SOURCE	= args.c canvas.c chunk.c color.c compare.c config.c derived.c exclude.c file.c font.c fork.c gd.c global.c gnome.c lang.c main.c menu.c node.c options.c positional.c progress.c richard.c spawn.c tree.c window.c
+HEADERS	= color.h confdefs.h config.h derived.h file.h font.h global.h main.h menu.h node.h options.h progress.h spawn.h tree.h
+PROGS	= main g testgtk richard file compare fork exclude lang auto window mdi canvas spawn args p gd
 POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findme.o
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	args
+all:	gd
 
 richard: richard.o derived.o menu.o progress.o global.o spawn.o
 	$(CC) $(LIBS) $^ -o $@
@@ -25,6 +25,9 @@ spawn:	spawn.o
 canvas:	canvas.o
 	$(CC) $(LIBS) $^ -o $@
 	$@ &
+
+gd:	gd.o args.o
+	$(CC) $(LIBS) $^ -o $@
 
 p:	popt.o
 	$(CC) $(LIBS) $^ -o $@
@@ -65,8 +68,10 @@ testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
 tags:	# $(SOURCE) $(HEADERS)
-	ctags -i+p *.[ch] gdk/*.[ch] glib/*.[ch] gnome/*.[ch] gnomeui/*.[ch] gtk/*.[ch]
+	ctags -i+p *.[ch] /usr/src/gnome-libs-1.0.14/libgnome/*.[ch] /usr/src/gnome-libs-1.0.14/libgnomeui/*.[ch] /usr/src/gtk+-1.2.3/gdk/*.[ch] /usr/src/gtk+-1.2.3/gtk/*.[ch] /usr/src/glib-1.2.3/*.[ch]
 
 clean:
-	rm -f *.o tags $(PROGS)
+	rm -f *.o $(PROGS)
 
+veryclean: clean
+	rm tags

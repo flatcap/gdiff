@@ -47,6 +47,7 @@ gnome-history
 
 parse an RCS ,v file and list the revisions -- highlight two and hit 'diff..'
 list branches?
+RCS / CVS view 
 
 if the whole (graphical) tree is encapsulated as a single widget, then it
 can be inserted into multiple windows or a single MDI
@@ -122,3 +123,17 @@ if locale is english (or sub-dialect) only use english else foreign
 how about standard options are long only allow the short options to be i18n'd
 implement foreign --help and --usage
 
+implement + - * CTRL, etc for leaves
+
+dependencies
+
+gd_ prefix to avoid clutter
+
+play with libz libgz libbz2 for patch files
+
+patch files -> understanding all the various output formats
+of patch (and all combinations)
+
+gnome session management?
+
+right-click menus where applicable

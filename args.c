@@ -86,11 +86,3 @@ parse_args (int argc, char *argv[])
 	poptFreeContext (context);
 }
 
-int
-main (int argc, char *argv[])
-{
-	parse_args (argc, argv);
-
-	return 0;
-}
-

@@ -57,7 +57,7 @@ run_diff (gchar *prog)
 			parts = g_strsplit (prog, " ", -1);
 
 			execvp (parts[0], parts);
-			g_assert_not_reached ();
+			g_assert_not_reached();
 		}
 		else if (pid > 0)		/* Parent */
 		{
