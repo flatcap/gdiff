@@ -1,4 +1,4 @@
-/* $Revision: 1.12 $ */
+/* $Revision: 1.13 $ */
 
 #include "config.h"
 #include "options.h"
@@ -98,8 +98,17 @@ add_frame (GtkContainer *box, PrefOption *opt)
 static void
 check_toggled (GtkToggleButton *toggle_button, guint *number)
 {
+	GtkWidget *props;
+
 	g_print ("check toggled %d\n", *number);
 	*number = !*number;
+
+	props = gtk_widget_get_ancestor (GTK_WIDGET (toggle_button), gnome_property_box_get_type());
+	if (props)
+	{
+		gnome_property_box_changed (GNOME_PROPERTY_BOX (props));
+	}
+
 }
 
 static int
@@ -159,15 +168,79 @@ add_list (GtkContainer *cont, PrefOption *list, Options *options)
 	return 1;
 }
 
+static void
+props_ok_clicked (GtkWidget *button, gpointer data)
+{
+	g_print ("props_ok_clicked\n");
+}
+
+static void
+props_apply_clicked (GtkWidget *button, gpointer data)
+{
+	g_print ("props_apply_clicked\n");
+}
+
+static void
+props_cancel_clicked (GtkWidget *button, gpointer data)
+{
+	g_print ("props_cancel_clicked\n");
+}
+
+static void
+props_help_clicked (GtkWidget *button, GnomeHelpMenuEntry *menu)
+{
+	static GnomeHelpMenuEntry help = { PACKAGE, NULL };
+	GtkWidget *props    = NULL;
+	GtkWidget *notebook = NULL;
+	GtkWidget *page     = NULL;
+	GtkWidget *label    = NULL;
+	int        num;
+
+	g_print ("props_help_clicked\n");
+
+	props = gtk_widget_get_ancestor (GTK_WIDGET (button), gnome_property_box_get_type());
+	if (props)
+	{
+		notebook = GNOME_PROPERTY_BOX (props)->notebook;
+	}
+
+	if (notebook)
+	{
+		num   = gtk_notebook_get_current_page (GTK_NOTEBOOK (notebook));
+		page  = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), num);
+		label = gtk_notebook_get_tab_label (GTK_NOTEBOOK (notebook), page);
+
+		//g_print ("label = %s\n", GTK_LABEL (label)->label);
+
+		help.path = g_strdup_printf ("options-%s.html", GTK_LABEL (label)->label);
+
+	}
+	else
+	{
+		help.path = g_strdup ("options.html");
+	}
+
+	g_print ("help path = %s\n", help.path);
+	gnome_help_display (NULL, &help);
+
+	g_free (help.path);
+}
+
 GtkWidget *
 get_preferences (GtkWindow *parent, PrefsPage page)
 {
+	static GnomeHelpMenuEntry help = { PACKAGE, "options.html" };
 	GnomePropertyBox *props = NULL;
 	PrefOption       *list   = NULL;
 	GtkContainer     *cont  = NULL;
 	Options		 *options = NULL;
 
 	props = GNOME_PROPERTY_BOX (gnome_property_box_new());
+
+	gtk_signal_connect (GTK_OBJECT (props->ok_button),     "clicked", props_ok_clicked, NULL);
+	gtk_signal_connect (GTK_OBJECT (props->apply_button),  "clicked", props_apply_clicked, NULL);
+	gtk_signal_connect (GTK_OBJECT (props->cancel_button), "clicked", props_cancel_clicked, NULL);
+	gtk_signal_connect (GTK_OBJECT (props->help_button),   "clicked", props_help_clicked, &help);
 
 	options = options_get_default (options_list);
 
@@ -306,7 +379,7 @@ read_config_file (Options *options, PrefOption *list)
 
 		case PrefStyle:
 			*((guint*) (ptr)) = gnome_config_get_int (key);
-			g_print ("[%s] %s = %p\n", section, key, *((guint*) (ptr)));
+			g_print ("[%s] %s = %p\n", section, key, ptr);
 			break;
 			break;
 

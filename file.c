@@ -1,4 +1,4 @@
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -56,12 +56,12 @@ void
 new_file (GnomeMDI *mdi, GtkWindow *parent)
 {
 	static GtkWidget *dialog = NULL;
-	static GtkWidget *left   = NULL;
-	static GtkWidget *right  = NULL;
+	//static GtkWidget *left   = NULL;
+	//static GtkWidget *right  = NULL;
 
-	GtkWidget *table = NULL;
+	//GtkWidget *table = NULL;
 	GtkBox *box = NULL;
-	int i = 0;
+	//int i = 0;
 
 	dialog = gnome_dialog_new ("Select files or directories to be compared", GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 
