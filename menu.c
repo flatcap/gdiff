@@ -173,7 +173,7 @@ void show_cb (GtkWidget * widget, gpointer data)
 	tree = GTK_DIFF_TREE (child);
 	list = GTK_CLIST (tree);
 
-	g_mem_chunk_print (list->row_mem_chunk);
+	//g_mem_chunk_print (list->row_mem_chunk);
 
 	sel = list->selection;
 	sel_end = list->selection_end;
