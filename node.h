@@ -10,7 +10,9 @@ enum _Status
 	eFileRight = 1 << 2,
 	eFileDiff  = 1 << 3,
 	eFileType  = 1 << 4,
-	eFileError = 1 << 5
+	eFileError = 1 << 5,
+
+	eFileAll   = (1 << 6) - 1
 };
 
 typedef enum   _Status   Status;
@@ -25,9 +27,11 @@ typedef struct _TreeNode TreeNode;
 
 TreeNode * tree_node_new  (char *name, Status status);
 void       tree_node_free (TreeNode *node);
-GNode *    tree_node_find (GNode *node, char *name);
-void       tree_node_add (GNode *node, char *path, Status status);
+GNode *    tree_node_find (GNode *node,   char *name);
+void       tree_node_add  (GNode *parent, char *path, Status status);
+void       tree_print     (GNode *node, int depth);
 
+#if 0
 class CNode
 {
 public:
@@ -50,6 +54,8 @@ protected:
 private:
 
 };
+
+#endif
 
 #endif // _NODE_H_
 
