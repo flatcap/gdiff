@@ -28,6 +28,7 @@ parse_args (int argc, char *argv[])
 	};
 
 	context = poptGetContext (NULL, argc, argv, options, 0);
+	//poptSetOtherOptionHelp (context, "PATH1 PATH2");
 	
 	while ((opt = poptGetNextOpt (context)) > 0)
 	{
