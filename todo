@@ -81,7 +81,9 @@ i18n the config files too
 pattern matching to locate second file / dir
 guess where the root is?
 
-use exclude for extra options
+use exclude dialog for extra options
+
+global options
 only allow a few to save confusing ourselves.
 --ignore-case  Consider upper- and lower-case to be the same.
 -w  --ignore-all-space  Ignore all white space.
@@ -91,10 +93,32 @@ only allow a few to save confusing ourselves.
 -d  --minimal  Try hard to find a smaller set of changes.
 -H  --speed-large-files  Assume large files and many scattered small changes.
 -a  --text  Treat all files as text.
-    
+
 
 -p  --show-c-function  Show which C function each change is in.
 could give us tooltips ! won't work for my formatting and
 also it truncates the line to 40 chars -- could work it out for myself, though
 
 command line option to specify 'diff' location
+
+diff options (local to one diff, naturally)
+	dir dir		compare two directories
+	file file	compare two files
+	file dir	compare file and dir/file (same name)
+	dir file	compare dir/file and file (same name)
+	dir		compare dir and .
+	file		compare file and . (dir/file (or file is a patch against .))
+	l,r x,x		left right extra
+	l,x x,l
+	r,x x,r
+	l   r
+	r,l
+
+
+have two sets of arguments for popt
+a 'standard' english set and a customisable 'foreign' set
+the english set would always work (but would be hidden)
+if locale is english (or sub-dialect) only use english else foreign
+how about standard options are long only allow the short options to be i18n'd
+implement foreign --help and --usage
+

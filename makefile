@@ -4,7 +4,7 @@ LIBS	= `gnome-config --libs   gnomeui`
 
 SOURCE	= chunk.c color.c config.c derived.c font.c global.c gnome.c main.c menu.c node.c progress.c richard.c spawn.c tree.c
 HEADERS	= color.h confdefs.h config.h derived.h font.h global.h main.h menu.h node.h progress.h spawn.h tree.h
-PROGS	= main g testgtk richard file compare fork exclude lang auto window mdi canvas spawn popt args
+PROGS	= main g testgtk richard file compare fork exclude lang auto window mdi canvas spawn args p
 POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findme.o
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
@@ -26,7 +26,7 @@ canvas:	canvas.o
 	$(CC) $(LIBS) $^ -o $@
 	$@ &
 
-popt:	popt.o
+p:	popt.o
 	$(CC) $(LIBS) $^ -o $@
 
 args:	args.o
