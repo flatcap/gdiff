@@ -14,6 +14,10 @@ const double view_line_width =   3.0;
 const double min_width       =  40.0;
 const double min_height      =  50.0;
 
+const gulong same_colour     = 0xffffffff;
+const gulong left_colour     = 0xff0000ff;
+const gulong right_colour    = 0xdfdf00ff;
+
 enum
 {
 	same,
@@ -181,40 +185,36 @@ CompareData sample[] =
 	{  0 }
 };
 
-// affine transformation -- draw at (0,0), then translate to (0.1, 0.1)
-// so as to avoid scaling the border
-// gtk_layout_freeze / thaw
-// group all the items
-// hopefully we can scale the whole group in one go
-// draw each grouped overview at (0,0) and scale then translate to final positions
+void
+scale_and_translate_group (GnomeCanvasItem *item, double scale_factor, double trans_x, double trans_y)
+{
+	double translate[6];
+	double scale[6];
+	double result[6];
+
+	art_affine_scale     (scale,     1.0,     scale_factor);
+	art_affine_translate (translate, trans_x, trans_y);
+	art_affine_multiply  (result,    scale,   translate);
+
+	gnome_canvas_item_affine_absolute (item, result);
+}
 
 void
 draw_rect (double window_height, GnomeCanvasGroup *root_group)
 {
-	const gulong same_colour	= 0xffffffff;
-	const gulong left_colour	= 0xff0000ff;
-	const gulong right_colour	= 0xdfdf00ff;
-
 	double ly1 = 0.0;
 	double ly2 = 0.0;
 	double ry1 = 0.0;
 	double ry2 = 0.0;
 
-	double lsize = 0.0;
-	double rsize = 0.0;
-
-	double translate[6];
-	//double scale[6];
-
-	GtkLayout *layout = NULL;
+	GtkLayout        *layout = NULL;
+	GnomeCanvasGroup *lgroup = NULL;
+	GnomeCanvasGroup *rgroup = NULL;
 	gulong colour;
 	double unit;
 	double size;
 	int type;
 	int i;
-	GnomeCanvasItem *item = NULL;
-	GnomeCanvasGroup *lgroup = NULL;
-	GnomeCanvasGroup *rgroup = NULL;
 
 	lgroup = GNOME_CANVAS_GROUP (gnome_canvas_item_new (root_group, gnome_canvas_group_get_type(), NULL));
 	rgroup = GNOME_CANVAS_GROUP (gnome_canvas_item_new (root_group, gnome_canvas_group_get_type(), NULL));
@@ -224,26 +224,7 @@ draw_rect (double window_height, GnomeCanvasGroup *root_group)
 
 	for (i = 0; sample[i].count; i++)
 	{
-		if (sample[i].type == same)
-		{
-			lsize += sample[i].count;
-			rsize += sample[i].count;
-		}
-		else if (sample[i].type == left)
-		{
-			lsize += sample[i].count;
-		}
-		else // right
-		{
-			rsize += sample[i].count;
-		}
-	}
-
-	unit = (window_height - (y_indent * 2)) / (MAX (lsize, rsize));
-
-	for (i = 0; sample[i].count; i++)
-	{
-		size = sample[i].count * unit;
+		size = sample[i].count;
 		type = sample[i].type;
 
 		if (type == left)
@@ -262,13 +243,14 @@ draw_rect (double window_height, GnomeCanvasGroup *root_group)
 		if ((type == same) || (type == left))
 		{
 			ly2 += size;
-			item = gnome_canvas_item_new (lgroup, gnome_canvas_rect_get_type(),
+			gnome_canvas_item_new (lgroup, gnome_canvas_rect_get_type(),
 				"x1", 0.0, "y1", ly1, "x2", bar_width, "y2", ly2, "fill_color_rgba", colour, NULL);
 		}
+
 		if ((type == same) || (type == right))
 		{
 			ry2 += size;
-			item = gnome_canvas_item_new (rgroup, gnome_canvas_rect_get_type(),
+			gnome_canvas_item_new (rgroup, gnome_canvas_rect_get_type(),
 				"x1", 0.0, "y1", ry1, "x2", bar_width, "y2", ry2, "fill_color_rgba", colour, NULL);
 		}
 
@@ -276,16 +258,10 @@ draw_rect (double window_height, GnomeCanvasGroup *root_group)
 		ry1 = ry2;
 	}
 
-	//art_affine_scale     (scale, 2.0, 0.5);
-	//art_affine_identity  (scale);
-	//art_affine_translate (translate, 10.0, 10.0);
-	//art_affine_multiply  (translate, scale, translate);
+	unit = (window_height - (y_indent * 2)) / (MAX (ly1, ry1));
 
-	art_affine_translate (translate, x_indent, y_indent);
-	gnome_canvas_item_affine_absolute (GNOME_CANVAS_ITEM (lgroup), translate);
-
-	art_affine_translate (translate, window_width - x_indent - bar_width, y_indent);
-	gnome_canvas_item_affine_absolute (GNOME_CANVAS_ITEM (rgroup), translate);
+	scale_and_translate_group (GNOME_CANVAS_ITEM (lgroup), unit, x_indent, y_indent);
+	scale_and_translate_group (GNOME_CANVAS_ITEM (rgroup), unit, window_width - x_indent - bar_width, y_indent);
 
 	gtk_layout_thaw (layout);
 }
