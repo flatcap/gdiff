@@ -1,6 +1,7 @@
 #include <gnome.h>
 #include "derived.h"
 #include "menu.h"
+#include "global.h"
 
 #define APPNAME "derived"
 #define VERSION "0.0.1"
@@ -25,6 +26,8 @@ main (int argc, char *argv[])
 
 	gtk_signal_connect (GTK_OBJECT (app), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
 
+	global_init (app);
+
 	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
 
 	gtk_window_set_default_size	(GTK_WINDOW (app), 200, 500);
@@ -32,6 +35,9 @@ main (int argc, char *argv[])
 	menu_create			(GNOME_APP  (app));
 
 	gtk_widget_show_all (app);
+
+	gtk_diff_tree_compare (GTK_DIFF_TREE (tree), "2.3.13/", "2.3.14/");
+
 	gtk_main();
 
 	return 0;

@@ -15,6 +15,7 @@ FILE * spawn_diff (char *args, char *left, char *right)
 
 FILE * run_diff (char *prog);
 
+/*
 int
 main (int argc, char *argv[])
 {
@@ -36,6 +37,7 @@ main (int argc, char *argv[])
 	fclose (file);
 	return 0;
 }
+*/
 
 FILE *
 run_diff (gchar *prog)

@@ -150,3 +150,4 @@ remove all c++ comments!
 
 add BEGIN_GNOME_DECLS, END_GNOME_DECLS
 
+now that ENABLE_NLS is in config.h , config.h must be the first include in any c/h

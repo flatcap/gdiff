@@ -6,114 +6,8 @@
 #include "node.h"
 #include "global.h"
 
-#define MATCHES 8
-#define APPNAME "TestApp"
-#define WINNAME "GDiff"
-#define VERSION "0.0.1"
-
 // Local methods
-Status tree_dialog_parse_diff_line (TreeDialog *tree, char *buffer, GString *path);
-
-void file_open_cb  (GtkWidget * widget, gpointer data);
-void file_close_cb (GtkWidget * widget, gpointer data);
-void about_cb      (GtkWidget * widget, gpointer data);
-void color_cb      (GtkWidget * widget, gpointer data);
-void properties_cb (GtkWidget * widget, gpointer data);
-void options_cb    (GtkWidget * widget, gpointer data);
-void view_cb       (GtkWidget * widget, gpointer data);
-
-GnomeUIInfo     file_menu[] =
-{
-	GNOMEUIINFO_MENU_OPEN_ITEM (file_open_cb, NULL),
-	GNOMEUIINFO_MENU_CLOSE_ITEM (file_close_cb, NULL),
-	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_MENU_PROPERTIES_ITEM (properties_cb, NULL),
-	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_ITEM ("_Change Color", NULL, color_cb, NULL),
-	GNOMEUIINFO_END
-};
-
-GnomeUIInfo     help_menu[] =
-{
-	GNOMEUIINFO_MENU_ABOUT_ITEM (about_cb, NULL),
-	GNOMEUIINFO_END
-};
-
-GnomeUIInfo view_menu[] = {
-	GNOMEUIINFO_TOGGLEITEM("_Toolbar", "tooltip1", view_cb, NULL),//NULL=pixmap
-	GNOMEUIINFO_TOGGLEITEM("_Tooltips","tooltip4", view_cb, NULL),
-	GNOMEUIINFO_END
-};
-
-GnomeUIInfo options_menu[] = {
-	GNOMEUIINFO_TOGGLEITEM(N_("_Different"), "tooltip1", options_cb, NULL),//NULL=pixmap
-	GNOMEUIINFO_TOGGLEITEM(N_("_Same"),      "tooltip2", options_cb, NULL),
-	GNOMEUIINFO_TOGGLEITEM(N_("_Left only"), "tooltip3", options_cb, NULL),
-	GNOMEUIINFO_TOGGLEITEM(N_("_Right only"),"tooltip4", options_cb, NULL),
-	GNOMEUIINFO_END
-};
-
-GnomeUIInfo     main_menu[] =
-{
-	GNOMEUIINFO_MENU_FILE_TREE (file_menu),
-	GNOMEUIINFO_SUBTREE("_Options", options_menu),
-	GNOMEUIINFO_SUBTREE("_View", view_menu),
-	GNOMEUIINFO_MENU_HELP_TREE (help_menu),
-	GNOMEUIINFO_END
-};
-
-void file_open_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("file_open_cb (%p)\n", data);
-}
-
-void file_close_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("file_close_cb (%p)\n", data);
-}
-
-void about_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("about_cb (%p)\n", data);
-}
-
-void color_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("color_cb (%p)\n", data);
-}
-
-void view_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("view_cb (%p)\n", data);
-}
-
-void options_cb (GtkWidget * widget, gpointer data)
-{
-	GtkCheckMenuItem *button = GTK_CHECK_MENU_ITEM (widget);
-	//GtkButton      *button = (GtkButton *) data;
-	//GtkWidget      *child = GTK_BIN (button)->child;
-	//GtkLabel       *label = GTK_LABEL (child);
-
-	char *name = gtk_widget_get_name (widget);
-	g_print ("options_cb (%p)\n", data);
-
-	//g_print ("options_cb name '%s', button %p\n", name, button);
-	if (button)
-	{
-		gboolean active = button->active;
-		g_print ("options_cb name '%s', button %p, active %d\n", name, button, active);
-
-		//gtk_check_menu_item_set_show_toggle (button, TRUE);
-		//gtk_check_menu_item_set_active (button, !active);
-	}
-
-	//g_print ("options_cb press '%s'\n", label->label);
-}
-
-void properties_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("properties_cb (%p)\n", data);
-}
+Status tree_dialog_parse_diff_line (GtkDiffTree *tree, char *buffer, GString *path);
 
 gint 
 TreeCompare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
@@ -138,10 +32,11 @@ TreeCompare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 	}
 }
 
-TreeDialog     *
+/*
+GtkDiffTree     *
 tree_dialog_new (GtkWidget *parent)
 {
-	TreeDialog *tree   = (TreeDialog *) g_malloc (sizeof (TreeDialog));
+	GtkDiffTree *tree   = (GtkDiffTree *) g_malloc (sizeof (GtkDiffTree));
 	GtkWidget  *dialog = NULL;
 
 	g_return_val_if_fail (tree, NULL);
@@ -197,9 +92,10 @@ tree_dialog_new (GtkWidget *parent)
 
 	return tree;
 }
+*/
 
 FILE *
-tree_dialog_start_diff (TreeDialog *tree, char *options)
+tree_dialog_start_diff (GtkDiffTree *tree, char *options)
 {
 	return stdin;
 }
@@ -208,7 +104,7 @@ tree_dialog_start_diff (TreeDialog *tree, char *options)
 void tree_print (GNode *node, int depth);
 
 gboolean 
-tree_dialog_parse (TreeDialog *tree, char *left, char *right)
+tree_dialog_parse (GtkDiffTree *tree, char *left, char *right)
 {
 	char	 buffer[_POSIX_PATH_MAX * 2 + 50];
 	FILE	*f       = NULL;
@@ -331,14 +227,14 @@ get_status_style (Status status, gboolean node)
 }
 
 void
-tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status status)
+tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status)
 {
 	//GtkCTreeNode *new_node = NULL;
 	GtkCTreeNode *sibling  = NULL;
 	TreeNode     *tnode    = NULL;
 	char         *text[2]  = { NULL, NULL };
 
-	g_return_if_fail (ctree);
+	g_return_if_fail (tree);
 	g_return_if_fail (node);
 	//g_return_if_fail (node->data);
 
@@ -354,7 +250,7 @@ tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status
 				if (tnode->status & status)
 				{
 					text[1] = get_status_text (tnode->status, status, TRUE);
-					sibling = gtk_ctree_insert_node (ctree, parent, sibling, text, 5, pixmap_closed, mask_closed, pixmap_open, mask_open, FALSE, FALSE);
+					//R sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_closed, mask_closed, pixmap_open, mask_open, FALSE, FALSE);
 				}
 			}
 			else
@@ -362,7 +258,7 @@ tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status
 				if (status & tnode->status)
 				{
 					text[1] = get_status_text (tnode->status, status, FALSE);
-					sibling = gtk_ctree_insert_node (ctree, parent, sibling, text, 5, pixmap_leaf, mask_leaf, NULL, NULL, TRUE, FALSE);
+					//R sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_leaf, mask_leaf, NULL, NULL, TRUE, FALSE);
 					g_free (text[1]);
 					//g_print ("%s (%d) %p\n", tnode->name, tnode->status, sibling);
 				}
@@ -372,7 +268,7 @@ tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status
 			//if (sibling)
 			{ 
 				GtkStyle *style = get_status_style (tnode->status, (node->children != NULL));
-				gtk_ctree_node_set_cell_style (ctree, sibling, 0, style);
+				gtk_ctree_node_set_cell_style (GTK_CTREE (tree), sibling, 0, style);
 				gtk_style_unref (style);
 				//g_print ("get_status_style (%d, %d);\n", tnode->status, (node->children != NULL));
 			}
@@ -380,7 +276,7 @@ tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status
 
 		if (node->children)
 		{
-			tree_dialog_traverse (ctree, sibling, node->children, status);
+			tree_dialog_traverse (tree, sibling, node->children, status);
 		}
 
 		node = node->next;
@@ -388,7 +284,7 @@ tree_dialog_traverse (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node, Status
 }
 
 gboolean 
-tree_dialog_redraw (TreeDialog *tree, Status status, gboolean add)
+tree_dialog_redraw (GtkDiffTree *tree, Status status, gboolean add)
 {
 	// This method will maintain the tree expansion
 	// freeze
@@ -399,11 +295,11 @@ tree_dialog_redraw (TreeDialog *tree, Status status, gboolean add)
 }
 
 gboolean 
-tree_dialog_draw (TreeDialog *tree, Status status)
+tree_dialog_draw (GtkDiffTree *tree, Status status)
 {
 	g_return_val_if_fail (tree,         FALSE);
-	g_return_val_if_fail (tree->dialog, FALSE);
-	g_return_val_if_fail (tree->ctree,  FALSE);
+	//g_return_val_if_fail (tree->dialog, FALSE);
+	//g_return_val_if_fail (tree->ctree,  FALSE);
 
 	tree->view = status;
 
@@ -413,21 +309,21 @@ tree_dialog_draw (TreeDialog *tree, Status status)
 	//g_print ("prev = %p\n", tree->root->prev);
 	//g_print ("next = %p\n", tree->root->next);
 
-	gtk_widget_show (tree->dialog);
-	gtk_widget_show (tree->ctree);
+	//gtk_widget_show (tree->dialog);
+	//gtk_widget_show (tree->ctree);
 
 	//tree_print (tree->root, 0);
 
-	gtk_clist_freeze     (GTK_CLIST (tree->ctree));
-	gtk_clist_clear      (GTK_CLIST (tree->ctree));
-	tree_dialog_traverse (GTK_CTREE (tree->ctree), NULL, tree->root, status);
-	gtk_clist_thaw       (GTK_CLIST (tree->ctree));
+	gtk_clist_freeze     (GTK_CLIST (tree));
+	gtk_clist_clear      (GTK_CLIST (tree));
+	tree_dialog_traverse (GTK_DIFF_TREE (tree), NULL, tree->root, status);
+	gtk_clist_thaw       (GTK_CLIST (tree));
 
 	return TRUE;
 }
 
 void 
-tree_dialog_free (TreeDialog *tree)
+tree_dialog_free (GtkDiffTree *tree)
 {
 	g_free (tree->left);
 	g_free (tree->right);
@@ -438,7 +334,7 @@ tree_dialog_free (TreeDialog *tree)
 }
 
 Status
-tree_dialog_parse_diff_line (TreeDialog *tree, char *buffer, GString *path)
+tree_dialog_parse_diff_line (GtkDiffTree *tree, char *buffer, GString *path)
 {
 	regmatch_t      matches[MATCHES];
 	Status          result = eFileError;

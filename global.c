@@ -36,18 +36,28 @@ gboolean    initialised = FALSE;
 //
 // Public methods
 
-gboolean global_init (GtkWidget *window)
+gboolean
+global_init (GnomeMDI *mdi)
 {
+	gboolean   regex_ok = FALSE;
+	GtkWidget *widget   = NULL;
+
 	if (!initialised)
 	{
-		gboolean regex_ok = ((regcomp (&reg_same, re_same, 0) == 0)	&&
-				     (regcomp (&reg_diff, re_diff, 0) == 0)	&&
-				     (regcomp (&reg_only, re_only, 0) == 0)	&&
-				     (regcomp (&reg_type, re_type, 0) == 0));
+		g_return_val_if_fail (mdi                != NULL, FALSE);
+		g_return_val_if_fail (mdi->windows       != NULL, FALSE);
+		g_return_val_if_fail (mdi->windows->data != NULL, FALSE);	// mdi has no windows!
 
-		pixmap_open	= gdk_pixmap_create_from_xpm_d (window->window, &mask_open,   NULL, open_xpm);
-		pixmap_closed	= gdk_pixmap_create_from_xpm_d (window->window, &mask_closed, NULL, closed_xpm);
-		pixmap_leaf	= gdk_pixmap_create_from_xpm_d (window->window, &mask_leaf,   NULL, leaf_xpm);
+		widget = GTK_WIDGET (mdi->windows->data);
+
+		regex_ok = ((regcomp (&reg_same, re_same, 0) == 0)	&&
+			    (regcomp (&reg_diff, re_diff, 0) == 0)	&&
+			    (regcomp (&reg_only, re_only, 0) == 0)	&&
+			    (regcomp (&reg_type, re_type, 0) == 0));
+
+		pixmap_open	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_open,   NULL, open_xpm);
+		pixmap_closed	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_closed, NULL, closed_xpm);
+		pixmap_leaf	= gdk_pixmap_create_from_xpm_d (widget->window, &mask_leaf,   NULL, leaf_xpm);
 
 		initialised = pixmap_open && pixmap_closed && pixmap_leaf && regex_ok;
 	}
@@ -55,7 +65,8 @@ gboolean global_init (GtkWidget *window)
 	return initialised;
 }
 
-void global_close (void)
+void
+global_close (void)
 {
 	g_return_if_fail (initialised);
 

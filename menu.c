@@ -13,6 +13,11 @@ static GnomeUIInfo file_menu[] =
 	GNOMEUIINFO_END
 };
 
+static GnomeUIInfo empty_menu[] =
+{
+	GNOMEUIINFO_END
+};
+
 static GnomeUIInfo view_menu[] =
 {
 	{ GNOME_APP_UI_TOGGLEITEM, N_("_Identical"), N_("Show files that are the same"),           view_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F5, (GdkModifierType) 0, NULL },
@@ -32,6 +37,7 @@ static GnomeUIInfo main_menu[] =
 {
 	GNOMEUIINFO_MENU_FILE_TREE (file_menu),
 	GNOMEUIINFO_MENU_VIEW_TREE (view_menu),
+	{ GNOME_APP_UI_SUBTREE, ("Children"), NULL, empty_menu, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	GNOMEUIINFO_MENU_HELP_TREE (help_menu),
 	GNOMEUIINFO_END
 };

@@ -30,6 +30,8 @@ GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column);
 void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
 void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
 
+void		gtk_diff_tree_display		(GtkDiffTree *tree);
+
 struct _GtkDiffTree
 {
 	GtkCTree widget;
@@ -37,6 +39,8 @@ struct _GtkDiffTree
 	char	*left;
 	char	*right;
 	Status	 view;
+
+	GNode	*root;
 };
 
 struct _GtkDiffTreeClass

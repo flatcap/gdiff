@@ -3,24 +3,12 @@
 
 #include <gtk/gtk.h>
 #include "node.h"
+#include "derived.h"
 
-typedef struct _TreeDialog TreeDialog;
-
-TreeDialog *	tree_dialog_new   (GtkWidget *parent);
-gboolean	tree_dialog_parse (TreeDialog *tree, char *left, char *right);
-gboolean	tree_dialog_draw  (TreeDialog *tree, Status status);
-void		tree_dialog_free  (TreeDialog *tree);
-
-struct _TreeDialog
-{
-	GtkWidget	*parent;
-	GtkWidget	*dialog;
-	GtkWidget	*ctree;
-	char		*left;
-	char		*right;
-	GNode		*root;
-	Status		 view;
-};
+//GtkDiffTree *	tree_dialog_new   (GtkWidget *parent);
+gboolean	tree_dialog_parse (GtkDiffTree *tree, char *left, char *right);
+gboolean	tree_dialog_draw  (GtkDiffTree *tree, Status status);
+void		tree_dialog_free  (GtkDiffTree *tree);
 
 #if 0
 	construct with base_left, base_right, return a widget

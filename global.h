@@ -1,7 +1,7 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
-#include <gtk/gtk.h>
+#include <gnome.h>
 #include <regex.h>
 
 extern GdkPixmap *pixmap_open;
@@ -19,7 +19,7 @@ extern regex_t    reg_diff;
 extern regex_t    reg_only;
 extern regex_t    reg_type;
 
-gboolean global_init  (GtkWidget *window);
+gboolean global_init  (GnomeMDI *mdi);
 void     global_close (void);
 
 //private stuff

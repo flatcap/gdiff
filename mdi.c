@@ -2,20 +2,42 @@
 #include "options.h"
 #include "mdi.h"
 #include "menu.h"
+#include "derived.h"
+
+/*
+typedef GtkWidget *(*GnomeMDIChildViewCreator) (GnomeMDIChild *, gpointer);
+typedef GList     *(*GnomeMDIChildMenuCreator) (GnomeMDIChild *, GtkWidget *, gpointer);
+typedef gchar     *(*GnomeMDIChildConfigFunc)  (GnomeMDIChild *, gpointer);
+typedef GtkWidget *(*GnomeMDIChildLabelFunc)   (GnomeMDIChild *, GtkWidget *, gpointer);
+*/
 
 GtkWidget *
 my_child_create_view (GnomeMDIChild * child, gpointer data)
 {
+	static char *cols[] = { "Left", "Right" };
 	//GtkWidget      *new_view;
 	gchar           label[256];
 	GtkWidget      *scroll = NULL;
+	GtkWidget      *tree   = NULL;
+	DiffOptions    *diff   = NULL;
 
 	g_print ("my_child_create_view\n");
 	sprintf (label, "Child %d",
 		 GPOINTER_TO_INT (gtk_object_get_user_data (GTK_OBJECT (child))));
 
 	scroll = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW (scroll), gtk_label_new (label));
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+
+	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
+
+	diff = data;
+	g_print ("l/r %s/%s\n", diff->left, diff->right);
+	gtk_diff_tree_compare(GTK_DIFF_TREE (tree), diff->left, diff->right);
+
+	gtk_container_add (GTK_CONTAINER (scroll), tree);
+	//gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW (scroll), gtk_label_new (label));
+
+	gtk_widget_show_all (scroll);
 
 	return scroll;
 }
@@ -32,17 +54,18 @@ my_child_set_label (GnomeMDIChild * child,
 		    GtkWidget * old_label,
 		    gpointer data)
 {
-	GtkWidget      *hbox, *pixmap, *label;
+	//GtkWidget      *hbox, *pixmap, *label;
+	GtkWidget      *hbox, *label;
 	g_print ("my_child_set_label\n");
 	if (old_label == NULL)
 	{
 		/* if old_label is NULL, we have to create a new label */
 		hbox = gtk_hbox_new (FALSE, 0);
-		label = gtk_label_new (child->name);
+		label = gtk_label_new (g_strdup_printf ("Label: %s", child->name));
 		gtk_widget_show (label);
-		pixmap = gnome_stock_new_with_icon (GNOME_STOCK_MENU_TRASH_FULL);
-		gtk_widget_show (pixmap);
-		gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 2);
+		//pixmap = gnome_stock_new_with_icon (GNOME_STOCK_MENU_TRASH_FULL);
+		//gtk_widget_show (pixmap);
+		//gtk_box_pack_start (GTK_BOX (hbox), pixmap, FALSE, FALSE, 2);
 		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 2);
 	}
 	else
@@ -86,27 +109,6 @@ my_child_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 	return menu_list;
 }
 
-void
-mdi_add_dummy_window (GnomeMDI *mdi)
-{
-	// is it possible to show / hide a dummy window?
-	// I want an MDI with nothing in it
-	//GnomeMDIGenericChild *child = gnome_mdi_generic_child_new ("dummy");
-
-	//gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       NULL);
-	//gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      NULL);
-	//gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, NULL);
-	//gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         NULL);
-
-	//gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));
-	//gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));
-}
-
-void
-mdi_remove_dummy_window (GnomeMDI *mdi)
-{
-}
-
 void 
 app_created (GnomeMDI * mdi, GnomeApp * app)
 {
@@ -114,6 +116,19 @@ app_created (GnomeMDI * mdi, GnomeApp * app)
 	//gnome_app_create_menus (app, main_menu);
 	menu_create (app);
 	gtk_window_set_default_size (GTK_WINDOW (app), 500, 500);
+}
+
+void
+destroy (GnomeMDI *mdi)
+{
+	gtk_main_quit();
+}
+
+gint
+remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
+{
+	g_print ("remove child\n");
+	return TRUE;			// yes let it die
 }
 
 GnomeMDI *
@@ -124,12 +139,18 @@ mdi_new (gchar *appname, gchar *title)
 	mdi = GNOME_MDI (gnome_mdi_new (appname, title));
 
 	mdi->tab_pos = GTK_POS_TOP;		// GTK_POS_LEFT, GTK_POS_RIGHT, GTK_POS_TOP, GTK_POS_BOTTOM
-	gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
+	gnome_mdi_set_mode (mdi, GNOME_MDI_TOPLEVEL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
 
-	gtk_signal_connect (GTK_OBJECT (mdi), "app_created", GTK_SIGNAL_FUNC (app_created), NULL);
+	gtk_signal_connect (GTK_OBJECT (mdi), "app_created",  GTK_SIGNAL_FUNC (app_created),  NULL);
+	gtk_signal_connect (GTK_OBJECT (mdi), "destroy",      GTK_SIGNAL_FUNC (destroy),      NULL);
+	gtk_signal_connect (GTK_OBJECT (mdi), "remove_child", GTK_SIGNAL_FUNC (remove_child), NULL);
 
-	mdi_add_dummy_window (mdi);
 	gnome_mdi_open_toplevel (mdi);
+
+	/* and document menu and document list paths (see gnome-app-helper menu
+	   insertion routines for details)  */
+	gnome_mdi_set_child_menu_path(mdi, _("File"));
+	gnome_mdi_set_child_list_path(mdi, _("Children/"));
 
 	return mdi;
 }
@@ -141,24 +162,23 @@ mdi_add_diff (GnomeMDI *mdi, Options *options, DiffOptions *diff)
 	gchar       name[32];
 	GnomeMDIGenericChild *child;
 
-	sprintf (name, "Child %d, much longer\nline 2!", counter);
+	sprintf (name, "MDI name: Child %d, much longer!", counter);
 
-	gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
+	//gnome_mdi_set_mode (mdi, GNOME_MDI_MODAL); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
 	child = gnome_mdi_generic_child_new (name);
 
-	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       NULL);
-	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      NULL);
-	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, NULL);
-	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         NULL);
+	gnome_mdi_generic_child_set_view_creator (child, my_child_create_view,       diff);
+	gnome_mdi_generic_child_set_menu_creator (child, my_child_create_menus,      diff);
+	gnome_mdi_generic_child_set_config_func  (child, my_child_get_config_string, diff);
+	gnome_mdi_generic_child_set_label_func   (child, my_child_set_label,         diff);
 
 	gtk_object_set_user_data (GTK_OBJECT (child), GINT_TO_POINTER (counter));
 
-	//gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child)); /* add the child to MDI */
+	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child)); /* add the child to MDI */
 	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child)); /* and add a new view of the child */
+	// yes both of these are necessary to perform all the init
 
 	counter++;
-
-	mdi_remove_dummy_window (mdi);
 }
 
 void

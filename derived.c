@@ -4,6 +4,8 @@
 #include "spawn.h"
 #include "progress.h"
 #include "global.h"
+#include "node.h"
+#include "tree.h"
 
 static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
 static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * class);
@@ -171,6 +173,16 @@ gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path)
 }
 
 void
+gtk_diff_tree_display (GtkDiffTree *tree)
+{
+	g_print ("gtk_diff_tree_display\n");
+	tree_dialog_draw (tree, eFileAll);
+}
+
+// TODO move this code out of the tree
+// get someone else to do the spawn / parse stuff (MDI maybe?)
+// gtk_diff_tree_display (TreeNode *nodes)
+void
 gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 {
 	g_return_if_fail (tree  != NULL);
@@ -183,46 +195,52 @@ gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right)
 	tree->left  = g_strdup (left);
 	tree->right = g_strdup (right);
 
-	// GtkWidget *progress = progress_new ();
 	{
 	char	 buffer[_POSIX_PATH_MAX * 2 + 50];
 	FILE	*f       = NULL;
 	char    *base    = NULL;
 	GString *path    = g_string_new (NULL);
-	GString *format  = g_string_new (NULL);
 	GString *old_loc = g_string_new (NULL);
 	GString *new_loc = g_string_new (NULL);
 	Status   status  = eFileError;
+	GtkWidget *progress = NULL;
 
-	f = spawn_diff ("-qrs", tree->left, tree->right);
+	progress = progress_new ();
+
+	f = run_diff (g_strdup_printf ("diff -qrs %s %s", tree->left, tree->right));
+	//f = stdin;
 
 	g_return_if_fail (f);
 
-	//tree->root = g_node_new (NULL);
-	//g_return_if_fail (tree->root);
+	tree->root = g_node_new (NULL);
+	g_return_if_fail (tree->root);
 
 	while (fgets (buffer, sizeof (buffer), f))
 	{
 		status = gtk_diff_tree_parse_line (tree, buffer, path);
+		//g_print ("parsed: %s\n", path->str);
 
-		//tree_node_add (tree->root, path->str, status);
+		tree_node_add (tree->root, path->str, status);
 
 		g_string_assign (new_loc, path->str);
 
 		base = g_basename (new_loc->str);
 
-		if (strcmp (base, old_loc->str) != 0)
-		{
-			g_string_assign (old_loc, base);
-			g_string_sprintf (format, "Processing: %s", old_loc->str);
+		g_string_truncate (new_loc, (base - new_loc->str) - 1);
+		//g_print ("new_loc = %s, old_loc = %s\n", new_loc->str, old_loc->str);
 
-			//progress_set_text (progress, format->str);
-			g_print ("%s\n", format->str);
+		if ((strcmp (new_loc->str, old_loc->str) != 0))// &&
+		    //(strlen (new_loc->str) > strlen (old_loc->str)))		// files between dirs in list!
+		{
+			progress_set_text (progress, new_loc->str);
+			g_string_assign (old_loc, new_loc->str);
 		}
 	}
 
-	//fclose (f);			// temp
+	fclose (f);			// temp
 	//tree_print (tree->root, 0);	// temp
+
+	gtk_diff_tree_display (tree);
 	}
 }
 

@@ -89,6 +89,12 @@ gnome_init_and_parse_args (const char *app_id,
 
 			printf ("left  %s\n", left);
 			printf ("right %s\n", right);
+
+			g_free (diff->left);
+			g_free (diff->right);
+
+			diff->left  = g_strdup (left);
+			diff->right = g_strdup (right);
 		}
 	}
 
