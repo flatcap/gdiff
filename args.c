@@ -1,4 +1,4 @@
-/* $Revision: 1.17 $ */
+/* $Revision: 1.18 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -113,13 +113,26 @@ gnome_init_and_parse_args (const char *app_id,
 	return diff;
 }
 
+DiffType
+identify_path (char *path)
+{
+	struct stat info;
+
+	g_return_val_if_fail (path != NULL, Error);
+
+	if (stat (path, &info) == 0)
+	{
+		if      (S_ISREG (info.st_mode))  return File;
+		else if (S_ISDIR (info.st_mode))  return Dir;	/* We can't use anything else */
+	}
+
+	return Error;
+}
+
 gboolean
 categorise_args (DiffOptions *diff)
 {
 	//gboolean reversed = FALSE;
-	struct stat lstat;
-	struct stat rstat;
-	struct stat pstat;
 	DiffType ltype = Error;
 	DiffType rtype = Error;
 	DiffType ptype = Error;
@@ -132,24 +145,8 @@ categorise_args (DiffOptions *diff)
 	g_return_val_if_fail (diff->left  != NULL, FALSE);
 	g_return_val_if_fail (diff->right != NULL, FALSE);
 
-	if (stat (diff->left, &lstat))
-	{
-		g_print ("left file bad\n");
-		return FALSE;
-	}
-
-	if (stat (diff->right, &rstat))
-	{
-		g_print ("right file bad\n");
-		return FALSE;
-	}
-
-	// Preliminary
-	if      (S_ISREG (lstat.st_mode))	ltype = File;
-	else if (S_ISDIR (lstat.st_mode))	ltype = Dir;
-
-	if      (S_ISREG (rstat.st_mode))	rtype = File;
-	else if (S_ISDIR (rstat.st_mode))	rtype = Dir;
+	ltype = identify_path (diff->left);
+	rtype = identify_path (diff->right);
 
 	if (ltype == Error)
 	{
@@ -189,11 +186,9 @@ categorise_args (DiffOptions *diff)
 
 		g_print ("path = %s\n", path);
 
-		if (stat (path, &pstat) == 0)
+		ptype = identify_path (path);
+		if (ptype != Error)
 		{
-			if      (S_ISREG (pstat.st_mode))	ptype = File;
-			else if (S_ISDIR (pstat.st_mode))	ptype = Dir;
-
 			if (((ltype == File) && (ptype == File)) ||
 			    ((rtype == File) && (ptype == File)))
 			{
@@ -218,9 +213,9 @@ categorise_args (DiffOptions *diff)
 		}
 		else
 		{
-			g_print ("path %s doesn't exist\n", path);
 			// see if 'file' is a patch
 			// see if 'dir' is an RCS / CVS dir
+			g_print ("path %s doesn't exist\n", path);
 			g_free (path);
 			return FALSE;
 		}
