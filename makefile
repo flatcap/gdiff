@@ -8,7 +8,7 @@ PROGS	= main g testgtk richard file compare fork exclude lang auto window mdi ca
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
-all:	canvas
+all:	exclude
 
 richard: richard.o derived.o menu.o progress.o global.o spawn.o
 	$(CC) $(LIBS) $^ -o $@

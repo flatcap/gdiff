@@ -5,7 +5,7 @@
 #define X_VERSION "0.0.1"
 
 static GtkWidget *app		= NULL;
-//static GtkWidget *scroll	= NULL;
+static GtkWidget *scroll	= NULL;
 static GtkWidget *table		= NULL;
 static GtkWidget *list		= NULL;
 static GtkWidget *bbox		= NULL;
@@ -114,7 +114,7 @@ main (int argc, char *argv[])
 
 	app	= gnome_app_new (X_APPNAME, X_WINNAME);
 	table	= gtk_table_new (3, 1, FALSE);
-	//scroll	= gtk_scrolled_window_new (NULL, NULL);
+	scroll	= gtk_scrolled_window_new (NULL, NULL);
 	//clist	= gtk_clist_new_with_titles (2, cols);
 	list	= gtk_list_new();
 	text	= gtk_entry_new();
@@ -136,15 +136,17 @@ main (int argc, char *argv[])
 
 	gnome_app_set_contents (GNOME_APP (app), table);
 
-	//gtk_table_attach (GTK_TABLE (table), scroll, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
-	gtk_table_attach (GTK_TABLE (table), list, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
-	gtk_table_attach (GTK_TABLE (table), text,   0, 1, 1, 2, GTK_FILL, GTK_FILL, 10, 10);
-	gtk_table_attach (GTK_TABLE (table), bbox,   0, 1, 2, 3, GTK_FILL, GTK_FILL, 5, 5);
-
 	//gtk_container_add (GTK_CONTAINER (scroll), list);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scroll), list);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+
 	gtk_container_add (GTK_CONTAINER (bbox),   add);
 	gtk_container_add (GTK_CONTAINER (bbox),   bremove);
 	gtk_container_add (GTK_CONTAINER (bbox),   bclose);
+
+	gtk_table_attach (GTK_TABLE (table), scroll, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
+	gtk_table_attach (GTK_TABLE (table), text,   0, 1, 1, 2, GTK_FILL, GTK_FILL, 10, 10);
+	gtk_table_attach (GTK_TABLE (table), bbox,   0, 1, 2, 3, GTK_FILL, GTK_FILL, 5, 5);
 
 	gtk_signal_connect (GTK_OBJECT (add),    "clicked",    (GtkSignalFunc) add_text,    NULL);
 	gtk_signal_connect (GTK_OBJECT (bremove), "clicked",    (GtkSignalFunc) remove_text, NULL);
