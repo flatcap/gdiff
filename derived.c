@@ -1,4 +1,4 @@
-/* $Revision: 1.19 $ */
+/* $Revision: 1.20 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -39,6 +39,7 @@ static void gtk_diff_tree_show (GtkWidget *widget);
 
 GtkWidget * gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff);
 guint gtk_diff_tree_get_type (void);
+DiffOptions * get_current_selection (GtkDiffTree *tree);
 /*----------------------------------------------------------------------------*/
 
 //______________________________________________________________________________
@@ -169,6 +170,41 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], 
 	gtk_clist_column_titles_passive  (list);
 
 	return widget;
+}
+
+DiffOptions *
+get_current_selection (GtkDiffTree *tree)
+{
+	// XXX ask the tree for the selection -- it only allows 1!
+	// XXX move this method to the tree
+	// XXX link the TreeNodes to the DataNodes and vice versa
+	GtkCList	*clist		= NULL;
+	GList		*selection	= NULL;
+	GList		*list		= NULL;
+	DiffTreeRow	*treerow	= NULL;
+	DiffOptions	*options	= NULL;
+
+	g_return_val_if_fail (tree != NULL, NULL);
+	clist = GTK_CLIST (tree);
+
+	g_return_val_if_fail (clist != NULL, NULL);
+	selection = clist->selection;
+
+	g_return_val_if_fail (selection != NULL, NULL);
+	list = (selection->data);
+
+	g_return_val_if_fail (list != NULL, NULL);
+	treerow = (DiffTreeRow*) list->data;
+
+	g_return_val_if_fail (treerow != NULL, NULL);
+	options = diffoptions_new();
+
+	g_return_val_if_fail (options != NULL, NULL);
+	options->left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->type  = File;
+
+	return options;
 }
 
 /*

@@ -1,4 +1,4 @@
-/* $Revision: 1.24 $ */
+/* $Revision: 1.25 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -18,6 +18,7 @@ static void destroy (GnomeMDI *mdi);
 
 GnomeMDI * mdi_new (gchar *appname, gchar *title);
 void mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
+GtkWidget * mdi_get_current_view (GnomeMDI *mdi);
 /*----------------------------------------------------------------------------*/
 
 #if 0
@@ -29,6 +30,22 @@ void mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
 	void        (*view_changed)(GnomeMDI *, GtkWidget *);
 	void        (*app_created)(GnomeMDI *, GnomeApp *);
 #endif
+
+GtkWidget *
+mdi_get_current_view (GnomeMDI *mdi)
+{
+	GtkWidget *widget = NULL;
+	GtkBin    *bin    = NULL;
+
+	g_return_val_if_fail (mdi != NULL, NULL);
+	widget = gnome_mdi_get_active_view (mdi);
+
+	g_return_val_if_fail (widget != NULL, NULL);
+	bin = GTK_BIN (widget);					// GtkScrolledWindow
+
+	g_return_val_if_fail (bin != NULL, NULL);
+	return bin->child;
+}
 
 static void
 view_changed (GnomeMDI *mdi, GtkWidget *oldview)

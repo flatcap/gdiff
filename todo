@@ -235,3 +235,9 @@ how do I launch help?
 xref all methods -- make sure all local methods are static
 make sure all non-static methods are called from more than one place
 if a fn is only called from one place is it better to leave it in context? prob yes
+
+handy!
+GtkWidget* gtk_widget_get_ancestor (GtkWidget *widget, GtkType    widget_type)
+GtkWidget* gtk_widget_get_toplevel (GtkWidget *widget)
+
+should view ident/diff/left/right be global or per tree?
