@@ -55,7 +55,7 @@ PrefOption options_list[] =
 
 	{ PrefPage,	N_("Directory"),				"Directory" },
 	{ PrefFrame,	N_("Display style") },
-	{ PrefRadio,	N_("Tree"),					"DirViewStyle",			G_STRUCT_OFFSET (Options, DirViewStyle) },				// Tree,				list (path),				list (no path)
+	{ PrefRadio,	N_("Tree"),					"DirViewStyle",			G_STRUCT_OFFSET (Options, DirViewStyle) },
 	{ PrefRadio,	N_("List of files (full path)") },
 	{ PrefRadio,	N_("List of files (no path)") },
 	{ PrefFrame,	N_("Directory options") },
@@ -83,18 +83,18 @@ PrefOption options_list[] =
 
 	{ PrefPage,	N_("MDI"),					"MDI" },
 	{ PrefFrame,	N_("MDI style") },
-	{ PrefRadio,	N_("Default"),					"MDIStyle",			G_STRUCT_OFFSET (Options, MDIStyle) },				// Default,				Top Level,				Modal, Notebook
+	{ PrefRadio,	N_("Default"),					"MDIStyle",			G_STRUCT_OFFSET (Options, MDIStyle) },
 	{ PrefRadio,	N_("Top Level") },
 	{ PrefRadio,	N_("Modal") },
 	{ PrefRadio,	N_("Notebook") },
 	{ PrefFrame,	N_("Session Management") },
-	{ PrefRadio,	N_("Open nothing"),				"SessionStyle",			G_STRUCT_OFFSET (Options, SessionStyle) },				// Open nothing,				Open,				but require rescan,				Rescan everything
+	{ PrefRadio,	N_("Open nothing"),				"SessionStyle",			G_STRUCT_OFFSET (Options, SessionStyle) },
 	{ PrefRadio,	N_("Open, but require rescan") },
 	{ PrefRadio,	N_("Rescan everything") },
 
 	{ PrefPage,	N_("Exclusions"),				"Exclusions" },
 	{ PrefFrame,	N_("Exclude files matching") },
-	{ PrefList,	NULL,						"Exclusions",			G_STRUCT_OFFSET (Options, Exclusions) },
+	{ PrefLabel,	N_("Not yet implemented") },
 
 	{ 0 },
 };

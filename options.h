@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -103,6 +103,7 @@ Options *	options_get_default (PrefOption *list);
 GtkWidget *	get_preferences (GtkWindow *parent, PrefsPage page);
 void		options_save (Options *opts);
 void		show_preferences (GtkWindow *parent, PrefsPage page);
+void		read_config_file (Options *options, PrefOption *list);
 
 //gboolean	options_set_options  (Options *options);
 //gboolean	options_save_options (Options *options);
@@ -117,7 +118,6 @@ typedef enum
 	PrefLabel,
 	PrefRadio,
 	PrefStyle,
-	PrefList,
 
 	PrefMax
 } PrefType;

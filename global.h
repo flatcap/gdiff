@@ -17,13 +17,14 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.4 $ */
+/* $Revision: 1.5 $ */
 
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
 #include <gnome.h>
 #include <regex.h>
+#include "options.h"
 
 extern GdkPixmap *pixmap_open;
 extern GdkPixmap *pixmap_closed;
@@ -33,18 +34,16 @@ extern GdkBitmap *mask_open;
 extern GdkBitmap *mask_closed;
 extern GdkBitmap *mask_leaf;
 
-#define MATCHES 8
-
 extern regex_t    reg_same;
 extern regex_t    reg_diff;
 extern regex_t    reg_only;
 extern regex_t    reg_type;
 
-gboolean global_init  (GnomeMDI *mdi);
-void     global_close (void);
+#define MATCHES 8
 
-//private stuff
-//parse config file
+gboolean  global_init        (GnomeMDI *mdi);
+void      global_close       (void);
+Options  *global_get_options (PrefOption *list);
 
 #endif // _GLOBAL_H_
 

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.6 $ */
+/* $Revision: 1.7 $ */
 
 #include <stdlib.h>
 #include "global.h"
@@ -32,7 +32,7 @@ void global_close (void);
 
 //______________________________________________________________________________
 //
-// Public
+// Public data
 
 GdkPixmap  *pixmap_open   = NULL;
 GdkPixmap  *pixmap_closed = NULL;
@@ -49,7 +49,7 @@ regex_t     reg_type;
 
 //______________________________________________________________________________
 //
-// Private
+// Private data
 
 const char *re_diff = "Files \\(.*\\)/\\(.*\\) and \\(.*\\)/\\2 differ";
 const char *re_same = "Files \\(.*\\)/\\(.*\\) and \\(.*\\)/\\2 are identical";
@@ -57,6 +57,7 @@ const char *re_only = "Only in \\(.*\\): \\(.*\\)\n";
 const char *re_type = "File \\(.*\\)/\\(.*\\) is a \\(.*\\) while file \\(.*\\)/\\2 is a \\(.*\\)";
 
 gboolean    initialised = FALSE;
+Options    *options     = NULL;
 
 //______________________________________________________________________________
 //
@@ -108,5 +109,20 @@ global_close (void)
 	gdk_bitmap_unref (mask_open);
 	gdk_bitmap_unref (mask_closed);
 	gdk_bitmap_unref (mask_leaf);
+
+	g_free (options);
+}
+
+Options *
+global_get_options (PrefOption *list)
+{
+	Options *opt = NULL;
+
+	opt = g_malloc0 (sizeof (Options));
+
+	read_config_file (opt, list);
+	//save_config_file (opt, list);
+
+	return opt;
 }
 

@@ -71,6 +71,8 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+can I show an hourglass cursor until the prefs dialog is realized (signal)?
+
 create an "Are you sure?" dialog which takes a parameter of a options struct member.
 a check box is created for the parameter.  If the parameter is TRUE, just return YES.
 
@@ -225,6 +227,7 @@ EVERYTHING on thee settings menu is GLOBAL
 ________________________________________________________________________________
 WISH LIST - blue sky
 
+object user data isn't any good for libraries -- would have to invent consts
 window list in a tree form
 trees at the root, their files indented
 

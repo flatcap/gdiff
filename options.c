@@ -17,11 +17,12 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.24 $ */
+/* $Revision: 1.25 $ */
 
 #include "config.h"
 #include "options.h"
 #include "style.h"
+#include "global.h"
 
 //XXX still missing tab size, exclusions list and extra options for diff
 //XXX will need to be done manually
@@ -46,6 +47,8 @@ who will own the global options? refcount?
 //static void options_free (Options *options);
 
 Options * options_get_default (PrefOption *list);
+void save_config_file (Options *options, PrefOption *list);
+
 /*----------------------------------------------------------------------------*/
 
 void
@@ -119,14 +122,16 @@ add_frame (GtkContainer *box, PrefOption *opt)
 }
 
 static void
-check_toggled (GtkToggleButton *toggle_button, guint *number)
+check_toggled (GtkToggleButton *button, guint *number)
 {
-	GtkWidget *props;
+	GtkWidget *props = NULL;
 
-	g_print ("check toggled %d\n", *number);
-	*number = !*number;
+	g_return_if_fail (button != NULL);
+	g_return_if_fail (number != NULL);
 
-	props = gtk_widget_get_ancestor (GTK_WIDGET (toggle_button), gnome_property_box_get_type());
+	(*number) = !(*number);
+
+	props = gtk_widget_get_ancestor (GTK_WIDGET (button), gnome_property_box_get_type());
 	if (props)
 	{
 		gnome_property_box_changed (GNOME_PROPERTY_BOX (props));
@@ -191,15 +196,16 @@ STUPID STUPID STUPID -- where am I going to store all these structs?
 static void
 radio_pressed (GtkWidget *radio, gpointer data)
 {
-	GtkWidget *props;
+	GtkWidget *props  = NULL;
+	int       *option = NULL;
 
-	g_print ("radio pressed %d\n", GPOINTER_TO_UINT (data));
-	//*number = !*number;
+	g_return_if_fail (radio != NULL);
 
-	//XXX
-	//	Can I use user_data to attach enough things to each widget?
-	//	How many data items does each control need?
-	//XXX
+	option = gtk_object_get_user_data (GTK_OBJECT (radio));
+
+	g_return_if_fail (option != NULL);
+
+	(*option) = GPOINTER_TO_UINT (data);
 
 	props = gtk_widget_get_ancestor (GTK_WIDGET (radio), gnome_property_box_get_type());
 	if (props)
@@ -211,92 +217,69 @@ radio_pressed (GtkWidget *radio, gpointer data)
 static int
 add_radio (GtkContainer *cont, PrefOption *list, Options *options)
 {
-	GtkWidget      *hbox  = NULL;
-	GtkRadioButton *radio = NULL;
-	gchar          *ptr   = (gchar*) options;
-	guint          *pint  = NULL;
-	int	        count = 0;
+	GtkToggleButton *toggle = NULL;
+	GtkWidget       *hbox   = NULL;
+	GtkRadioButton  *radio  = NULL;
+	gchar           *ptr    = (gchar*) options;
+	guint           *option = NULL;
+	int	         count  = 0;
 
 	ptr += list->offset;
-	pint = (guint*)ptr;
-
-	//(GTK_TOGGLE_BUTTON (toggle))->active = (*pint != 0);
+	option = (guint*)ptr;
 
 	for (; list->type == PrefRadio; list++, count++)
 	{
 		hbox  = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 		radio = GTK_RADIO_BUTTON (gtk_radio_button_new_with_label_from_widget (radio, list->label));
 
+		gtk_object_set_user_data (GTK_OBJECT (radio), option);
 		gtk_signal_connect (GTK_OBJECT (radio), "pressed", radio_pressed, GUINT_TO_POINTER (count));
 
 		gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (radio), FALSE, FALSE, GNOME_PAD_SMALL);
 		gtk_container_add (cont, hbox);
 	}
 
+	if (((*option) >= 0)   &&
+	     (*option < count) &&
+	     (radio != NULL))
+	{
+		// The last button is first in the group!
+		toggle = GTK_TOGGLE_BUTTON (g_slist_nth_data (radio->group, count - 1 - (*option)));
+
+		gtk_toggle_button_set_active (toggle, TRUE);
+	}
+	
 	return count;
 }
 
-/*
-typedef struct _RadioGroup RadioGroup;
-
-struct _RadioGroup
-{
-	GtkLabel	 *label;
-	GnomeColorPicker *fg;
-	GnomeColorPicker *base;
-	GtkEntry	 *entry;
-	Options		 *options;
-	guint		 offset;
-};
-*/
-
-typedef struct _StyleGroup StyleGroup;
-
-struct _StyleGroup
-{
-	//GtkLabel	 *label;
-	//GnomeColorPicker *fg;
-	//GnomeColorPicker *base;
-	GtkEntry	 *entry;
-	Options		 *options;	// these two could be replaced with
-	guint		 offset;	// PrefColours*
-};
-
-static Options *global_options = NULL;
-
 static void
-colour_changed (GnomeColorPicker *picker, guint r, guint g, guint b, gboolean fg)
+colour_changed (GnomeColorPicker *picker, GtkWidget *entry, guint r, guint g, guint b, gboolean fg)
 {
-	StyleGroup  *group  = NULL;
-	PrefColours *colour = NULL;
-	gchar       *ptr    = NULL;
+	GdkColor     colour = { PIXEL_COLOUR, r, g, b };
+	PrefColours *option = NULL;
 	GtkWidget   *props  = NULL;
 	GtkStyle    *style  = NULL;
 
-	g_print ("colour_changed %d\n", fg);
+	g_return_if_fail (picker != NULL);
+	g_return_if_fail (entry  != NULL);
 
-	group = gtk_object_get_user_data (GTK_OBJECT (picker));
+	option = gtk_object_get_user_data (GTK_OBJECT (picker));
+	style  = gtk_style_copy (gtk_widget_get_style (entry));	// no ref-counting on get
 
-	ptr = (char*) group->options;
-	ptr += group->offset;
-	colour = (PrefColours*) ptr;
-
-	//XXX unref the old style
-	style = gtk_style_copy (gtk_widget_get_style (GTK_WIDGET (group->entry))); //XXX what the ....
 	if (fg)
 	{
-		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (picker), &colour->fg.red, &colour->fg.green, &colour->fg.blue, NULL);
-		colour->fg.pixel = PIXEL_COLOUR;
-		style->fg[GTK_STATE_INSENSITIVE] = colour->fg;
+		option->fg = colour;
+		style->fg[GTK_STATE_INSENSITIVE] = colour;
 	}
 	else
 	{
-		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (picker), &colour->base.red, &colour->base.green, &colour->base.blue, NULL);
-		colour->base.pixel = PIXEL_COLOUR;
-		style->base[GTK_STATE_INSENSITIVE] = colour->base;
+		option->base = colour;
+		style->base[GTK_STATE_INSENSITIVE] = colour;
 	}
 
-	gtk_widget_set_style (GTK_WIDGET (group->entry), style);
+	gtk_widget_set_style (entry, style);			// ref-count +1
+	gtk_style_unref (style);
+	style = NULL;
 
 	props = gtk_widget_get_ancestor (GTK_WIDGET (picker), gnome_property_box_get_type());
 	if (props)
@@ -306,15 +289,15 @@ colour_changed (GnomeColorPicker *picker, guint r, guint g, guint b, gboolean fg
 }
 
 static void
-fg_changed (GnomeColorPicker *picker, guint r, guint g, guint b, guint a) // actually gushort
+fg_changed (GnomeColorPicker *picker, guint r, guint g, guint b, guint a, GtkWidget *entry)
 {
-	colour_changed (picker, r, g, b, TRUE);
+	colour_changed (picker, entry, r, g, b, TRUE);
 }
 
 static void
-bg_changed (GnomeColorPicker *picker, guint r, guint g, guint b, guint a) // actually gushort
+bg_changed (GnomeColorPicker *picker, guint r, guint g, guint b, guint a, GtkWidget *entry)
 {
-	colour_changed (picker, r, g, b, FALSE);
+	colour_changed (picker, entry, r, g, b, FALSE);
 }
 
 static int
@@ -326,11 +309,9 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	GtkWidget   *entry  = NULL;
 	GtkWidget   *fg     = NULL;
 	GtkWidget   *base   = NULL;
-	//GtkWidget   *check  = NULL;
 	GtkStyle    *style  = NULL;
 	PrefColours *colour = NULL;
 	char        *ptr    = NULL;
-	StyleGroup  *group  = NULL;
 	char        *temp   = NULL;
 
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
@@ -345,7 +326,6 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	entry = gtk_entry_new();
 	fg    = gnome_color_picker_new();
 	base  = gnome_color_picker_new();
-	//check = gtk_check_button_new();
 
 	temp = g_strdup_printf ("Pick a foreground colour for '%s'", list->label);
 	gnome_color_picker_set_title (GNOME_COLOR_PICKER (fg), temp);
@@ -355,33 +335,17 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	gnome_color_picker_set_title (GNOME_COLOR_PICKER (base), temp);
 	g_free (temp);
 
-	group = g_malloc (sizeof (StyleGroup));		//XXX who's going to free this?
-	g_return_val_if_fail (group != NULL, 0);
+	gtk_object_set_user_data (GTK_OBJECT (fg),   colour);
+	gtk_object_set_user_data (GTK_OBJECT (base), colour);
 
-	//group->label	= GTK_LABEL (label);
-	//group->fg	= GNOME_COLOR_PICKER (fg);
-	//group->base	= GNOME_COLOR_PICKER (base);
-	group->entry	= GTK_ENTRY (entry);
-	group->options	= options;
-	group->offset	= list->offset;
-      
-	// #define OBJECT_DATA_ENTRY
-	// #define OBJECT_DATA_OPTION
-
-	//gtk_object_set_user_data (GTK_OBJECT (label),  group);
-	gtk_object_set_user_data (GTK_OBJECT (fg),     group);
-	gtk_object_set_user_data (GTK_OBJECT (base),   group);
-	//gtk_object_set_user_data (GTK_OBJECT (entry),  group);
-
-	gtk_signal_connect (GTK_OBJECT (fg),   "color_set", fg_changed, NULL);
-	gtk_signal_connect (GTK_OBJECT (base), "color_set", bg_changed, NULL);
+	gtk_signal_connect (GTK_OBJECT (fg),   "color_set", fg_changed, entry);
+	gtk_signal_connect (GTK_OBJECT (base), "color_set", bg_changed, entry);
 
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_box_pack_start (GTK_BOX (hbox), dummy, TRUE,  TRUE,  GNOME_PAD_SMALL);
 	gtk_box_pack_end   (GTK_BOX (hbox), entry, FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_box_pack_end   (GTK_BOX (hbox), base,  FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_box_pack_end   (GTK_BOX (hbox), fg,    FALSE, FALSE, GNOME_PAD_SMALL);
-	//gtk_box_pack_end   (GTK_BOX (hbox), check, FALSE, FALSE, GNOME_PAD_SMALL); //XXX enable colours
 
 	gtk_container_add (cont, hbox);
 	gtk_widget_show_all (GTK_WIDGET (cont));
@@ -389,8 +353,7 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	gtk_widget_set_sensitive (entry, FALSE);
 	gtk_entry_set_text (GTK_ENTRY (entry), _("Sample text"));
 
-	//XXX unref the old style
-	style = gtk_style_copy (gtk_widget_get_style (entry));
+	style = gtk_style_copy (gtk_widget_get_style (entry));	// no ref-counting on get
 
 	style->fg  [GTK_STATE_INSENSITIVE] = style->fg  [GTK_STATE_NORMAL];//these THREE are nec
 	style->bg  [GTK_STATE_INSENSITIVE] = style->bg  [GTK_STATE_NORMAL];
@@ -420,56 +383,37 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 
 	gtk_widget_set_style (entry, style);
 
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (fg),   colour->fg.red,   colour->fg.green,   colour->fg.blue, 0);
+	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (fg),   colour->fg.red,   colour->fg.green,   colour->fg.blue,   0);
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (base), colour->base.red, colour->base.green, colour->base.blue, 0);
 
 	return 1;
 }
 
-static int
-add_list (GtkContainer *cont, PrefOption *list, Options *options)
-{
-	gtk_container_add (cont, gtk_list_new());
-	return 1;
-}
-
-void save_config_file (Options *options, PrefOption *list);
-
 static void
-apply_signal (GtkWidget *button, Options *options)
+apply_signal (GnomePropertyBox *props, gint page_num, Options *options)
 {
-	g_print ("apply_signal (%p)\n", options);
-	if (options != GUINT_TO_POINTER (-1))
+	g_print ("apply_signal (%d)\n", page_num);
+	if (page_num != -1)
 	{
-		save_config_file (global_options, options_list);
+		save_config_file (options, options_list);
 	}
 }
 
 static void
-help_signal (GtkWidget *button, gpointer data)
+help_signal (GnomePropertyBox *props, gint page_num)
 {
 	static GnomeHelpMenuEntry help = { PACKAGE, NULL };
-	GtkWidget *props    = NULL;
 	GtkWidget *notebook = NULL;
 	GtkWidget *page     = NULL;
 	GtkWidget *label    = NULL;
-	int        num;
 
 	g_print ("props_help_clicked\n");
 
-	props = gtk_widget_get_ancestor (GTK_WIDGET (button), gnome_property_box_get_type());
-	if (props)
-	{
-		notebook = GNOME_PROPERTY_BOX (props)->notebook;
-	}
-
+	notebook = props->notebook;
 	if (notebook)
 	{
-		num   = gtk_notebook_get_current_page (GTK_NOTEBOOK (notebook));
-		page  = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), num);
+		page  = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), page_num);
 		label = gtk_notebook_get_tab_label (GTK_NOTEBOOK (notebook), page);
-
-		//g_print ("label = %s\n", GTK_LABEL (label)->label);
 
 		help.path = g_strdup_printf ("options-%s.html", GTK_LABEL (label)->label);
 
@@ -511,10 +455,11 @@ get_preferences (GtkWindow *parent, PrefsPage /*XXX unused*/page_sel)
 
 	//XXX NEED TO COPY OPTIONS FIRST, then commit / emit on apply/OK
 
-	options = options_get_default (options_list);
-	global_options = options;
-
 	props = GNOME_PROPERTY_BOX (gnome_property_box_new());
+
+	options = global_get_options (options_list);
+
+	gtk_object_set_user_data (GTK_OBJECT (props), options);
 
 	gtk_signal_connect (GTK_OBJECT (props), "apply", apply_signal, options);
 	gtk_signal_connect (GTK_OBJECT (props), "help",  help_signal,  NULL);
@@ -542,9 +487,6 @@ get_preferences (GtkWindow *parent, PrefsPage /*XXX unused*/page_sel)
 				break;
 
 		case PrefStyle:	list += add_style (cont, list, options);
-				break;
-
-		case PrefList:	list += add_list  (cont, list, options);
 				break;
 
 		default:	g_assert_not_reached();
@@ -592,7 +534,6 @@ save_config_file (Options *options, PrefOption *list)
 		case PrefCheck:
 		case PrefLabel:
 		case PrefRadio:
-			//g_print ("[%s] %s = %d\n", section, key, *((guint*) (ptr)));
 			gnome_config_set_int (key, *((guint*) (ptr)));
 			break;
 
@@ -602,16 +543,14 @@ save_config_file (Options *options, PrefOption *list)
 			char *sfg = NULL;
 			char *sbase = NULL;
 			PrefColours *colour = (PrefColours*) ptr;
-			//g_print ("[%s] %s = %p\n", section, key, (ptr));
 
-			//g_print ("fg %ld, bg %ld\n", colour->fg.pixel, colour->base.pixel);
 			if (colour->fg.pixel == PIXEL_DEFAULT)
 			{
 				sfg = strdup ("default");
 			}
 			else
 			{
-				sfg = g_strdup_printf ("#%02x%02x%02x", 
+				sfg = g_strdup_printf ("#%02x%02x%02x",
 					colour->fg.red	 >> 8,
 					colour->fg.green >> 8,
 					colour->fg.blue	 >> 8);
@@ -623,14 +562,14 @@ save_config_file (Options *options, PrefOption *list)
 			}
 			else
 			{
-				sbase = g_strdup_printf ("#%02x%02x%02x", 
+				sbase = g_strdup_printf ("#%02x%02x%02x",
 					colour->base.red   >> 8,
 					colour->base.green >> 8,
 					colour->base.blue  >> 8);
 			}
 
 			str = g_strdup_printf ("%s,%s", sfg, sbase);
-			//g_print ("Colour = %s\n", str);
+
 			gnome_config_set_string (key, str);
 			g_free (sfg);
 			g_free (sbase);
@@ -638,15 +577,9 @@ save_config_file (Options *options, PrefOption *list)
 			break;
 		}
 
-		case PrefList:
-			//g_print ("[%s] %s = (null)\n", section, key);
-			gnome_config_set_int (key, 0);
-			break;
-
 		case PrefPage:
 		case PrefFrame:
 		default:
-			//g_print ("%d\n", list->type);
 			g_assert_not_reached();
 		}
 	}
@@ -691,70 +624,43 @@ read_config_file (Options *options, PrefOption *list)
 		case PrefCheck:
 		case PrefRadio:
 			*((guint*) (ptr)) = gnome_config_get_int (key);
-			//g_print ("[%s] %s = %d\n", section, key, *((guint*) (ptr)));
 			break;
 
 		case PrefStyle:
-		{
 			colour = (PrefColours*) ptr;
 			colour->fg   = def_colour;
 			colour->base = def_colour;
 
 			temp = gnome_config_get_string (key);
-			//g_print ("style config = %s\n", temp);
 			if (temp)
 			{
-				delim = strchr (temp, ',');		// XXX if (temp) else gtk_style_new!
+				delim = strchr (temp, ',');
 				*delim = 0;
 				delim++;
-				//g_print ("[%s] %s = %p\n", section, key, ptr);
+
 				if (gdk_color_parse (temp,  &colour->fg))
 				{
-					colour->fg  .pixel = PIXEL_COLOUR;
-					//g_print ("parsed fg\n");
+					colour->fg.pixel = PIXEL_COLOUR;
 				}
 
 				if (gdk_color_parse (delim, &colour->base))
 				{
 					colour->base.pixel = PIXEL_COLOUR;
-					//g_print ("parsed base\n");
 				}
 
 				g_free (temp);
 			}
-			//g_print ("fg %ld, bg %ld\n", colour->fg.pixel, colour->base.pixel);
-			break;
-		}
-
-		case PrefList:
-			*((guint*) (ptr)) = gnome_config_get_int (key);
-			//g_print ("[%s] %s = %d\n", section, key, *((guint*) (ptr)));
 			break;
 
 		case PrefPage:
 		case PrefFrame:
 		case PrefLabel:
 		default:
-			//g_print ("%d\n", list->type);
 			g_assert_not_reached();
 		}
 	}
 
 	g_free (key);
-}
-
-Options *
-options_get_default (PrefOption *list)
-{
-	//XXX ask global for this first
-	Options *opt = NULL;
-
-	opt = g_malloc0 (sizeof (Options));
-
-	read_config_file (opt, list);
-	//save_config_file (opt, list);
-
-	return opt;
 }
 
 static void
