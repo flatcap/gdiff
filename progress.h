@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef _PROGRESS_H_
 #define _PROGRESS_H_
 

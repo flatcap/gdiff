@@ -1,14 +1,4 @@
-/* $Author$ */
-/* $Date$ */
-/* $Header$ */
 /* $Id$ */
-/* $Locker$ */
-/* $Log$ */
-/* $Name$ */
-/* $RCSfile$ */
-/* $Revision$ */
-/* $Source$ */
-/* $State$ */
 
 #include "config.h"
 #include <gnome.h>

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #define WINNAME    "Graphical differences"
 #define PACKAGE    "GDiff"
 #define VERSION    "0.0.1"

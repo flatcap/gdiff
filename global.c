@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <stdlib.h>
 #include "global.h"
 #include "icons/open.xpm"

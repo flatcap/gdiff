@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <gnome.h>
 #include "options.h"
 #include "mdi.h"

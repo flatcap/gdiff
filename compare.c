@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <gnome.h>
 #include "compare.h"
 #include "spawn.h"

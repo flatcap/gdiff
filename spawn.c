@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <stdio.h>
 #include <gnome.h>
 #include "spawn.h"
