@@ -1,4 +1,4 @@
-/* $Revision: 1.17 $ */
+/* $Revision: 1.18 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -10,13 +10,11 @@
 #include "tree.h"
 #include "menu.h"
 
-#define MATCHES 8
-
 static gint (* old_button_handler)  (GtkWidget *widget, GdkEventButton *event) = NULL;
 static gint (* old_key_handler)     (GtkWidget *widget, GdkEventKey    *event) = NULL;
-static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
-static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
 static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    = NULL;
+static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
+static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
 
 //XXX double click prototype needs to be:
 //XXX int handler (GtkWidget *tree, TreeNode *node);
@@ -32,7 +30,7 @@ static gint tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer pt
 static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * klass);
 static void gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right);
 static void gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area);
-static void gtk_diff_tree_finalize	 (GtkObject * object);
+static void gtk_diff_tree_destroy	 (GtkObject * object);
 static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
 static void gtk_diff_tree_init (GtkDiffTree * tree);
 static void gtk_diff_tree_realize (GtkWidget *widget);
@@ -496,7 +494,7 @@ gtk_diff_tree_class_init (GtkDiffTreeClass * klass)
 
 	// override methods
 	object_class = (GtkObjectClass*) klass;
-	object_class->finalize = gtk_diff_tree_finalize;
+	object_class->destroy = gtk_diff_tree_destroy;
 
 	widget_class = (GtkWidgetClass*) klass;
 
@@ -514,7 +512,7 @@ gtk_diff_tree_class_init (GtkDiffTreeClass * klass)
 }
 
 static void
-gtk_diff_tree_finalize (GtkObject *object)
+gtk_diff_tree_destroy (GtkObject *object)
 {
 	GtkObjectClass	*parent = NULL;
 	//GtkDiffTree	*diff_tree = GTK_DIFF_TREE (object);
@@ -523,6 +521,6 @@ gtk_diff_tree_finalize (GtkObject *object)
 
 	g_return_if_fail (parent != NULL);
 
-	parent->finalize (object);
+	parent->destroy (object);
 }
 

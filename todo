@@ -204,3 +204,9 @@ button for next/prev diff
 gnomify all the types int -> gint etc
 
 tab width default but is compare specific
+
+add a timeout to refresh the diff tree every 5 seconds?
+
+rescan option - current FILE , or selected branch of the TREE
+
+make sure ctrl-end ctrl-home work as expected

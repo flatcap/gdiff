@@ -1,9 +1,10 @@
-/* $Revision: 1.17 $ */
+/* $Revision: 1.18 $ */
 
 #include <gnome.h>
 #include "compare.h"
 #include "spawn.h"
 
+// These are arbitrary, as long as they're different
 #define COMPARE_LEFT	"left:\t"
 #define COMPARE_RIGHT	"rght:\t"
 #define COMPARE_SAME	"same:\t"
@@ -14,6 +15,8 @@ diff	--old-line-format='left: %L'		\
 	--new-line-format='rght: %L'		\
 	file1.c file2.c
 */
+
+//XXX finalize?
 
 /*----------------------------------------------------------------------------*/
 static void gtk_compare (GtkCompare *compare);
@@ -62,7 +65,6 @@ gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
 		gtk_compare (compare);
 	}
 }
-
 
 guint
 gtk_compare_get_type (void)

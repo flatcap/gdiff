@@ -13,7 +13,12 @@ gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progres
 	$(CC) $(LIBS) $^ -o $@
 
 libtags:
-	ctags -f libtags -i+p /usr/src/gnome-libs-1.0.14/libgnome/*.[ch] /usr/src/gnome-libs-1.0.14/libgnomeui/*.[ch] /usr/src/gtk+-1.2.3/gdk/*.[ch] /usr/src/gtk+-1.2.3/gtk/*.[ch] /usr/src/glib-1.2.3/*.[ch]
+	ctags -f libtags -i+p						\
+		/usr/src/gnome-libs-1.0.14/libgnome/*.[ch]		\
+		/usr/src/gnome-libs-1.0.14/libgnomeui/*.[ch]		\
+		/usr/src/gtk+-1.2.3/gdk/*.[ch]				\
+		/usr/src/gtk+-1.2.3/gtk/*.[ch]				\
+		/usr/src/glib-1.2.3/*.[ch]
 
 tags:	phony
 	ctags -i+p *.[ch]
@@ -92,3 +97,4 @@ ci:
 	ci -q -m. $(FILES)
 diff:
 	@rcsdiff -q --brief $(FILES) | cut -d' ' -f4-
+
