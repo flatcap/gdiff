@@ -42,7 +42,7 @@ run_diff (gchar *prog)
 {
 	gint    fds[2] = { -1, -1 };
 	gint    pid    = -1;
-	gchar  **parts  = NULL;
+	gchar **parts  = NULL;
 	FILE   *file   = NULL;
 
 	if (!pipe (fds))

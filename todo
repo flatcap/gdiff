@@ -39,6 +39,7 @@ if file doesn't exist in directory, see if it's a patch
 generate patches
 
 save file list (l/r/s/d/t)
+format <, >, ' ', !  space then the filename
 
 option - show stats -> FULL diff parsed into added 4, deleted 2 moved 15, etc
 
@@ -96,3 +97,4 @@ only allow a few to save confusing ourselves.
 could give us tooltips ! won't work for my formatting and
 also it truncates the line to 40 chars -- could work it out for myself, though
 
+command line option to specify 'diff' location
