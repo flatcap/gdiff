@@ -5,9 +5,9 @@
 #define X_VERSION "0.0.1"
 
 static GtkWidget *app		= NULL;
-static GtkWidget *scroll	= NULL;
+//static GtkWidget *scroll	= NULL;
 static GtkWidget *table		= NULL;
-static GtkWidget *clist		= NULL;
+static GtkWidget *list		= NULL;
 static GtkWidget *bbox		= NULL;
 static GtkWidget *text		= NULL;
 static GtkWidget *add		= NULL;
@@ -26,27 +26,19 @@ destroy (GtkWidget *widget, gpointer data)
 void
 add_text (GtkWidget *widget, gpointer data)
 {
-	//GtkCListRow *clist_row = NULL;
-	//GtkCell *cell = NULL;
-	int row;
-	char *cols[2] = { "", "" };
+	GtkWidget *check = NULL;
+	GtkWidget *item  = NULL;
 	GString *str = g_string_new (gtk_entry_get_text (GTK_ENTRY (text)));
 
 	gtk_entry_set_text (GTK_ENTRY (text), "");
-	cols[0] = g_strdup ("enabled");
-	cols[1] = g_strdup (str->str);
 
-	row = gtk_clist_append (GTK_CLIST (clist), cols);
+	item  = gtk_list_item_new();
+	check = gtk_check_button_new_with_label (str->str);
 
-	//clist_row = (g_list_nth (GTK_CLIST (clist)->row_list, row))->data;
-	//cell = clist_row->cell;
-	//cell->type = GTK_CELL_WIDGET;
-	//g_free (cell->u.text);
-	//cell->u.widget = gtk_button_new_with_label ("hello");
+	gtk_container_add (GTK_CONTAINER (item), check);
+	gtk_container_add (GTK_CONTAINER (list), item);
 
-	//gtk_widget_set_parent_window (cell->u.widget, GTK_CLIST (clist)->clist_window);
-	//gtk_widget_set_parent (cell->u.widget, clist);
-	//gtk_widget_show (cell->u.widget);
+	gtk_widget_show_all (item);
 }
 
 void
@@ -117,13 +109,14 @@ gtk_button_new_with_accel (const gchar *raw_label, GtkAccelGroup *accel)
 int
 main (int argc, char *argv[])
 {
-	static char *cols[] = { "col1", "col2" };
+	//static char *cols[] = { "col1", "col2" };
 	gnome_init (X_APPNAME, X_VERSION, argc, argv);
 
 	app	= gnome_app_new (X_APPNAME, X_WINNAME);
 	table	= gtk_table_new (3, 1, FALSE);
-	scroll	= gtk_scrolled_window_new (NULL, NULL);
-	clist	= gtk_clist_new_with_titles (2, cols);
+	//scroll	= gtk_scrolled_window_new (NULL, NULL);
+	//clist	= gtk_clist_new_with_titles (2, cols);
+	list	= gtk_list_new();
 	text	= gtk_entry_new();
 	bbox	= gtk_hbutton_box_new();
 	accel   = gtk_accel_group_new ();
@@ -143,11 +136,12 @@ main (int argc, char *argv[])
 
 	gnome_app_set_contents (GNOME_APP (app), table);
 
-	gtk_table_attach (GTK_TABLE (table), scroll, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
+	//gtk_table_attach (GTK_TABLE (table), scroll, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
+	gtk_table_attach (GTK_TABLE (table), list, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 10, 10);
 	gtk_table_attach (GTK_TABLE (table), text,   0, 1, 1, 2, GTK_FILL, GTK_FILL, 10, 10);
 	gtk_table_attach (GTK_TABLE (table), bbox,   0, 1, 2, 3, GTK_FILL, GTK_FILL, 5, 5);
 
-	gtk_container_add (GTK_CONTAINER (scroll), clist);
+	//gtk_container_add (GTK_CONTAINER (scroll), list);
 	gtk_container_add (GTK_CONTAINER (bbox),   add);
 	gtk_container_add (GTK_CONTAINER (bbox),   bremove);
 	gtk_container_add (GTK_CONTAINER (bbox),   bclose);
@@ -156,15 +150,15 @@ main (int argc, char *argv[])
 	gtk_signal_connect (GTK_OBJECT (bremove), "clicked",    (GtkSignalFunc) remove_text, NULL);
 	gtk_signal_connect (GTK_OBJECT (bclose),  "clicked",    (GtkSignalFunc) destroy,     NULL);
 	gtk_signal_connect (GTK_OBJECT (app),    "destroy",    (GtkSignalFunc) destroy,     NULL);
-	gtk_signal_connect (GTK_OBJECT (clist),  "select_row", (GtkSignalFunc) select_row,  NULL);
-	gtk_signal_connect (GTK_OBJECT (clist),  "unselect_row", (GtkSignalFunc) unselect_row,  NULL);
+	//gtk_signal_connect (GTK_OBJECT (list),  "select_row", (GtkSignalFunc) select_row,  NULL);
+	//gtk_signal_connect (GTK_OBJECT (list),  "unselect_row", (GtkSignalFunc) unselect_row,  NULL);
 	
 	gtk_signal_connect_object (GTK_OBJECT (text), "activate",
 				  (GtkSignalFunc) gtk_button_clicked, GTK_OBJECT (add));
 
 	gtk_window_set_default_size (GTK_WINDOW (app), 0, 300);
 
-	gtk_clist_set_selection_mode (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
+	//gtk_clist_set_selection_mode (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
 	gtk_widget_set_sensitive     (bremove, FALSE);
 	gtk_widget_grab_focus	     (text);
 	gtk_widget_grab_default      (add);
