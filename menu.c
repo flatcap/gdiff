@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.38 $ */
+/* $Revision: 1.39 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -35,14 +35,14 @@
 // in this file there are callbacks - only get parms then delegate
 static void about_cb          (GtkWidget *, GnomeMDI *); // routed to help.c gd_about()
 static void close_view_cb     (GtkWidget *, GnomeMDI *); // etc
-static void compare_cb        (GtkWidget *, GnomeMDI *);
+//static void compare_cb        (GtkWidget *, GnomeMDI *);
 static void contents_cb       (GtkWidget *, GnomeMDI *);
 static void exit_gdiff_cb     (GtkWidget *, GnomeMDI *);
 static void new_diff_cb       (GtkWidget *, GnomeMDI *);
-static void next_diff_cb      (GtkWidget *, GnomeMDI *);
+//static void next_diff_cb      (GtkWidget *, GnomeMDI *);
 static void preferences_cb    (GtkWidget *, GnomeMDI *);
-static void prev_diff_cb      (GtkWidget *, GnomeMDI *);
-static void rescan_cb         (GtkWidget *, GnomeMDI *);
+//static void prev_diff_cb      (GtkWidget *, GnomeMDI *);
+//static void rescan_cb         (GtkWidget *, GnomeMDI *);
 static void save_file_list_cb (GtkWidget *, GnomeMDI *);
 static void status_bar_cb     (GtkWidget *, GnomeMDI *);
 static void view_cb           (GtkWidget *, GnomeMDI *);
@@ -73,6 +73,7 @@ static GnomeUIInfo display_menu[] =
 	GNOMEUIINFO_END
 };
 
+/*
 static GnomeUIInfo tree_style_list_menu[] =
 {
 	{ GNOME_APP_UI_ITEM, "Tree", "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F2, (GdkModifierType) 0, NULL },
@@ -86,9 +87,11 @@ static GnomeUIInfo tree_style_menu[] =
 	GNOMEUIINFO_RADIOLIST(tree_style_list_menu),
 	GNOMEUIINFO_END
 };
+*/
 
 static GnomeUIInfo view_menu[] =
 {
+	/*
 	{ GNOME_APP_UI_TOGGLEITEM, "File _Count", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F8, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
 	{ GNOME_APP_UI_ITEM, "_Previous Difference", "", prev_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F9, (GdkModifierType) 0, NULL },
@@ -97,9 +100,11 @@ static GnomeUIInfo view_menu[] =
 	GNOMEUIINFO_SEPARATOR,
 	{ GNOME_APP_UI_SUBTREE_STOCK, "_Display", NULL, display_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
 	{ GNOME_APP_UI_SUBTREE_STOCK, "_Style", NULL, tree_style_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
+	*/
 	GNOMEUIINFO_END
 };
 
+/*
 static GnomeUIInfo file_style_list_menu[] =
 {
 	{ GNOME_APP_UI_ITEM, "One pane",  "tooltip", NULL, NULL, NULL, (GnomeUIPixmapType) 0, NULL, GDK_F2, (GdkModifierType) 0, NULL },
@@ -112,15 +117,19 @@ static GnomeUIInfo file_style_menu[] =
 	GNOMEUIINFO_RADIOLIST(file_style_list_menu),
 	GNOMEUIINFO_END
 };
+*/
 
+/*
 static GnomeUIInfo view_menu2[] =
 {
 	{ GNOME_APP_UI_TOGGLEITEM, "_Line Numbers", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
-	{ GNOME_APP_UI_ITEM, "Refresh", 	    "", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
+	{ GNOME_APP_UI_ITEM, "Refresh", 	    "", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
+	//{ GNOME_APP_UI_ITEM, "Refresh", 	    "", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_SUBTREE_STOCK, "_Style", NULL, file_style_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_END
 };
+*/
 
 static GnomeUIInfo sort_list_menu[] =
 {
@@ -137,10 +146,12 @@ static GnomeUIInfo sort_menu[] =
 	GNOMEUIINFO_END
 };
 
+/*
 static GnomeUIInfo mdi_menu[] =
 {
 	GNOMEUIINFO_END
 };
+*/
 
 static GnomeUIInfo settings_menu[] =
 {
@@ -265,8 +276,62 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), gtk_statusbar_new());
 
-	gnome_mdi_set_child_menu_path (mdi, GNOME_MENU_VIEW_PATH);	// child specific menus
+	gnome_mdi_set_child_menu_path (mdi, GNOME_MENU_FILE_STRING);	// child specific menus
 	gnome_mdi_set_child_list_path (mdi, GNOME_MENU_WINDOWS_PATH);	// automatic window list
+}
+
+static GtkWidget *
+create_tree_view_menu (GtkAccelGroup *accel)
+{
+	GtkWidget *menu = NULL;
+
+	menu = gtk_menu_new();
+
+	gnome_app_fill_menu_with_data (GTK_MENU_SHELL (menu),
+					display_menu,
+					accel,			// accel_group
+					TRUE,			// underline accels
+					0,			// position
+					NULL);			// user data
+	return menu;
+}
+
+static GtkWidget *
+create_compare_menu (GtkAccelGroup *accel)
+{
+	return NULL;
+}
+
+GList *
+get_menu_for_view (GtkType type, GnomeApp *app)
+{
+	GtkWidget     *item   = NULL;
+	GtkWidget     *menu   = NULL;
+	GList         *result = NULL;
+	GtkAccelGroup *accel  = NULL;
+
+	accel = app->accel_group;
+
+	if (type == gtk_diff_tree_get_type())
+	{
+		menu = create_tree_view_menu (accel);
+	}
+	else if (type == gtk_compare_get_type())
+	{
+		menu = create_compare_menu (accel);
+	}
+
+	if (menu)
+	{
+		item = gtk_menu_item_new_with_label (GNOME_MENU_VIEW_STRING);
+		gtk_widget_show (item);
+
+		gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), menu);
+
+		result = g_list_append (NULL, item);
+	}
+
+	return result;
 }
 
 static void
@@ -291,6 +356,13 @@ menu_set_view_defaults (GtkMenuShell *shell)
 	window = &main_menu[4];
 	gtk_widget_set_sensitive (window->widget, FALSE);
 #endif
+	{
+		GtkWidget *w = (&main_menu[1])->widget;
+		g_print ("type = %d\n", GTK_OBJECT_TYPE (GTK_OBJECT (w)));
+		g_print ("item = %d\n", gtk_menu_item_get_type());
+		g_print ("menu = %d\n", gtk_menu_get_type());
+		g_print ("name = %smenu_get_type\n", gtk_widget_get_name (w));
+	}
 }
 
 //______________________________________________________________________________
@@ -347,6 +419,7 @@ close_view_cb (GtkWidget *widget, GnomeMDI *mdi)
 	gnome_mdi_remove_child (mdi, child, FALSE);
 }
 
+/*
 static void
 compare_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
@@ -366,6 +439,7 @@ compare_cb (GtkWidget *widget, GnomeMDI *mdi)
 	g_return_if_fail (diff != NULL);
 	mdi_add_diff (mdi, diff);
 }
+*/
 
 static void
 contents_cb (GtkWidget *widget, GnomeMDI *mdi)
@@ -393,6 +467,7 @@ new_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 	new_file (mdi, parent);
 }
 
+/*
 static void
 next_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
@@ -400,6 +475,7 @@ next_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 	g_print ("next_diff_cb\n");
 	exclude_dialog(); //XXX temp
 }
+*/
 
 static void
 preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
@@ -416,19 +492,23 @@ preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 	}
 }
 
+/*
 static void
 prev_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
 	//mdichild - then I can figure out what the view is of
 	g_print ("prev_diff_cb\n");
 }
+*/
 
+/*
 static void
 rescan_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
 	//mdichild - then I can figure out what the view is of
 	g_print ("rescan_cb\n");
 }
+*/
 
 static void
 save_file_list_cb (GtkWidget *widget, GnomeMDI *mdi)

@@ -17,14 +17,15 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.7 $ */
+/* $Revision: 1.8 $ */
 
 #ifndef _MENU_H_
 #define _MENU_H_
 
 #include <gnome.h>
 
-void menu_create (GnomeMDI *mdi, GnomeApp *app);
+void	menu_create		(GnomeMDI *mdi, GnomeApp *app); //XXX can guess app from mdi
+GList *	get_menu_for_view	(GtkType type, GnomeApp *app);
 
 #endif // _MENU_H_
 

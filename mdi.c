@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.30 $ */
+/* $Revision: 1.31 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -172,6 +172,7 @@ gd_mdi_set_label (GnomeMDIChild * child,
 static GList   *
 gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 {
+#if 0
 	// this isn't called because we haven't registered the callback?
 	// These menus are mdi child specific -- we chose to distinguish between tree and file
 	GList          *menu_list;
@@ -209,6 +210,8 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 	menu_list = g_list_append (menu_list, w);
 
 	return menu_list;
+#endif
+	return get_menu_for_view (gtk_diff_tree_get_type(), gnome_mdi_get_active_window (GNOME_MDI (child->parent)));
 }
 
 static void 
