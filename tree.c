@@ -46,10 +46,10 @@ GnomeUIInfo view_menu[] = {
 };
 
 GnomeUIInfo options_menu[] = {
-	GNOMEUIINFO_TOGGLEITEM("_Different", "tooltip1", options_cb, NULL),//NULL=pixmap
-	GNOMEUIINFO_TOGGLEITEM("_Same",      "tooltip2", options_cb, NULL),
-	GNOMEUIINFO_TOGGLEITEM("_Left only", "tooltip3", options_cb, NULL),
-	GNOMEUIINFO_TOGGLEITEM("_Right only","tooltip4", options_cb, NULL),
+	GNOMEUIINFO_TOGGLEITEM(N_("_Different"), "tooltip1", options_cb, NULL),//NULL=pixmap
+	GNOMEUIINFO_TOGGLEITEM(N_("_Same"),      "tooltip2", options_cb, NULL),
+	GNOMEUIINFO_TOGGLEITEM(N_("_Left only"), "tooltip3", options_cb, NULL),
+	GNOMEUIINFO_TOGGLEITEM(N_("_Right only"),"tooltip4", options_cb, NULL),
 	GNOMEUIINFO_END
 };
 
@@ -158,7 +158,7 @@ tree_dialog_new (GtkWidget *parent)
 	gnome_app_create_menus_with_data (GNOME_APP (dialog), main_menu, tree);
 	//gnome_app_install_menu_hints     (GNOME_APP (dialog), main_menu);
 
-	g_print ("tree = %p\n", tree);
+	//g_print ("tree = %p\n", tree);
 	if (dialog)
 	{
 		char *cols[] = {"Name", "Description"};

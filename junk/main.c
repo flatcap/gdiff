@@ -1,15 +1,19 @@
+#define ENABLE_NLS 1
+
 #include <stdio.h>
 #include <string.h>
 #include <regex.h>
 #include <gnome.h>
+#include <locale.h>
 #include "global.h"
 #include "tree.h"
 #include "node.h"
 
 #define MATCHES 8
-#define APPNAME "TestApp"
-#define WINNAME "GDiff"
-#define VERSION "0.0.1"
+#define APPNAME   "TestApp"
+#define WINNAME   "GDiff"
+#define VERSION   "0.0.1"
+#define LOCALEDIR "/usr/src/src"
 
 #if 0
 "regular empty file"
@@ -176,6 +180,13 @@ int
 main (int argc, char *argv[], char *env[])
 {
 	GtkWidget *window = NULL;
+
+	//g_print ("locale = %s\n", setlocale (LC_MESSAGES, ""));
+
+	bindtextdomain (APPNAME, LOCALEDIR);
+	textdomain (APPNAME);
+
+	//g_print ("diff = %s\n", _("_Different"));
 
 	gnome_init (APPNAME, VERSION, argc, argv);
 
