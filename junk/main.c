@@ -33,9 +33,16 @@ const char *type = "File \\(.*\\)/\\(.*\\) is a \\(.*\\) while file \\(.*\\)/\\2
 char *base_left  = NULL;
 char *base_right = NULL;
 
+static gboolean bAbort = FALSE;
+
 void destroy (GtkWidget *pWidget, gpointer *pData)
 {
 	gtk_main_quit();
+}
+
+void abort (GtkWidget *pWidget, gpointer *pData)
+{
+	bAbort = TRUE;
 }
 
 Status ParsePathName (char buffer[], GString *pPath)
@@ -132,6 +139,16 @@ gint TreeCompare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 	}
 }
 
+void basename (GString *path)
+{
+	char *slash = strrchr (path->str, '/');
+
+	if (slash)
+	{
+		g_string_truncate (path, (slash - path->str));
+	}
+}
+
 int main (int argc, char *argv[], char *env[])
 {
 	gtk_init (&argc, &argv);
@@ -148,32 +165,67 @@ int main (int argc, char *argv[], char *env[])
 	//g_print ("left = %s, right = %s\n", base_left, base_right);
 
 	GtkWidget *pWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size (GTK_WINDOW (pWindow), 500, 300);
+	gtk_window_set_default_size (GTK_WINDOW (pWindow), 500, 50);
 	gtk_signal_connect (GTK_OBJECT (pWindow), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
 	gtk_widget_show (pWindow);
 
-	GtkWidget *pScrolled = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (pScrolled), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER(pWindow), pScrolled);
+	GtkWidget *box = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (pWindow), box);
+	gtk_widget_show (box);
 
-	char *cols[] = {"Name", "Description"};
-	gtk_widget_show (pScrolled);
-	GtkWidget *pTree = gtk_ctree_new_with_titles (2, 0, cols);
-	gtk_container_add (GTK_CONTAINER (pScrolled), pTree);
-	gtk_widget_show (pTree);
+	GtkWidget *label = gtk_label_new ("Processing...");
+	gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 10);
+	gtk_widget_show (label);
+
+	GtkWidget *button = gtk_button_new_with_label ("Abort");
+	gtk_box_pack_end (GTK_BOX (box), button, FALSE, FALSE, 10);
+	//GtkAllocation a = { -1, -1, 20, 20 };
+	//gtk_widget_size_allocate (button, &a);
+	gtk_widget_show (button);
+	//button->allocation.width  = 20;
+	//button->allocation.height = 20;
+	gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (abort), NULL);
+
+	//GtkWidget *pScrolled = gtk_scrolled_window_new (NULL, NULL);
+	//gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (pScrolled), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	//gtk_container_add (GTK_CONTAINER(pWindow), pScrolled);
+
+	//XX char *cols[] = {"Name", "Description"};
+	//XX gtk_widget_show (pScrolled);
+	//XX GtkWidget *pTree = gtk_ctree_new_with_titles (2, 0, cols);
+	//XX gtk_container_add (GTK_CONTAINER (pScrolled), pTree);
+	//XX gtk_widget_show (pTree);
 
 	//gtk_ctree_set_line_style (GTK_CTREE (pTree), GTK_CTREE_LINES_TABBED);
-	gtk_clist_set_selection_mode     (GTK_CLIST (pTree), GTK_SELECTION_BROWSE);
-	gtk_clist_set_auto_sort          (GTK_CLIST (pTree), TRUE);
-	gtk_clist_set_compare_func       (GTK_CLIST (pTree), TreeCompare);
-	gtk_clist_set_column_auto_resize (GTK_CLIST (pTree), 0, TRUE);
+	//XX gtk_clist_set_selection_mode     (GTK_CLIST (pTree), GTK_SELECTION_BROWSE);
+	//XX gtk_clist_set_auto_sort          (GTK_CLIST (pTree), TRUE);
+	//XX gtk_clist_set_compare_func       (GTK_CLIST (pTree), TreeCompare);
+	//XX gtk_clist_set_column_auto_resize (GTK_CLIST (pTree), 0, TRUE);
+	//XX gtk_clist_column_titles_passive  (GTK_CLIST (pTree));
 
-	CNode *pNode = new CNode (pTree);
 
-	GtkCTreeNode *pSibling = NULL;
+	//XX CNode *pNode = new CNode (pTree);
 
+	//XX GtkCTreeNode *pSibling = NULL;
+
+	while (gtk_events_pending())
+		gtk_main_iteration();
+	
+	{
+		GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
+		gdk_window_set_cursor (pWindow->window, cursor);
+		gdk_cursor_destroy (cursor);
+	}
+
+	GString *pOldLocation = g_string_new ("");
+	GString *pNewLocation = g_string_new ("");
+	GString *pFormat      = g_string_new ("");
+	GString *pPath        = g_string_new ("");
+
+	//XX gtk_clist_freeze (GTK_CLIST (pTree));
+	int iCount = 0;
 	char buffer[256];
-	while (TRUE)
+	while (!bAbort)
 	{
 		cin.getline (buffer, sizeof (buffer));
 		if (cin.eof())
@@ -181,18 +233,86 @@ int main (int argc, char *argv[], char *env[])
 			break;
 		}
 
-		GString *pPath = g_string_new ("");
-		Status eStatus = ParsePathName (buffer, pPath);
+		//XX Status eStatus = ParsePathName (buffer, pPath);
+		ParsePathName (buffer, pPath);
 
 		//g_print ("status = %d\n", eStatus);
-		pNode->AddNode (NULL, pSibling, pPath->str, eStatus);
+		//XX pNode->AddNode (NULL, pSibling, pPath->str, eStatus);
+		iCount++;
+		//if ((iCount % 20) == 0)	// change this to a timer?
+		g_string_assign (pNewLocation, pPath->str);
+		basename (pNewLocation);
+		if (strcmp (pNewLocation->str, pOldLocation->str) != 0)
+		{
+			g_string_assign (pOldLocation, pNewLocation->str);
+			g_string_sprintf (pFormat, "Processing: %s", pOldLocation->str);
+
+			gtk_label_set_text (GTK_LABEL (label), pFormat->str);
+			//gtk_clist_thaw (GTK_CLIST (pTree));
+			while (gtk_events_pending())
+				gtk_main_iteration();
+			//gtk_clist_freeze (GTK_CLIST (pTree));
+		}
 	}
+
+	//if (bAbort)
+	//{
+		//while (cin.getline (buffer, sizeof (buffer) != cin.eof()));
+	//}
+	//XX gtk_clist_thaw (GTK_CLIST (pTree));
 
 	//gtk_widget_show (pWindow);
 	//gtk_widget_show (pScrolled);
 	//gtk_widget_show (pTree);
+
+#if 0
+	GdkColor  Red;
+	GdkColor  Yellow;
+	GdkColor  Green;
+	GtkStyle *pDirStyle  = gtk_style_new ();
+
+	memset (&Red,  0, sizeof (Red));
+
+	Red.red   = 65535;
+	Red.green =     0;
+	Red.blue  =     0;
+
+	Yellow.red   = 65535;
+	Yellow.green = 65535;
+	Yellow.blue  =     0;
+
+	Green.red   =     0;
+	Green.green = 65535;
+	Green.blue  =     0;
+
+	int i = GTK_STATE_SELECTED;
+
+	for (i = 0; i < 5; i++)
+	//if (0)
+	{
+		pDirStyle->fg[i]	= Red;
+		pDirStyle->bg[i]	= Green;
+		//pDirStyle->light[i]	= Red;
+		//pDirStyle->dark[i]	= Green;
+		//pDirStyle->mid[i]	= Yellow;
+		//pDirStyle->text[i]	= Green;
+		pDirStyle->base[i]	= Yellow;
+	}
+
+	//pDirStyle->black = Yellow;
+	//pDirStyle->white = Yellow;
+
+	gtk_widget_set_style (pTree, pDirStyle);
+
+#endif
+	{
+		GdkCursor *cursor = gdk_cursor_new (GDK_ARROW);
+		gdk_window_set_cursor (pWindow->window, cursor);
+		gdk_cursor_destroy (cursor);
+	}
+
 	gtk_main();
-	delete pNode;
+	//XX delete pNode;
 
 	return 0;
 }

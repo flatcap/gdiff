@@ -248,13 +248,29 @@ void gnome_rc (void)
 			}
 		}
 	}
+}
 
+void gnome_rc2 (void)
+{
+	char *path  = "/TestRC/Colors/NewColor";
+	char buffer[10];
+	int r = random() & 255;
+	int g = random() & 255;
+	int b = random() & 255;
+
+	g_snprintf (buffer, sizeof (buffer), "#%.02x%.02x%.02x", r, g, b);
+
+	g_print ("%s\n", path);
+	g_print ("%s\n", buffer);
+	gnome_config_set_string (path, buffer);
+	gnome_config_sync();
 }
 
 int main (int argc, char *argv[])
 {
 	gnome_init (APPNAME, VERSION, argc, argv);
 
+#if 0
 	app = gnome_app_new (APPNAME, WINNAME);
 
 	gtk_signal_connect (GTK_OBJECT (app), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
@@ -268,8 +284,9 @@ int main (int argc, char *argv[])
 
 	gtk_widget_show_all (app);
 	gtk_main();
-
+#endif
 	//gnome_rc();
+	//gnome_rc2();
 
 	return 0;
 }
