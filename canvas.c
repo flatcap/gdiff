@@ -4,18 +4,15 @@
 #define VER "0.0.1"
 #define TTL "Canvas test"
 
-#define MIN_WIDTH	 50
-#define MIN_HEIGHT	100
-
-#define WIN_WIDTH	 50
-#define WIN_HEIGHT	800
-
-const double x_indent        =  18.0;
+const double x_indent        =  12.0;
 const double y_indent        =  10.0;
 const double bar_width       =   6.0;
-const double min_height      =  50.0;
-const double window_width    =  50.0;
+const double window_width    =  40.0;
+const double window_height   = 400.0;
 const double view_line_width =   3.0;
+
+const double min_width       =  40.0;
+const double min_height      =  50.0;
 
 enum
 {
@@ -41,18 +38,55 @@ destroy (GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
+// copied from gtk+-1.2.3/gtk/gtkclist.c
+#define CELL_SPACING 1
+#define ROW_FROM_YPIXEL(clist, y)  (((y) - (clist)->voffset) / ((clist)->row_height + CELL_SPACING))
+
+void
+adjustment_changed (GtkAdjustment *adjustment, GtkCList *clist)
+{
+	int top    = ROW_FROM_YPIXEL (clist, 0);
+	int bottom = ROW_FROM_YPIXEL (clist, clist->clist_window_height);
+
+	g_print ("adjustment_changed %d, %d\n", top, bottom);
+}
+
+void
+adjustment_value_changed (GtkAdjustment *adjustment, GtkCList *clist)
+{
+	int top    = ROW_FROM_YPIXEL (clist, 0);
+	int bottom = ROW_FROM_YPIXEL (clist, clist->clist_window_height);
+
+	g_print ("adjustment_value   %d, %d\n", top, bottom);
+}
+
+void
+scroll_vertical (GtkCList *clist, GtkScrollType scroll_type, gfloat position)
+{
+	// only on drag???
+	g_print ("scroll_vertical %d, %f\n", scroll_type, position);
+}
+
 //GnomeCanvasItem *item = NULL;
 //GnomeCanvasGroup *group = NULL;
 
 void
 table_canvas (GtkWidget *app)
 {
+	char *titles[] = { "title" };
 	GtkWidget        *canvas = NULL;
 	GtkWidget        *hbox   = NULL;
 	double d;
 	GnomeCanvasGroup *group = NULL;
+	GtkWidget *clist = NULL;
+	GtkWidget *scroll = NULL;
+	GtkWidget *vbar = NULL;
+	GtkObject *adjust = NULL;
+	char buffer[32];
+	char *text[1] = { buffer };
+	int i;
 
-	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+	hbox = gtk_hbox_new (FALSE, 0);
 
 	gtk_signal_connect (GTK_OBJECT (app), "destroy", (GtkSignalFunc) destroy, NULL);
 
@@ -64,23 +98,50 @@ table_canvas (GtkWidget *app)
 
 	group = gnome_canvas_root (GNOME_CANVAS (canvas));
 
-	d= WIN_HEIGHT;
+	d= window_height;
 	//d/=50.0;
 	draw_rect (d, group);
 
-	gtk_widget_set_usize (GTK_WIDGET (canvas), MIN_WIDTH, MIN_HEIGHT);
+	gtk_widget_set_usize (GTK_WIDGET (canvas), min_width, min_height);
 
-	//gtk_box_pack_start (GTK_BOX (hbox), gtk_entry_new(), TRUE, TRUE, 0);
+	adjust = gtk_adjustment_new (0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+	scroll = gtk_scrolled_window_new (NULL, GTK_ADJUSTMENT (adjust));
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	clist = gtk_clist_new_with_titles (1, titles);
+	vbar = gtk_vscrollbar_new (NULL);
+
+	for (i = 0; i < 70; i++)
+	{
+		sprintf (buffer, "hello %d\n", i);
+		gtk_clist_append (GTK_CLIST (clist), text);
+	}
+
+	gtk_clist_set_selection_mode     (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
+	gtk_clist_set_column_auto_resize (GTK_CLIST (clist), 0, TRUE);
+	gtk_clist_column_titles_passive  (GTK_CLIST (clist));
+
+	gtk_container_add (GTK_CONTAINER (scroll), clist);
+
+	gtk_box_pack_start (GTK_BOX (hbox), scroll, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (hbox), canvas, FALSE, FALSE, 0);
-	//gtk_box_pack_start (GTK_BOX (hbox), gtk_entry_new(), TRUE, TRUE, 0);
+	//gtk_box_pack_start (GTK_BOX (hbox), vbar, FALSE, FALSE, 0);
 
-	gtk_window_set_default_size (GTK_WINDOW (app), WIN_WIDTH, WIN_HEIGHT);
+	gtk_window_set_default_size (GTK_WINDOW (app), window_width, window_height);
 
 	gnome_canvas_set_pixels_per_unit (GNOME_CANVAS (canvas), 1.0);
 
 	// I'm not quite sure what's going on here, but if we make the scrolling region huge,
 	// then the canvas won't keep trying to centre everything we draw
-	gnome_canvas_set_scroll_region   (GNOME_CANVAS (canvas), 0.0, 0.0, WIN_WIDTH*10, WIN_HEIGHT*10);
+	gnome_canvas_set_scroll_region   (GNOME_CANVAS (canvas), 0.0, 0.0, window_width*10, window_height*10);
+
+	// Oh my... the order in which the signals are received is very dependent
+	// on which order they were attached.  If I attach the adjustment signals
+	// before the clist, then the clist values I read are always out of date.
+	gtk_widget_show_all (hbox);
+	gtk_signal_connect (GTK_OBJECT (adjust), "changed", adjustment_changed, clist);
+	gtk_signal_connect (GTK_OBJECT (adjust), "value_changed", adjustment_value_changed, clist);
+	gtk_signal_connect (GTK_OBJECT (clist),  "scroll_vertical", (GtkSignalFunc) scroll_vertical, NULL);
 
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 }
