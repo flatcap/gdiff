@@ -71,3 +71,7 @@ This could allow me to have my exlusions list with check boxes
 
 the overview wiget:	A click means change the view to one centred HERE
 			A drag should send scroll messages to the window (up/down) to match the mouse posn
+
+now that I'm not using a text widget, can I implement highlight / copy
+to fit in with editing?
+
