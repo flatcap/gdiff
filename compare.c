@@ -4,14 +4,21 @@
 #define COMPARE_WINNAME "Compare files"
 #define COMPARE_VERSION "0.0.1"
 
+/*
+diff	--old-line-format='left: %L'		\
+	--unchanged-line-format='same: %L'	\
+	--new-line-format='rght: %L'		\
+	read1.c read2.c
+*/
+
 void
-destroy (GtkWidget *widget, gpointer data)
+cdestroy (GtkWidget *widget, gpointer data)
 {
 	gtk_exit (0);
 }
 
 int
-main (int argc, char *argv[])
+compare (int argc, char *argv[])
 {
 	char buffer [1024];
 	char number [10];
@@ -47,7 +54,7 @@ main (int argc, char *argv[])
 	app = gnome_app_new (COMPARE_APPNAME, COMPARE_WINNAME);
 	gtk_window_set_default_size (GTK_WINDOW (app), 500, 700);
 
-	gtk_signal_connect (GTK_OBJECT (app), "destroy", (GtkSignalFunc) destroy, NULL);
+	gtk_signal_connect (GTK_OBJECT (app), "destroy", (GtkSignalFunc) cdestroy, NULL);
 
 	clist = gtk_clist_new_with_titles (3, cols);
 
@@ -199,3 +206,4 @@ main (int argc, char *argv[])
 
 	return 0;
 }
+

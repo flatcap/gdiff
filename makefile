@@ -13,7 +13,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 
 all:	gd tags libtags
 
-gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o
+gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o compare.o
 	$(CC) $(LIBS) $^ -o $@
 
 richard: richard.o derived.o menu.o progress.o global.o #spawn.o

@@ -53,7 +53,7 @@ my_child_create_view (GnomeMDIChild * child, gpointer data)
 
 	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
 
-	//gtk_ctree_set_line_style (GTK_CTREE (pTree), GTK_CTREE_LINES_TABBED);
+	//gtk_ctree_set_line_style         (GTK_CTREE (tree), GTK_CTREE_LINES_TABBED);
 	gtk_clist_set_selection_mode     (GTK_CLIST (tree), GTK_SELECTION_BROWSE);
 	gtk_clist_set_auto_sort          (GTK_CLIST (tree), TRUE);
 	gtk_clist_set_compare_func       (GTK_CLIST (tree), tree_compare);

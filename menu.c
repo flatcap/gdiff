@@ -5,6 +5,7 @@ void file_open_cb	(GtkWidget * widget, gpointer data);
 void file_close_cb	(GtkWidget * widget, gpointer data);
 void view_cb		(GtkWidget * widget, gpointer data);
 void about_cb		(GtkWidget * widget, gpointer data);
+void show_cb		(GtkWidget * widget, gpointer data);
 
 static GnomeUIInfo file_menu[] =
 {
@@ -27,6 +28,12 @@ static GnomeUIInfo view_menu[] =
 	GNOMEUIINFO_END
 };
 
+static GnomeUIInfo compare_menu[] =
+{
+	{ GNOME_APP_UI_TOGGLEITEM, N_("_Show diff"), N_("asfasdfShow files that are the same"),     show_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F5, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_END
+};
+
 static GnomeUIInfo help_menu[] =
 {
 	GNOMEUIINFO_MENU_ABOUT_ITEM (about_cb, NULL),
@@ -37,7 +44,8 @@ static GnomeUIInfo main_menu[] =
 {
 	GNOMEUIINFO_MENU_FILE_TREE (file_menu),
 	GNOMEUIINFO_MENU_VIEW_TREE (view_menu),
-	{ GNOME_APP_UI_SUBTREE, ("Children"), NULL, empty_menu, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
+	{ GNOME_APP_UI_SUBTREE, ("Children"), NULL, empty_menu,   NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
+	{ GNOME_APP_UI_SUBTREE, ("Compare"),  NULL, compare_menu, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	GNOMEUIINFO_MENU_HELP_TREE (help_menu),
 	GNOMEUIINFO_END
 };
@@ -135,4 +143,8 @@ void about_cb (GtkWidget * widget, gpointer data)
 	g_print ("about_cb\n");
 }
 
+void show_cb (GtkWidget * widget, gpointer data)
+{
+	g_print ("show_cb %s, %p\n", gtk_widget_get_name (widget), data);
+}
 

@@ -4,7 +4,7 @@
 #include "diff.h"
 
 /* return a pointer to an options object */
-void
+gboolean
 gnome_init_and_parse_args (const char *app_id,
 			   const char *app_version,
 			   int argc,
@@ -99,5 +99,7 @@ gnome_init_and_parse_args (const char *app_id,
 	}
 
 	poptFreeContext (context);
+
+	return left && right;
 }
 
