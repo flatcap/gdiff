@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.31 $ */
+/* $Revision: 1.32 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -211,7 +211,9 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 
 	return menu_list;
 #endif
-	return get_menu_for_view (gtk_diff_tree_get_type(), gnome_mdi_get_active_window (GNOME_MDI (child->parent)));
+	//return get_menu_for_view (gtk_diff_tree_get_type(), child);
+	g_assert (FALSE);
+	return NULL;
 }
 
 static void 
@@ -270,6 +272,7 @@ mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 {
 	GnomeMDIGenericChild	*child = NULL;
 	char			*name  = NULL;
+	GtkType			 type  = 0;
 
 	g_return_if_fail (mdi  != NULL);
 	g_return_if_fail (diff != NULL);
@@ -277,13 +280,16 @@ mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 	if ((diff->type == Dir) || (diff->type == DirPatch))
 	{
 		name  = g_strdup_printf ("%s\n%s", diff->left, diff->right);
+		type = gtk_diff_tree_get_type();
 	}
 	else
 	{
 		//name  = g_strdup_printf ("%s\n%s\n%s", diff->relative, diff->left, diff->right);
 		name  = g_strdup_printf ("%s\n%s\n%s", diff->left_root, diff->right_root, diff->relative);
+		type = gtk_compare_get_type();
 	}
 	child = gnome_mdi_generic_child_new (name);
+	set_menu_for_view (GNOME_MDI_CHILD (child), type);
 
 	g_return_if_fail (child != NULL);
 	gnome_mdi_generic_child_set_menu_creator (child, gd_mdi_create_menus, diff);//XXX
