@@ -189,7 +189,7 @@ new notebook for each diff, all compares join parent diff
 
 double click on a directory should open/close it
 
-view scrollbar, overview, both
+view scrollbar, overview, both (scrollbar to the right of the overview)
 
 if you close a diff "Do you want to close all the compares too?"
 Yes - close all, No - close the diff, Cancel - do nothing
@@ -298,4 +298,9 @@ one consistant set of left/right/etc enums
 two new colours -- left and right overview
 
 in the overview -- lines linking all the diff OR lines at set intervals
+
+--pipe option ->  rcsdiff x y | gd --pipe
+until we support rcs properly?
+
+if lines only exist in one file, show a 'token' line on the other side as a marker
 
