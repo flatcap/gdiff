@@ -4,21 +4,21 @@
 #define X_WINNAME "Exclude"
 #define X_VERSION "0.0.1"
 
-static GtkAccelGroup *accel    	= NULL;
-static GtkWidget *add		= NULL;
-static GtkWidget *app		= NULL;
-static GtkWidget *bbox		= NULL;
-static GtkWidget *bclose	= NULL;
+//static GtkAccelGroup *accel    	= NULL;
+//static GtkWidget *add		= NULL;
+//static GtkWidget *app		= NULL;
+//static GtkWidget *bbox		= NULL;
+//static GtkWidget *bclose	= NULL;
 static GtkWidget *bremove	= NULL;
 static GtkWidget *list		= NULL;
-static GtkWidget *scroll	= NULL;
+//static GtkWidget *scroll	= NULL;
 static GtkWidget *text		= NULL;
-static GtkWidget *vbox		= NULL;
+//static GtkWidget *vbox		= NULL;
 
 int selection = -1;
 
 void
-destroy (GtkWidget *widget, gpointer data)
+exclude_destroy (GtkWidget *widget, gpointer data)
 {
 	gtk_exit (0);
 }
@@ -135,6 +135,7 @@ no_default (GtkWidget *widget, gpointer data)
 	//GTK_WIDGET_UNSET_FLAGS (add, GTK_HAS_DEFAULT);
 }
 
+#if 0
 int
 main (int argc, char *argv[])
 {
@@ -179,8 +180,8 @@ main (int argc, char *argv[])
 
 	gtk_signal_connect (GTK_OBJECT (add),    "clicked",    (GtkSignalFunc) add_text,    NULL);
 	gtk_signal_connect (GTK_OBJECT (bremove), "clicked",    (GtkSignalFunc) remove_text, NULL);
-	gtk_signal_connect (GTK_OBJECT (bclose),  "clicked",    (GtkSignalFunc) destroy,     NULL);
-	gtk_signal_connect (GTK_OBJECT (app),    "destroy",    (GtkSignalFunc) destroy,     NULL);
+	gtk_signal_connect (GTK_OBJECT (bclose),  "clicked",    (GtkSignalFunc) exclude_destroy,     NULL);
+	gtk_signal_connect (GTK_OBJECT (app),    "destroy",    (GtkSignalFunc) exclude_destroy,     NULL);
 	gtk_signal_connect (GTK_OBJECT (list),  "selection_changed", (GtkSignalFunc) selection_changed,  NULL);
 	gtk_signal_connect (GTK_OBJECT (list),  "select_child", (GtkSignalFunc) select_child,  NULL);
 	gtk_signal_connect (GTK_OBJECT (list),  "unselect_child", (GtkSignalFunc) unselect_child,  NULL);
@@ -212,4 +213,5 @@ main (int argc, char *argv[])
 	
 	return 0;
 }
+#endif
 

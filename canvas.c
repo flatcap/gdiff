@@ -147,6 +147,7 @@ table_canvas (GtkWidget *app)
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 }
 
+#if 0
 int
 main (int argc, char *argv[])
 {
@@ -161,7 +162,7 @@ main (int argc, char *argv[])
 	gtk_main();
 	return 0;
 }
-
+#endif
 
 CompareData sample[] =
 {
