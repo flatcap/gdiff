@@ -4,7 +4,7 @@ LIBS	= `gnome-config --libs   gnomeui`
 
 SOURCE	= chunk.c color.c config.c derived.c font.c global.c gnome.c main.c menu.c node.c progress.c richard.c spawn.c tree.c
 HEADERS	= color.h confdefs.h config.h derived.h font.h global.h main.h menu.h node.h progress.h spawn.h tree.h
-PROGS	= main g testgtk richard file compare fork exclude lang
+PROGS	= main g testgtk richard file compare fork exclude lang auto
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -16,6 +16,9 @@ richard: richard.o derived.o menu.o progress.o global.o spawn.o
 exclude: exclude.o
 	$(CC) $(LIBS) $^ -o $@
 	$@ &
+
+auto:	auto.o
+	$(CC) $(LIBS) $^ -o $@
 
 lang:	lang.o
 	$(CC) $(LIBS) $^ -o $@
