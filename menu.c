@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.44 $ */
+/* $Revision: 1.45 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -29,6 +29,10 @@
 #include "mdi.h"
 #include "file.h"
 #include "exclude.h" //XXX temp
+
+// Private data stolen from the MDI
+#define GNOME_MDI_MENUBAR_INFO_KEY           "MDIMenubarUIInfo"
+#define GNOME_MDI_CHILD_MENU_INFO_KEY        "MDIChildMenuUIInfo"
 
 /*______________________________________________________________________________
 */
@@ -397,9 +401,6 @@ recurse_menu (GtkMenuShell *shell, int depth)
 	}
 }
 
-#define GNOME_MDI_MENUBAR_INFO_KEY           "MDIMenubarUIInfo"
-#define GNOME_MDI_CHILD_MENU_INFO_KEY        "MDIChildMenuUIInfo"
-
 void
 recurse_template (GnomeUIInfo *info)
 {
@@ -488,15 +489,6 @@ prev_diff_cb (GtkWidget *widget, GnomeMDIChild *child)
 	//mdichild - then I can figure out what the view is of
 	g_print ("prev_diff_cb\n");
 }
-
-/*
-static void
-rescan_cb (GtkWidget *widget, GnomeMDI *mdi)
-{
-	//mdichild - then I can figure out what the view is of
-	g_print ("rescan_cb\n");
-}
-*/
 
 static void
 save_file_list_cb (GtkWidget *widget, GnomeMDI *mdi)
