@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Revision$ */
 
 #include <gnome.h>
 #include <regex.h>

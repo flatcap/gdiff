@@ -1,7 +1,6 @@
-/* $Revision$ */
+/* $Revision: 1.18 $ */
 
 #include <gnome.h>
-#include "options.h"
 #include "mdi.h"
 #include "menu.h"
 #include "derived.h"
@@ -220,7 +219,7 @@ mdi_add_compare (GnomeMDI *mdi, DiffOptions *diff)
 }
 
 void
-mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff, Options *options)	//XXX what about options???
+mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 {
 	GnomeMDIGenericChild	*child = NULL;
 	char			*name  = NULL;

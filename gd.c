@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.10 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -10,7 +10,6 @@
 int 
 main (int argc, char *argv[], char *envv[])
 {
-	static char const rcsid[] = "$Id$";
 	GnomeMDI    *mdi  = NULL;
 	DiffOptions *diff = NULL;
 
