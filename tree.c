@@ -250,7 +250,8 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Stat
 				if (tnode->status & status)
 				{
 					text[1] = get_status_text (tnode->status, status, TRUE);
-					//R sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_closed, mask_closed, pixmap_open, mask_open, FALSE, FALSE);
+					//g_print ("Node1: %s, %s\n", text[0], text[1]);
+					sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_closed, mask_closed, pixmap_open, mask_open, FALSE, FALSE);
 				}
 			}
 			else
@@ -258,7 +259,8 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Stat
 				if (status & tnode->status)
 				{
 					text[1] = get_status_text (tnode->status, status, FALSE);
-					//R sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_leaf, mask_leaf, NULL, NULL, TRUE, FALSE);
+					//g_print ("Node2: %s, %s\n", text[0], text[1]);
+					sibling = gtk_ctree_insert_node (GTK_CTREE (tree), parent, sibling, text, 5, pixmap_leaf, mask_leaf, NULL, NULL, TRUE, FALSE);
 					g_free (text[1]);
 					//g_print ("%s (%d) %p\n", tnode->name, tnode->status, sibling);
 				}
@@ -316,7 +318,7 @@ tree_dialog_draw (GtkDiffTree *tree, Status status)
 
 	gtk_clist_freeze     (GTK_CLIST (tree));
 	gtk_clist_clear      (GTK_CLIST (tree));
-	tree_dialog_traverse (GTK_DIFF_TREE (tree), NULL, tree->root, status);
+	tree_dialog_traverse (GTK_DIFF_TREE (tree), NULL, tree->root->children, status);
 	gtk_clist_thaw       (GTK_CLIST (tree));
 
 	return TRUE;
