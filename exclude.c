@@ -26,16 +26,32 @@ destroy (GtkWidget *widget, gpointer data)
 void
 add_text (GtkWidget *widget, gpointer data)
 {
-	GtkWidget *check = NULL;
-	GtkWidget *item  = NULL;
-	GString *str = g_string_new (gtk_entry_get_text (GTK_ENTRY (text)));
+	GtkWidget       *check  = NULL;
+	GtkToggleButton *toggle = NULL;
+	GtkWidget       *label  = NULL;
+	GtkWidget       *table  = NULL;
+	GtkWidget       *item   = NULL;
+	GString         *str    = g_string_new (gtk_entry_get_text (GTK_ENTRY (text)));
+
+	if (strlen (str->str) == 0)
+	{
+		return;
+	}
 
 	gtk_entry_set_text (GTK_ENTRY (text), "");
 
-	item  = gtk_list_item_new();
-	check = gtk_check_button_new_with_label (str->str);
+	item   = gtk_list_item_new();
+	check  = gtk_check_button_new();
+	label  = gtk_label_new (str->str);
+	table  = gtk_table_new (1, 2, FALSE);
+	toggle = GTK_TOGGLE_BUTTON (check);
 
-	gtk_container_add (GTK_CONTAINER (item), check);
+	toggle->active = TRUE;
+
+	gtk_table_attach (GTK_TABLE (table), check, 0, 1, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach (GTK_TABLE (table), label, 1, 2, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
+
+	gtk_container_add (GTK_CONTAINER (item), table);
 	gtk_container_add (GTK_CONTAINER (list), item);
 
 	gtk_widget_show_all (item);
@@ -45,20 +61,6 @@ void
 remove_text (GtkWidget *widget, gpointer data)
 {
 	g_print ("remove\n");
-}
-
-void
-select_row (GtkCList *clist, gint row, gint column, GdkEvent *event)
-{
-	g_print ("selected row %d\n", row);
-	gtk_widget_set_sensitive (bremove, TRUE);
-}
-
-void
-unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event)
-{
-	g_print ("unselected row %d\n", row);
-	gtk_widget_set_sensitive (bremove, FALSE);
 }
 
 /* Turn "_Jim" into a button called "Jim" that is accelerated by Alt-J */
@@ -104,6 +106,26 @@ gtk_button_new_with_accel (const gchar *raw_label, GtkAccelGroup *accel)
 	}
 
 	return button;
+}
+
+void
+selection_changed (GtkWidget *widget, gpointer data)
+{
+	g_print ("selection_changed\n");
+}
+
+void
+select_child (GtkWidget *widget, gpointer data)
+{
+	g_print ("select_child\n");
+	gtk_widget_set_sensitive (bremove, TRUE);
+}
+
+void
+unselect_child (GtkWidget *widget, gpointer data)
+{
+	g_print ("unselect_child\n");
+	gtk_widget_set_sensitive (bremove, FALSE);
 }
 
 int
@@ -152,8 +174,9 @@ main (int argc, char *argv[])
 	gtk_signal_connect (GTK_OBJECT (bremove), "clicked",    (GtkSignalFunc) remove_text, NULL);
 	gtk_signal_connect (GTK_OBJECT (bclose),  "clicked",    (GtkSignalFunc) destroy,     NULL);
 	gtk_signal_connect (GTK_OBJECT (app),    "destroy",    (GtkSignalFunc) destroy,     NULL);
-	//gtk_signal_connect (GTK_OBJECT (list),  "select_row", (GtkSignalFunc) select_row,  NULL);
-	//gtk_signal_connect (GTK_OBJECT (list),  "unselect_row", (GtkSignalFunc) unselect_row,  NULL);
+	gtk_signal_connect (GTK_OBJECT (list),  "selection_changed", (GtkSignalFunc) selection_changed,  NULL);
+	gtk_signal_connect (GTK_OBJECT (list),  "select_child", (GtkSignalFunc) select_child,  NULL);
+	gtk_signal_connect (GTK_OBJECT (list),  "unselect_child", (GtkSignalFunc) unselect_child,  NULL);
 	
 	gtk_signal_connect_object (GTK_OBJECT (text), "activate",
 				  (GtkSignalFunc) gtk_button_clicked, GTK_OBJECT (add));
