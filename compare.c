@@ -26,6 +26,7 @@ main (int argc, char *argv[])
 	GtkStyle *style_right = NULL;
 	GtkStyle *style_same = NULL;
 	GtkStyle *style_none = NULL;
+	GtkStyle *style_disc = NULL;
 	//GtkStyle *style_col1 = NULL;
 	GtkStyle *style_col2 = NULL;
 	GtkStyle *style_col3 = NULL;
@@ -35,9 +36,11 @@ main (int argc, char *argv[])
 	//GdkColor green  = { 0,     0, 65535,     0 };
 	//GdkColor blue   = { 0,     0,     0, 65535 };
 	GdkColor black  = { 0,     0,     0,     0 };
-	GdkColor grey   = { 0, 65535, 65535, 65535 };
-	GdkColor white  = { 0, 60000, 60000, 60000 };
-	int i;
+	GdkColor white  = { 0, 65535, 65535, 65535 };
+	GdkColor grey   = { 0, 60000, 60000, 60000 };
+	gboolean one_pane = TRUE;
+	int left_count = 0;
+	int right_count = 0;
 
 	gnome_init (COMPARE_APPNAME, COMPARE_VERSION, argc, argv);
 
@@ -69,6 +72,7 @@ main (int argc, char *argv[])
 	style_right = gtk_style_new();
 	style_same  = gtk_style_new();
 	style_none  = gtk_style_new();
+	style_disc  = gtk_style_new();
 
 	gdk_font_unref (style_left ->font);
 	gdk_font_unref (style_right->font);
@@ -81,13 +85,16 @@ main (int argc, char *argv[])
 	style_left ->fg[GTK_STATE_NORMAL] = black;
 	style_same ->fg[GTK_STATE_NORMAL] = black;
 	style_right->fg[GTK_STATE_NORMAL] = black;
-	style_none ->fg[GTK_STATE_NORMAL] = grey;
+	style_none ->fg[GTK_STATE_NORMAL] = black;
+	style_disc ->fg[GTK_STATE_NORMAL] = white;
 
 	style_left ->base[GTK_STATE_NORMAL] = yellow;
 	style_same ->base[GTK_STATE_NORMAL] = white;
 	style_right->base[GTK_STATE_NORMAL] = red;
 	style_none ->base[GTK_STATE_NORMAL] = grey;
+	style_disc ->base[GTK_STATE_NORMAL] = white;
 
+	/*
 	for (i = 0; i < 5; i++)
 	{
 		style_none->fg[i] = black;
@@ -98,10 +105,14 @@ main (int argc, char *argv[])
 		//style_none->text[i] = blue;
 		style_none->base[i] = white;
 	}
+	*/
 	//style_none->black = blue;
 	//style_none->white = blue;
 
-	gtk_widget_set_style (clist, style_none);
+	//gtk_widget_set_style (clist, style_none);
+
+	gtk_clist_set_column_visibility (GTK_CLIST (clist), 0, FALSE);
+	gtk_clist_set_column_visibility (GTK_CLIST (clist), 2, FALSE);
 
 	while (fgets (buffer, sizeof (buffer), f))
 	{
@@ -112,14 +123,52 @@ main (int argc, char *argv[])
 			text[1] = buffer + 6;
 			text[2] = "";
 			style_col2 = style_left;
-			style_col3 = style_none;
+			style_col3 = style_disc;
+
+			row = gtk_clist_append (GTK_CLIST (clist), text);
+			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
+			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
+
+			left_count++;
 		}
 		else if (strncmp (buffer, "rght: ", 6) == 0)
 		{
-			text[1] = "";
-			text[2] = buffer + 6;
-			style_col2 = style_none;
+			if (one_pane)
+			{
+				text[1] = buffer + 6;
+				text[2] = "";
+			}
+			else
+			{
+				text[1] = "";
+				text[2] = buffer + 6;
+			}
+			style_col2 = style_disc;
 			style_col3 = style_right;
+
+			if ((right_count <= left_count) && (left_count != 0) && (!one_pane))
+			{
+				//row = gtk_clist_append (GTK_CLIST (clist), text);
+				gtk_clist_set_text (GTK_CLIST (clist), row - left_count + right_count + 1, 2, buffer + 6);
+				//gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
+				gtk_clist_set_cell_style (GTK_CLIST (clist), row -left_count + right_count + 1, 2, style_col3);
+			}
+			else
+			{
+				row = gtk_clist_append (GTK_CLIST (clist), text);
+				if (one_pane)
+				{
+					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col3);
+					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col2);
+				}
+				else
+				{
+					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
+					gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
+				}
+			}
+
+			right_count++;
 		}
 		else if (strncmp (buffer, "same: ", 6) == 0)
 		{
@@ -127,13 +176,16 @@ main (int argc, char *argv[])
 			text[2] = buffer + 6;
 			style_col2 = style_same;
 			style_col3 = style_same;
+
+			row = gtk_clist_append (GTK_CLIST (clist), text);
+			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
+			gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
+
+			left_count = 0;
+			right_count = 0;
 		}
 
-		row = gtk_clist_append (GTK_CLIST (clist), text);
-		//gtk_clist_set_cell_style (GTK_CLIST (clist), row, 0, style_none);
-		gtk_clist_set_cell_style (GTK_CLIST (clist), row, 1, style_col2);
-		gtk_clist_set_cell_style (GTK_CLIST (clist), row, 2, style_col3);
-
+		gtk_clist_set_cell_style (GTK_CLIST (clist), row, 0, style_none);
 		line++;
 	}
 
