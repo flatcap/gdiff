@@ -3,14 +3,26 @@ CFLAGS	= `gnome-config --cflags gnomeui` -c -g -Wall
 LIBS	= `gnome-config --libs   gnomeui` `glib-config --libs gthread`
 EXTRA	= -lefence
 
+richard:	richard.o derived.o
+	$(CC) $(LIBS) derived.o richard.o -o richard
+
+richard.o:	richard.c
+	$(CC) $(CFLAGS) richard.c -o richard.o
+
+derived.o:	derived.c derived.h
+	$(CC) $(CFLAGS) derived.c -o derived.o
+
 main:	main.o node.o tree.o global.o
 	$(CC) $(LIBS) main.o node.o tree.o global.o -o main
+
+main.o:	main.c node.h global.h tree.h
+	$(CC) $(CFLAGS) main.c -o main.o
 
 g:	gnome.o
 	$(CC) $(LIBS) gnome.o -o g
 
-main.o:	main.c node.h global.h tree.h
-	$(CC) $(CFLAGS) main.c -o main.o
+gnome.o:	gnome.c gnome.h
+	$(CC) $(CFLAGS) gnome.c -o gnome.o
 
 global.o:	global.c global.h
 	$(CC) $(CFLAGS) global.c -o global.o
@@ -28,4 +40,4 @@ testgtk:	testgtk.o
 	$(CC) $(LIBS) testgtk.o -o testgtk
 
 clean:
-	rm -f *.o main g testgtk
+	rm -f *.o main g testgtk richard
