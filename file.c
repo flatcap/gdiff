@@ -1,4 +1,4 @@
-/* $Revision: 1.10 $ */
+/* $Revision: 1.11 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -50,6 +50,47 @@ get_filename (GtkFileSelection *dialog)
 	else
 	{
 		return strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
+	}
+}
+
+void
+entry_changed (GtkEntry *entry, gpointer data)
+{
+	g_print ("entry_changed %p\n", data);
+}
+
+void
+file_sel_button (GtkFileSelection *filesel, gpointer data)
+{
+	g_print ("file_sel_button %p\n", data);
+}
+
+void
+browse_filename (char *title, GtkEntry *entry)
+{
+	static GtkWidget *browse  = NULL;
+
+	g_return_if_fail (title != NULL);
+	g_return_if_fail (entry != NULL);
+
+	if (browse)
+	{
+		gdk_window_show  (browse->window);
+		gdk_window_raise (browse->window);
+	}
+	else
+	{
+		browse = gtk_file_selection_new ("hello world");
+		if (browse)
+		{
+			gtk_signal_connect (GTK_OBJECT (browse), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &browse);
+
+			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->ok_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
+			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->cancel_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
+			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->help_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
+
+			gtk_widget_show_all (browse);
+		}
 	}
 }
 
@@ -147,6 +188,22 @@ new_file (GnomeMDI *mdi, GtkWindow *parent)
 }
 #endif
 
+typedef struct _BrowseInfo BrowseInfo;
+
+struct _BrowseInfo
+{
+	char *title;
+	GtkEntry *entry;
+};
+
+void
+browse_clicked (GtkButton *button, BrowseInfo *info) // XXX skip this and call browse_filename directly?
+{
+	g_print ("browse_clicked\n");
+
+	browse_filename (info->title, info->entry);
+}
+
 GtkWidget *
 new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 {
@@ -164,6 +221,14 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 	GtkWidget *rbrowse = NULL;
 	GtkWidget *check   = NULL;
 	//int i = 0;
+	BrowseInfo *linfo = NULL;
+	BrowseInfo *rinfo = NULL;
+
+	linfo = g_malloc0 (sizeof (BrowseInfo));
+	rinfo = g_malloc0 (sizeof (BrowseInfo));
+
+	linfo->title = "Select left file";
+	rinfo->title = "Select right file";
 
 	global_mdi = mdi;
 	dialog = gnome_dialog_new ("Select files or directories to be compared",
@@ -183,13 +248,22 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 	lentry = gtk_entry_new();
 	rentry = gtk_entry_new();
 
+	linfo->entry = GTK_ENTRY (lentry);
+	rinfo->entry = GTK_ENTRY (rentry);
+
+	gtk_signal_connect (GTK_OBJECT (lentry), "changed", entry_changed, GUINT_TO_POINTER (0x1234));
+	gtk_signal_connect (GTK_OBJECT (rentry), "changed", entry_changed, GUINT_TO_POINTER (0x1234));
+
 	lbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
 	rbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
 
 	lbrowse = gtk_button_new_with_label ("Browse...");
 	rbrowse = gtk_button_new_with_label ("Browse...");
 
-	check = gtk_check_button_new_with_label ("Start browse automatically");
+	gtk_signal_connect (GTK_OBJECT (lbrowse), "clicked", browse_clicked, linfo);
+	gtk_signal_connect (GTK_OBJECT (rbrowse), "clicked", browse_clicked, rinfo);
+
+	check = gtk_check_button_new_with_label ("Start browse automatically (Next time)");
 
 	gtk_box_pack_start (box, GTK_WIDGET(lbox), FALSE, FALSE, 0);
 	gtk_box_pack_start (box, GTK_WIDGET(rbox), FALSE, FALSE, 0);
@@ -204,6 +278,7 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 	gnome_dialog_set_parent (GNOME_DIALOG (dialog), parent);
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 100, 100);
 
+	gtk_widget_grab_focus (lentry);
 	gtk_widget_show_all (dialog);
 	//gnome_dialog_run (GNOME_DIALOG (dialog));
 
