@@ -1,4 +1,4 @@
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #include "config.h"
 #include "options.h"
@@ -260,6 +260,7 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	GtkWidget   *entry  = NULL;
 	GtkWidget   *fg     = NULL;
 	GtkWidget   *base   = NULL;
+	//GtkWidget   *check  = NULL;
 	GtkStyle    *style  = NULL;
 	PrefColours *colour = NULL;
 	char        *ptr    = NULL;
@@ -277,6 +278,7 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	entry = gtk_entry_new();
 	fg    = gnome_color_picker_new();
 	base  = gnome_color_picker_new();
+	//check = gtk_check_button_new();
 
 	group = g_malloc (sizeof (StyleGroup));		//XXX who's going to free this?
 	g_return_val_if_fail (group != NULL, 0);
@@ -301,6 +303,7 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	gtk_box_pack_end   (GTK_BOX (hbox), entry, FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_box_pack_end   (GTK_BOX (hbox), base,  FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_box_pack_end   (GTK_BOX (hbox), fg,    FALSE, FALSE, GNOME_PAD_SMALL);
+	//gtk_box_pack_end   (GTK_BOX (hbox), check, FALSE, FALSE, GNOME_PAD_SMALL); //XXX enable colours
 
 	gtk_entry_set_text (GTK_ENTRY (entry), _("Sample text"));
 	gtk_widget_set_sensitive (entry, FALSE);
@@ -313,6 +316,9 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (fg),   colour->fg.red, colour->fg.green, colour->fg.blue, 0);
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (base), colour->base.red, colour->base.green, colour->base.blue, 0);
+
+	//gtk_widget_set_sensitive (GTK_WIDGET (fg),   FALSE);
+	//gtk_widget_set_sensitive (GTK_WIDGET (base), FALSE);
 
 	gtk_container_add (cont, hbox);
 
@@ -428,12 +434,6 @@ get_preferences (GtkWindow *parent, PrefsPage page)
 	}
 
 	gtk_window_set_transient_for (GTK_WINDOW (props), parent);
-	gtk_widget_show_all (GTK_WIDGET (props));		// or set page doesn't work!
-
-	if ((page >=0) && (page < PageMax))
-	{
-		gtk_notebook_set_page (GTK_NOTEBOOK (props->notebook), page);
-	}
 
 	return GTK_WIDGET (props);
 }
@@ -486,7 +486,7 @@ save_config_file (Options *options, PrefOption *list)
 				colour->base.red	 >> 8,
 				colour->base.green >> 8,
 				colour->base.blue	 >> 8);
-			g_print ("Colour = %s\n", str);
+			//g_print ("Colour = %s\n", str);
 			gnome_config_set_string (key, str);
 			g_free (str);
 			break;
@@ -610,5 +610,33 @@ options_get_default (PrefOption *list)
 	//save_config_file (opt, list);
 
 	return opt;
+}
+
+void
+show_preferences (GtkWindow *parent, PrefsPage page)
+{
+	static GtkWidget *prefs  = NULL;
+
+	g_return_if_fail (parent != NULL);
+
+	if (prefs)
+	{
+		gdk_window_show  (prefs->window);
+		gdk_window_raise (prefs->window);
+	}
+	else
+	{
+		prefs = get_preferences (parent, page);
+		if (prefs)
+		{
+			gtk_signal_connect (GTK_OBJECT (prefs), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);
+			gtk_widget_show_all (prefs);
+		}
+	}
+
+	if ((page >=0) && (page < PageMax))
+	{
+		gtk_notebook_set_page (GTK_NOTEBOOK (GNOME_PROPERTY_BOX (prefs)->notebook), page);
+	}
 }
 

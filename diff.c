@@ -1,4 +1,4 @@
-/* $Revision: 1.5 $ */
+/* $Revision: 1.6 $ */
 
 #include <gnome.h>
 #include "diff.h"
@@ -16,7 +16,7 @@ diffoptions_new (void)
 	diff = g_malloc0 (sizeof (DiffOptions));
 	if (diff)
 	{
-		diff->left       = NULL;
+		diff->left       = NULL;	// XXX malloc0 -> not nec
 		diff->right      = NULL;
 		diff->root       = NULL;
 		diff->last_error = NULL;

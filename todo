@@ -275,3 +275,15 @@ Or maybe just the help stuff?
 is it going to be bg or base?
 
 make sure EVERYTHING's initialised
+
+status bar -- do we need it?
+tooltip -- on/off
+
+mnemonic space is too cluttered
+
+make options a GtkObject, then it can emit signals "config changed"
+No -- that will only help one person!
+
+move the exclusions to a separate dialog on the settings menu
+much simpler than cramming it onto the pref's notebook
+likewise the style menu? Or make it into a list and a work area

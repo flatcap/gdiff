@@ -1,4 +1,4 @@
-/* $Revision: 1.33 $ */
+/* $Revision: 1.34 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -252,29 +252,15 @@ next_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	static GtkWidget *prefs  = NULL;
-	GnomeApp         *parent = NULL;
+	GnomeApp *parent = NULL;
 
 	g_return_if_fail (mdi != NULL);
 	g_return_if_fail (GNOME_IS_MDI (mdi));
 
-	if (prefs)
+	parent = gnome_mdi_get_active_window (mdi);
+	if (parent)
 	{
-		gdk_window_show  (prefs->window);
-		gdk_window_raise (prefs->window);
-	}
-	else
-	{
-		parent = gnome_mdi_get_active_window (mdi);
-		if (parent)
-		{
-			prefs = get_preferences (GTK_WINDOW (parent), PageStyle);
-			if (prefs)
-			{
-				gtk_signal_connect (GTK_OBJECT (prefs), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &prefs);
-				gtk_widget_show_all (prefs);
-			}
-		}
+		show_preferences (GTK_WINDOW (parent), PageDefault);
 	}
 }
 
