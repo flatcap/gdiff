@@ -17,12 +17,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.7 $ */
-
 #define WINNAME    "Graphical differences"
 #define PACKAGE    "gdiff"
 #define VERSION    "0.0.1"
 #define LOCALEDIR  "/usr/src/src/locale"
 #define ENABLE_NLS 1
-
 

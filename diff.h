@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.12 $ */
-
 #ifndef _DIFF_H_
 #define _DIFF_H_
 
@@ -31,7 +29,7 @@ typedef enum
 	Error,					// No idea
 	File,					// Two files
 	Dir,					// Two directories
-	FilePatch,				// A file and a patch					
+	FilePatch,				// A file and a patch
 	DirPatch,				// A directory and a patch
 } DiffType;
 

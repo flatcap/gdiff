@@ -1,0 +1,4 @@
+diff	--old-line-format='left: %L'		\
+	--unchanged-line-format='same: %L'	\
+	--new-line-format='rght: %L'		\
+	read1.c read2.c

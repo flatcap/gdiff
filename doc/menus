@@ -1,0 +1,14 @@
+
+static GnomeUIInfo main_menu[] =
+{
+	GNOMEUIINFO_MENU_FILE_TREE     (file_menu),
+	GNOMEUIINFO_MENU_VIEW_TREE     (view_menu),
+	GNOMEUIINFO_MENU_SETTINGS_TREE (settings_menu),
+	GNOMEUIINFO_MENU_WINDOWS_TREE  (windows_menu),
+	GNOMEUIINFO_MENU_HELP_TREE     (help_menu),
+	GNOMEUIINFO_END
+};
+
+this concept is very dangerous for multiple windows, eg, MDI/top level or MDI/notebook (split up)
+several instance of the menu will exist and the structs are filled in with the
+values of the last one.

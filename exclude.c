@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.25 $ */
-
 #include <gnome.h>
 
 #define X_APPNAME "exclude"
@@ -113,7 +111,7 @@ gtk_button_new_with_accel (const gchar *raw_label, GtkAccelGroup *accel)
 	}
 
 	button = gtk_button_new_with_label (label->str);
-	
+
 	g_string_free (label, TRUE);
 
 	if (pattern && button)
@@ -200,7 +198,7 @@ exclude_dialog (void)
 	gtk_signal_connect (GTK_OBJECT (list),  "selection_changed", (GtkSignalFunc) selection_changed,  NULL);
 	gtk_signal_connect (GTK_OBJECT (list),  "select_child", (GtkSignalFunc) select_child,  NULL);
 	gtk_signal_connect (GTK_OBJECT (list),  "unselect_child", (GtkSignalFunc) unselect_child,  NULL);
-	
+
 	gtk_signal_connect_object (GTK_OBJECT (text), "focus_in_event",
 				   (GtkSignalFunc) gtk_widget_grab_default,
 				   GTK_OBJECT (add));

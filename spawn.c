@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.15 $ */
-
 #include <stdio.h>
 #include <gnome.h>
 #include <sys/wait.h>
@@ -72,21 +70,21 @@ run_diff (gchar *acmd)
 	gchar **parts;
 	gint childpid;
 	gint fds[2];
-	
+
 	if (pipe (fds))
 		return NULL;
-	
+
 	childpid = fork ();
 	if (childpid < 0)
 		return NULL;
-	
+
 	if (childpid){
 		close (fds [1]);
 		//waitpid (childpid, &childpid, 0);
 		waitpid (-1, NULL, WNOHANG);
 		return fdopen (fds [0], "r");
 	}
-	
+
 	parts = g_strsplit (acmd, " ", -1);
 	dup2 (fds [1], 1);
 	dup2 (fds [1], 2);
@@ -94,7 +92,7 @@ run_diff (gchar *acmd)
 	//	exit (0);
 	//else
 		execvp (parts [0], parts);
-	
+
 	/* ERROR IF REACHED */
 	close (0);
 	close (1);

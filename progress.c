@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.8 $ */
-
 #include <gnome.h>
 #include "progress.h"
 
@@ -60,7 +58,7 @@ progress_set_text (Progress *progress, char *text)
 {
 	guint msgid = 0;
 	char *message = NULL;
-	
+
 	g_return_if_fail (progress != NULL);
 
 	if (progress->context)
@@ -93,7 +91,7 @@ progress_set_text (Progress *progress, char *text)
 
 		//new node;
 		//node->left, right, relative, left_root?, right_root?, status
-		
+
 		//RR tree_node_add (node, path->str, status, path->str);
 
 		g_string_assign (new_loc, path->str);

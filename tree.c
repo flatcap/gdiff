@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.17 $ */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -157,7 +155,7 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, TreeNode *node, S
 
 			if ((sibling) && (status & tnode->status))
 			//if (sibling)
-			{ 
+			{
 				GtkStyle *style = get_status_style (tnode->status, (node->children != NULL));
 				gtk_ctree_node_set_cell_style (GTK_CTREE (tree), sibling, 0, style);
 				gtk_style_unref (style);
@@ -175,7 +173,7 @@ tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, TreeNode *node, S
 	*/
 }
 
-gboolean 
+gboolean
 tree_dialog_draw (GtkDiffTree *tree, Status status)
 {
 	g_return_val_if_fail (tree,         FALSE);

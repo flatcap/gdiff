@@ -1,0 +1,146 @@
+struct
+{
+	type			left, right, same
+	raw_text		char *
+	left_num
+	right_num
+};
+
+same: #
+same: # Filesystem configuration
+same: #
+same: mainmenu_option next_comment
+same: comment 'Filesystems'
+same: 
+same: bool	 'Quota support' CONFIG_QUOTA
+same: tristate 'Kernel automounter support' CONFIG_AUTOFS_FS
+same: 
+same: 
+same: if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+same:   tristate 'ADFS filesystem support (read only) (EXPERIMENTAL)' CONFIG_ADFS_FS
+same: fi
+same: tristate 'Amiga FFS filesystem support' CONFIG_AFFS_FS
+same: tristate 'Apple Macintosh filesystem support (experimental)' CONFIG_HFS_FS
+same: # msdos filesystems
+same: tristate 'DOS FAT fs support' CONFIG_FAT_FS
+same: dep_tristate '  MSDOS fs support' CONFIG_MSDOS_FS $CONFIG_FAT_FS
+same: dep_tristate '  UMSDOS: Unix-like filesystem on top of standard MSDOS filesystem' CONFIG_UMSDOS_FS $CONFIG_MSDOS_FS
+same: dep_tristate '  VFAT (Windows-95) fs support' CONFIG_VFAT_FS $CONFIG_FAT_FS
+same: 
+rght: if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+rght:   tristate 'EFS filesystem support (read only) (experimental)' CONFIG_EFS_FS
+rght: fi
+rght: 
+same: tristate 'ISO 9660 CDROM filesystem support' CONFIG_ISO9660_FS
+same: if [ "$CONFIG_ISO9660_FS" != "n" ]; then
+same:   bool 'Microsoft Joliet CDROM extensions' CONFIG_JOLIET
+same: else
+same:   # needed by nls/Config.in
+same:   define_bool CONFIG_JOLIET n
+same: fi
+same: 
+rght: tristate 'UDF filesystem support' CONFIG_UDF_FS
+rght: if [ "$CONFIG_UDF_FS" != "n" -a "$CONFIG_EXPERIMENTAL" = "y" ]; then
+rght:   bool '   UDF read-write support (EXPERIMENTAL)' CONFIG_UDF_RW
+rght: fi
+rght: 
+same: tristate 'Minix fs support' CONFIG_MINIX_FS
+same: tristate 'NTFS filesystem support (read only)' CONFIG_NTFS_FS
+same: if [ "$CONFIG_NTFS_FS" != "n" -a "$CONFIG_EXPERIMENTAL" = "y" ]; then
+same:   bool '   NTFS read-write support (DANGEROUS)' CONFIG_NTFS_RW
+same: fi
+left: tristate 'OS/2 HPFS filesystem support (read only)' CONFIG_HPFS_FS
+rght: tristate 'OS/2 HPFS filesystem support (read/write) (NEW)' CONFIG_HPFS_FS
+same: bool '/proc filesystem support' CONFIG_PROC_FS
+same: if [ "$CONFIG_UNIX98_PTYS" = "y" ]; then
+same:   # It compiles as a module for testing only.  It should not be used
+same:   # as a module in general.  If we make this "tristate", a bunch of people
+same:   # who don't know what they are doing turn it on and complain when it
+same:   # breaks.
+same:   bool '/dev/pts filesystem for Unix98 PTYs' CONFIG_DEVPTS_FS
+same: fi
+same: if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+same:   tristate 'QNX filesystem support (EXPERIMENTAL)' CONFIG_QNX4FS_FS
+same:   if [ "$CONFIG_QNX4FS_FS" != "n" ]; then
+same:     bool '   QNXFS read-write support (FOR TESTING ONLY)' CONFIG_QNX4FS_RW
+same:   fi    
+same: fi
+same: tristate 'ROM filesystem support' CONFIG_ROMFS_FS
+same: tristate 'Second extended fs support' CONFIG_EXT2_FS
+same: tristate 'System V and Coherent filesystem support' CONFIG_SYSV_FS
+same: tristate 'UFS filesystem support' CONFIG_UFS_FS
+same: if [ "$CONFIG_UFS_FS" != "n" ]; then
+same:   bool '   UFS filesystem write support (experimental)' CONFIG_UFS_FS_WRITE
+same: fi
+left: if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+left:   tristate 'SGI EFS filesystem support (read only) (experimental)' CONFIG_EFS_FS
+left:   if [ "$CONFIG_EFS_FS" != "n" ]; then
+left:     define_bool CONFIG_SGI_PARTITION y
+left:   fi
+left: fi
+rght: 
+same: 
+same: if [ "$CONFIG_NET" = "y" ]; then
+same: 
+same: mainmenu_option next_comment
+same: comment 'Network File Systems'
+same: 
+same: if [ "$CONFIG_INET" = "y" ]; then
+same:   tristate 'Coda filesystem support (advanced network fs)' CONFIG_CODA_FS
+same:   tristate 'NFS filesystem support' CONFIG_NFS_FS
+same:   if [ "$CONFIG_NFS_FS" = "y" -a "$CONFIG_IP_PNP" = "y" ]; then
+same:     bool '   Root file system on NFS' CONFIG_ROOT_NFS
+same:   fi
+left:   if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+left:     tristate 'NFS server support' CONFIG_NFSD
+left:   fi
+left:   if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$CONFIG_NFSD" != "n" ]; then
+rght:   # considering that RedHat-6.0 ships with this on, I guess it's not really experimental
+rght:   tristate 'NFS server support' CONFIG_NFSD
+rght:   if [ "$CONFIG_NFSD" != "n" ]; then
+same:     bool '   Emulate SUN NFS server' CONFIG_NFSD_SUN
+same:   fi
+same:   if [ "$CONFIG_NFS_FS" = "y" -o "$CONFIG_NFSD" = "y" ]; then
+same:     define_bool CONFIG_SUNRPC y
+same:     define_bool CONFIG_LOCKD y
+same:   else
+same:     if [ "$CONFIG_NFS_FS" = "m" -o "$CONFIG_NFSD" = "m" ]; then
+same:       define_bool CONFIG_SUNRPC m
+same:       define_bool CONFIG_LOCKD m
+same:     else
+same:       define_bool CONFIG_SUNRPC n
+same:       define_bool CONFIG_LOCKD n
+same:     fi
+same:   fi
+same:   tristate 'SMB filesystem support (to mount WfW shares etc.)' CONFIG_SMB_FS
+same: fi
+same: if [ "$CONFIG_IPX" != "n" -o "$CONFIG_INET" != "n" ]; then
+same:   tristate 'NCP filesystem support (to mount NetWare volumes)' CONFIG_NCP_FS
+same:   if [ "$CONFIG_NCP_FS" != "n" ]; then
+same:     source fs/ncpfs/Config.in
+same:   fi
+same: fi
+same: 
+same: endmenu
+same: fi
+same: 
+same: mainmenu_option next_comment
+same: comment 'Partition Types'
+left: 
+left: bool 'BSD disklabel (BSD partition tables) support' CONFIG_BSD_DISKLABEL
+left: bool 'Macintosh partition map support' CONFIG_MAC_PARTITION
+left: bool 'SMD disklabel (Sun partition tables) support' CONFIG_SMD_DISKLABEL
+left: bool 'Solaris (x86) partition table support' CONFIG_SOLARIS_X86_PARTITION
+left: if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+left:   bool 'Unixware slices support (EXPERIMENTAL)' CONFIG_UNIXWARE_DISKLABEL
+left: fi
+rght: source fs/partitions/Config.in
+same: endmenu
+left: 
+left: if [ "$CONFIG_AFFS_FS" != "n" ]; then
+left:   define_bool CONFIG_AMIGA_PARTITION y
+left: fi
+left: 
+same: source fs/nls/Config.in
+left: 
+same: endmenu

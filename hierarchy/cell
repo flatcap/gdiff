@@ -1,0 +1,44 @@
+GtkCell
+
+	GtkCellType type;
+
+	gint16 vertical;
+
+	gint16 horizontal;
+
+	GtkStyle *style;
+
+	union {
+
+		gchar *text;
+
+		
+
+		struct {
+
+			GdkPixmap *pixmap;
+
+			GdkBitmap *mask;
+
+		} pm;
+
+		struct {
+
+			gchar *text;
+
+			guint8 spacing;
+
+			GdkPixmap *pixmap;
+
+			GdkBitmap *mask;
+
+		} pt;
+
+		GtkWidget *widget;
+
+	} u;
+
+
+
+
+

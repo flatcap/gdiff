@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.25 $ */
-
 #include <gnome.h>
 #include <popt.h>
 #include <unistd.h>
@@ -73,7 +71,7 @@ gnome_init_and_parse_args (const char *app_id,
 
 	//context = poptGetContext (NULL, argc, argv, options, 0);
 	//poptSetOtherOptionHelp (context, "PATH1 PATH2");
-	
+
 	while ((opt = poptGetNextOpt (context)) > 0)
 	{
 		//g_print ("option %c\n", opt);
@@ -247,7 +245,7 @@ categorise_args (DiffOptions *diff)
 
 	case Dir:	diff->last_error = "args are different types";
 			break;
-	
+
 	default:	// see if 'file' is a patch
 			// see if 'dir' is an RCS / CVS dir
 			diff->last_error = "path %s doesn't exist", path;

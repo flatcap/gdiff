@@ -1,0 +1,932 @@
+head	1.7;
+access;
+symbols;
+locks
+	src:1.7; strict;
+comment	@ * @;
+
+
+1.7
+date	99.09.21.08.11.48;	author src;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	99.09.21.01.01.02;	author src;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	99.09.01.00.53.22;	author src;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	99.08.30.08.21.48;	author src;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	99.08.27.05.41.28;	author src;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	99.08.26.06.20.30;	author src;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	99.08.24.04.21.37;	author src;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.7
+log
+@*** empty log message ***
+@
+text
+@#define ENABLE_NLS 1
+
+#include <stdio.h>
+#include <string.h>
+#include <regex.h>
+#include <gnome.h>
+#include <locale.h>
+#include "global.h"
+#include "tree.h"
+#include "node.h"
+
+#define MATCHES 8
+#define APPNAME   "TestApp"
+#define WINNAME   "GDiff"
+#define VERSION   "0.0.1"
+#define LOCALEDIR "/usr/src/src"
+
+#if 0
+"regular empty file"
+"regular file "
+"directory"
+"block special file"
+"character special file"
+"fifo "
+"message queue"
+"semaphore"
+"shared memory object"
+"socket"
+"weird file"
+
+"Only in %s: %s\n"
+"File %s is a %s while file %s is a %s\n"
+"Files %s and %s differ\n"
+"Files %s and %s are identical\n"
+#endif
+
+char           *base_left = NULL;
+char           *base_right = NULL;
+
+static gboolean bAbort = FALSE;
+
+void 
+destroy (GtkWidget * pWidget, gpointer  pData)
+{
+	gtk_main_quit ();
+}
+
+void 
+abort2 (GtkWidget * pWidget, gpointer  pData)
+{
+	bAbort = TRUE;
+}
+
+void 
+font_ok (GtkWidget * pWidget, gpointer  pData)
+{
+	GdkFont *font = gtk_font_selection_dialog_get_font      (GTK_FONT_SELECTION_DIALOG (pData));
+	gchar   *name = gtk_font_selection_dialog_get_font_name (GTK_FONT_SELECTION_DIALOG (pData)); 
+
+	g_print ("name = %s (%p)\n", name, font);
+
+	gtk_widget_destroy (GTK_WIDGET (pData));
+}
+
+Status 
+ParsePathName (char buffer[], GString * path)
+{
+	regmatch_t      matches[MATCHES];
+	Status          result = eFileError;
+
+	g_return_val_if_fail (buffer, eFileError);
+	g_return_val_if_fail (path,   eFileError);
+
+	if (regexec (&reg_same, buffer, MATCHES, matches, 0) == 0)
+	{
+		result = eFileSame;
+	}
+	else if (regexec (&reg_diff, buffer, MATCHES, matches, 0) == 0)
+	{
+		result = eFileDiff;
+	}
+	else if (regexec (&reg_only, buffer, MATCHES, matches, 0) == 0)
+	{
+		result = eFileLeft;						// This may be overridden
+
+	}
+	else if (regexec (&reg_type, buffer, MATCHES, matches, 0) == 0)
+	{
+		result = eFileType;
+	}
+	else
+	{
+		result = eFileError;
+	}
+
+	if (result == eFileError)
+	{
+		g_string_truncate (path, 0);
+	}
+	else
+	{
+		int             l = 6;//strlen (base_left);				// Should be global
+		int             r = 6;//strlen (base_right);
+		GString        *file = g_string_new (buffer + matches[2].rm_so);
+
+		g_string_assign (path, buffer + matches[1].rm_so);
+		g_string_truncate (path, matches[1].rm_eo - matches[1].rm_so);
+		g_string_append (path, G_DIR_SEPARATOR_S);
+
+		g_string_truncate (file, matches[2].rm_eo - matches[2].rm_so);
+		g_string_append (path, file->str);
+		g_string_free (file, TRUE);
+
+		if (strncmp (base_left, path->str, l) == 0)
+		{
+			g_string_erase (path, 0, l);				// Same, diff, type, and left only
+
+		}
+		else if (strncmp (base_right, path->str, r) == 0)
+		{
+			g_string_erase (path, 0, r);
+			result = eFileRight;					// Right-only
+
+		}
+		else
+		{
+			result = eFileError;
+		}
+	}
+
+	return result;
+}
+
+void 
+quick_message (char *left, char *right, int fd, GtkWidget * parent)
+{
+	//char           *message = "Hello world";
+	//GtkWidget      *dialog;
+	//GtkWidget      *label;
+	GtkWidget      *fontdlg;
+
+	/* Create the widgets */
+	//dialog = gtk_dialog_new ();
+	/*
+	dialog = gtk_window_new (GTK_WINDOW_DIALOG);
+	gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+	gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (parent));
+	gtk_window_set_default_size (GTK_WINDOW (dialog), 500, 50);
+	gtk_window_set_position (GTK_WINDOW (dialog), GTK_WIN_POS_CENTER);
+	label = gtk_label_new (message);
+	*/
+
+	//fontdlg = gtk_button_new_with_label ("Abort");
+	fontdlg = gtk_font_selection_dialog_new ("la la la");
+	//gtk_window_set_modal         (GTK_WINDOW (fontdlg), TRUE);
+	//gtk_window_set_transient_for (GTK_WINDOW (fontdlg), GTK_WINDOW (parent));
+
+	/* Ensure that the dialog box is destroyed when the user clicks ok. */
+	//gtk_signal_connect_object ((GtkObject *) (fontdlg), "clicked", GTK_SIGNAL_FUNC (gtk_widget_destroy), (GtkObject *) dialog);
+	//gtk_container_add (GTK_CONTAINER (dialog), fontdlg);
+
+	gtk_font_selection_dialog_set_font_name    (GTK_FONT_SELECTION_DIALOG (fontdlg),
+		"-sony-fixed-medium-r-normal-*-*-230-*-*-c-*-jisx0201.1976-0");
+		//"-Sony-Fixed-Medium-R-Normal--24-170-100-100-C-120-JISX0201.1976-0");
+
+	gtk_signal_connect_object (GTK_OBJECT (GTK_FONT_SELECTION_DIALOG (fontdlg)->cancel_button), "clicked", GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT (fontdlg));
+	gtk_signal_connect        (GTK_OBJECT (GTK_FONT_SELECTION_DIALOG (fontdlg)->ok_button),     "clicked", GTK_SIGNAL_FUNC (font_ok),            fontdlg);
+
+	/* Add the label, and show everything we've added to the dialog. */
+	//gtk_container_add (GTK_CONTAINER (dialog), label);
+	//gtk_widget_show_all (dialog);
+	//gtk_main ();
+	gtk_widget_show (fontdlg);
+
+	//GdkFont *font = gtk_font_selection_dialog_get_font      (GTK_FONT_SELECTION_DIALOG (fontdlg));
+	//gchar   *name = gtk_font_selection_dialog_get_font_name (GTK_FONT_SELECTION_DIALOG (fontdlg)); 
+}
+
+int 
+main (int argc, char *argv[], char *env[])
+{
+	GtkWidget *window = NULL;
+
+	//g_print ("locale = %s\n", setlocale (LC_MESSAGES, ""));
+
+	bindtextdomain (APPNAME, LOCALEDIR);
+	textdomain (APPNAME);
+
+	//g_print ("diff = %s\n", _("_Different"));
+
+	gnome_init (APPNAME, VERSION, argc, argv);
+
+	if (argc != 3)
+	{
+		g_print ("Usage: prog left right\n");
+		return 1;
+	}
+
+	base_left = argv[1];
+	base_right = argv[2];
+
+	//g_print ("left = %s, right = %s\n", base_left, base_right);
+
+	window = gtk_window_new (GTK_WINDOW_POPUP);
+	//gtk_window_set_default_size (GTK_WINDOW (window), 500, 800);
+	gtk_window_set_default_size (GTK_WINDOW (window), 1, 1);
+	gtk_signal_connect (GTK_OBJECT (window), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
+
+	gtk_widget_show (window);
+	global_init (window);
+	gtk_widget_hide (window);
+
+	{
+		TreeDialog *tree = tree_dialog_new (window);
+
+		tree_dialog_parse (tree, base_left, base_right);
+		tree_dialog_draw  (tree, eFileAll);
+	}
+
+#if 0
+	GtkWidget      *box = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (window), box);
+	gtk_widget_show (box);
+
+	GtkWidget      *label = gtk_label_new ("Processing...");
+	gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 10);
+	gtk_widget_show (label);
+
+	GtkWidget      *button = gtk_button_new_with_label ("Abort");
+	gtk_box_pack_end (GTK_BOX (box), button, FALSE, FALSE, 10);
+	//GtkAllocation a = { -1, -1, 20, 20 };
+	//gtk_widget_size_allocate (button, &a);
+	gtk_widget_show (button);
+	//button->allocation.width  = 20;
+	//button->allocation.height = 20;
+	gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (abort2), NULL);
+
+	//quick_message (base_left, base_right, 0, window);
+	//gtk_main();
+
+	//GtkWidget *pScrolled = gtk_scrolled_window_new (NULL, NULL);
+	//gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (pScrolled), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	//gtk_container_add (GTK_CONTAINER(window), pScrolled);
+
+	//XX char *cols[] = {"Name", "Description"};
+	//XX gtk_widget_show (pScrolled);
+	//XX GtkWidget *pTree = gtk_ctree_new_with_titles (2, 0, cols);
+	//XX gtk_container_add (GTK_CONTAINER (pScrolled), pTree);
+	//XX gtk_widget_show (pTree);
+
+	//gtk_ctree_set_line_style (GTK_CTREE (pTree), GTK_CTREE_LINES_TABBED);
+	//XX gtk_clist_set_selection_mode     (GTK_CLIST (pTree), GTK_SELECTION_BROWSE);
+	//XX gtk_clist_set_auto_sort          (GTK_CLIST (pTree), TRUE);
+	//XX gtk_clist_set_compare_func       (GTK_CLIST (pTree), TreeCompare);
+	//XX gtk_clist_set_column_auto_resize (GTK_CLIST (pTree), 0, TRUE);
+	//XX gtk_clist_column_titles_passive  (GTK_CLIST (pTree));
+
+	//XX CNode *pNode = new CNode (pTree);
+
+	//XX GtkCTreeNode *pSibling = NULL;
+
+	while (gtk_events_pending ())
+		gtk_main_iteration ();
+
+	{
+		GdkCursor      *cursor = gdk_cursor_new (GDK_WATCH);
+		gdk_window_set_cursor (window->window, cursor);
+		gdk_cursor_destroy (cursor);
+
+		cursor = gdk_cursor_new (GDK_LEFT_PTR);
+		gdk_window_set_cursor (button->window, cursor);
+		gdk_cursor_destroy (cursor);
+	}
+
+	GString        *pOldLocation = g_string_new ("");
+	GString        *pNewLocation = g_string_new ("");
+	GString        *pFormat = g_string_new ("");
+	GString        *pPath = g_string_new ("");
+
+	//XX gtk_clist_freeze (GTK_CLIST (pTree));
+	int             iCount = 0;
+	Status          status = eFileError;
+	//GString  *path   = g_string_new (NULL);
+	//GString  *file   = g_string_new (NULL);
+	//TreeNode *node   = NULL;
+	GNode          *root = g_node_new (NULL);
+	char            buffer[256];
+	while (!bAbort)
+	{
+		cin.getline (buffer, sizeof (buffer));
+		if (cin.eof ())
+		{
+			break;
+		}
+
+		status = ParsePathName (buffer, pPath);
+
+		//g_print ("path = %s (%d)\n", pPath->str, status);
+		tree_node_add (root, pPath->str, status);
+		//XX pNode->AddNode (NULL, pSibling, pPath->str, eStatus);
+		iCount++;
+		//if ((iCount % 20) == 0)       // change this to a timer?
+		g_string_assign (pNewLocation, pPath->str);
+		char           *base = g_basename (pNewLocation->str);
+		if (strcmp (base, pOldLocation->str) != 0)
+		{
+			g_string_assign (pOldLocation, base);
+			g_string_sprintf (pFormat, "Processing: %s", pOldLocation->str);
+
+			gtk_label_set_text (GTK_LABEL (label), pFormat->str);
+			//gtk_clist_thaw (GTK_CLIST (pTree));
+			while (gtk_events_pending ())
+				gtk_main_iteration ();
+			//gtk_clist_freeze (GTK_CLIST (pTree));
+		}
+	}
+
+	if (bAbort)
+	{
+		tree_node_add (root, "Aborted!", eFileError);
+	}
+
+	tree_print (root, 0);
+#endif
+
+#if 0
+	//if (bAbort)
+	//{
+	//while (cin.getline (buffer, sizeof (buffer) != cin.eof()));
+	//}
+	//XX gtk_clist_thaw (GTK_CLIST (pTree));
+
+	//gtk_widget_show (window);
+	//gtk_widget_show (pScrolled);
+	//gtk_widget_show (pTree);
+
+	GdkColor        Red;
+	GdkColor        Yellow;
+	GdkColor        Green;
+	GtkStyle       *pDirStyle = gtk_style_new ();
+
+	memset (&Red, 0, sizeof (Red));
+
+	Red.red = 65535;
+	Red.green = 0;
+	Red.blue = 0;
+
+	Yellow.red = 65535;
+	Yellow.green = 65535;
+	Yellow.blue = 0;
+
+	Green.red = 0;
+	Green.green = 65535;
+	Green.blue = 0;
+
+	for (int i = GTK_STATE_NORMAL; i < GTK_STATE_INSENSITIVE; i++)
+	{
+		pDirStyle->fg[i] = Red;
+		pDirStyle->bg[i] = Green;
+		pDirStyle->base[i] = Yellow;
+	}
+
+	gtk_widget_set_style (pTree, pDirStyle);
+
+	{
+		GdkCursor      *cursor = gdk_cursor_new (GDK_LEFT_PTR);
+		gdk_window_set_cursor (window->window, cursor);
+		gdk_cursor_destroy (cursor);
+
+		cursor = gdk_cursor_new (GDK_LEFT_PTR);
+		gdk_window_set_cursor (button->window, cursor);
+		gdk_cursor_destroy (cursor);
+	}
+
+	while (TRUE)
+	{
+		cin.getline (buffer, sizeof (buffer));
+		if (cin.eof ())
+		{
+			break;
+		}
+		//g_print ("%s\n", buffer);
+		status = ParsePathName (buffer, path);
+
+		//g_print ("%s\t%s\n", path->str, file->str);
+
+		//char *base;
+		//GNode *match = tree_node_find_node ();
+		//node = tree_node_new (status, file->str);
+		//g_node_append_data (root, node);
+
+		/*
+		 * switch (status)
+		 * {
+		 * case eFileSame:  g_print ("same:  %s\n", path->str); break;
+		 * case eFileDiff:  g_print ("diff:  %s\n", path->str); break;
+		 * case eFileLeft:  g_print ("left:  %s\n", path->str); break;
+		 * case eFileRight: g_print ("right: %s\n", path->str); break;
+		 * case eFileType:  g_print ("type:  %s\n", path->str); break;
+		 * default:         g_print ("error: %s\n", path->str); break;
+		 * }
+		 */
+		//tree_node_free (node);
+	}
+
+	g_string_free (path, TRUE);
+#endif
+
+	gtk_main();
+	//XX delete pNode;
+
+	//g_mem_profile();
+	return 0;
+}
+@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@d43 1
+a43 1
+destroy (GtkWidget * pWidget, gpointer * pData)
+d49 1
+a49 1
+abort2 (GtkWidget * pWidget, gpointer * pData)
+d55 1
+a55 1
+font_ok (GtkWidget * pWidget, gpointer * pData)
+@
+
+
+1.5
+log
+@*** empty log message ***
+@
+text
+@d1 2
+d7 1
+d13 4
+a16 3
+#define APPNAME "TestApp"
+#define WINNAME "GDiff"
+#define VERSION "0.0.1"
+d183 7
+@
+
+
+1.4
+log
+@*** empty log message ***
+@
+text
+@d11 1
+d200 1
+d206 1
+a206 1
+		tree_dialog_draw  (tree, eFileLeft | eFileRight | eFileDiff);
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d1 1
+a1 1
+#include <iostream.h>
+d4 3
+a6 1
+#include <gtk/gtk.h>
+a12 5
+const char *diff = "Files \\(.*\\)/\\(.*\\) and \\(.*\\)/\\2 differ";
+const char *same = "Files \\(.*\\)/\\(.*\\) and \\(.*\\)/\\2 are identical";
+const char *only = "Only in \\(.*\\): \\(.*\\)";
+const char *type = "File \\(.*\\)/\\(.*\\) is a \\(.*\\) while file \\(.*\\)/\\2 is a \\(.*\\)";
+
+d14 16
+a29 16
+	"regular empty file"
+	"regular file "
+	"directory"
+	"block special file"
+	"character special file"
+	"fifo "
+	"message queue"
+	"semaphore"
+	"shared memory object"
+	"socket"
+	"weird file"
+
+	"Only in %s: %s\n"
+	"File %s is a %s while file %s is a %s\n"
+	"Files %s and %s differ\n"
+	"Files %s and %s are identical\n"
+d32 2
+a33 2
+char *base_left  = NULL;
+char *base_right = NULL;
+d37 2
+a38 1
+void destroy (GtkWidget *pWidget, gpointer *pData)
+d40 1
+a40 1
+	gtk_main_quit();
+d43 2
+a44 1
+void abort (GtkWidget *pWidget, gpointer *pData)
+d49 13
+a61 1
+Status ParsePathName (char buffer[], GString *path)
+d63 3
+d69 1
+a69 14
+	regex_t RegSame;				// These should be global
+	regex_t RegDiff;
+	regex_t RegOnly;
+	regex_t RegType;
+
+	g_return_val_if_fail ((regcomp (&RegSame, same, 0) == 0), eFileError);
+	g_return_val_if_fail ((regcomp (&RegDiff, diff, 0) == 0), eFileError);
+	g_return_val_if_fail ((regcomp (&RegOnly, only, 0) == 0), eFileError);
+	g_return_val_if_fail ((regcomp (&RegType, type, 0) == 0), eFileError);
+
+	regmatch_t matches[MATCHES];
+	Status result = eFileError;
+
+	if (regexec (&RegSame, buffer, MATCHES, matches, 0) == 0)
+d73 1
+a73 1
+	else if (regexec (&RegDiff, buffer, MATCHES, matches, 0) == 0)
+d77 1
+a77 1
+	else if (regexec (&RegOnly, buffer, MATCHES, matches, 0) == 0)
+d79 2
+a80 1
+		result = eFileLeft;					// This may be overridden
+d82 1
+a82 1
+	else if (regexec (&RegType, buffer, MATCHES, matches, 0) == 0)
+a90 5
+	regfree (&RegSame);
+	regfree (&RegDiff);
+	regfree (&RegOnly);
+	regfree (&RegType);
+
+d97 5
+a101 1
+		g_string_assign   (path, buffer + matches[1].rm_so);
+d103 1
+a103 1
+		g_string_append   (path, G_DIR_SEPARATOR_S);
+a104 1
+		GString *file = g_string_new (buffer + matches[2].rm_so);
+a108 3
+		int l = strlen (base_left);			// Should be global
+		int r = strlen (base_right);
+
+d111 2
+a112 1
+			g_string_erase (path, 0, l);		// Same, diff, type, and left only
+d117 2
+a118 1
+			result = eFileRight;				// Right-only
+d129 2
+a130 1
+gint TreeCompare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
+d132 37
+a168 2
+	GtkCTreeRow *row1 = (GtkCTreeRow *) ptr1;
+	GtkCTreeRow *row2 = (GtkCTreeRow *) ptr2;
+d170 2
+a171 14
+	int leaf1 = (row1->is_leaf);
+	int leaf2 = (row2->is_leaf);
+
+	char *text1 = GTK_CELL_PIXTEXT (row1->row.cell[clist->sort_column])->text;
+	char *text2 = GTK_CELL_PIXTEXT (row2->row.cell[clist->sort_column])->text;
+
+	if (leaf1 != leaf2)				// One leaf and one node
+	{
+		return ((leaf1) ? 1 : -1);
+	}
+	else
+	{
+		return strcmp (text1, text2);
+	}
+d174 2
+a175 1
+void basename (GString *path)
+d177 1
+a177 1
+	char *slash = strrchr (path->str, '/');
+d179 1
+a179 9
+	if (slash)
+	{
+		g_string_truncate (path, (slash - path->str));
+	}
+}
+
+int main (int argc, char *argv[], char *env[])
+{
+	//gnome_init (APPNAME, VERSION, argc, argv);
+d187 1
+a187 1
+	base_left  = argv[1];
+d192 15
+d208 2
+a209 7
+	GtkWidget *pWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size (GTK_WINDOW (pWindow), 500, 50);
+	gtk_signal_connect (GTK_OBJECT (pWindow), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
+	gtk_widget_show (pWindow);
+
+	GtkWidget *box = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (pWindow), box);
+d212 1
+a212 1
+	GtkWidget *label = gtk_label_new ("Processing...");
+d216 1
+a216 1
+	GtkWidget *button = gtk_button_new_with_label ("Abort");
+d223 4
+a226 1
+	gtk_signal_connect (GTK_OBJECT (button), "clicked", GTK_SIGNAL_FUNC (abort), NULL);
+d230 1
+a230 1
+	//gtk_container_add (GTK_CONTAINER(pWindow), pScrolled);
+a244 1
+
+d249 3
+a251 3
+	while (gtk_events_pending())
+		gtk_main_iteration();
+	
+d253 6
+a258 2
+		GdkCursor *cursor = gdk_cursor_new (GDK_WATCH);
+		gdk_window_set_cursor (pWindow->window, cursor);
+d262 4
+a265 4
+	GString *pOldLocation = g_string_new ("");
+	GString *pNewLocation = g_string_new ("");
+	GString *pFormat      = g_string_new ("");
+	GString *pPath        = g_string_new ("");
+d268 7
+a274 2
+	int iCount = 0;
+	char buffer[256];
+d278 1
+a278 1
+		if (cin.eof())
+d283 1
+a283 2
+		//XX Status eStatus = ParsePathName (buffer, pPath);
+		ParsePathName (buffer, pPath);
+d285 2
+a286 1
+		//g_print ("status = %d\n", eStatus);
+d289 1
+a289 1
+		//if ((iCount % 20) == 0)	// change this to a timer?
+d291 2
+a292 2
+		basename (pNewLocation);
+		if (strcmp (pNewLocation->str, pOldLocation->str) != 0)
+d294 1
+a294 1
+			g_string_assign (pOldLocation, pNewLocation->str);
+d299 2
+a300 2
+			while (gtk_events_pending())
+				gtk_main_iteration();
+d305 9
+d316 1
+a316 1
+		//while (cin.getline (buffer, sizeof (buffer) != cin.eof()));
+d320 1
+a320 1
+	//gtk_widget_show (pWindow);
+d324 10
+a333 10
+	GdkColor  Red;
+	GdkColor  Yellow;
+	GdkColor  Green;
+	GtkStyle *pDirStyle  = gtk_style_new ();
+
+	memset (&Red,  0, sizeof (Red));
+
+	Red.red   = 65535;
+	Red.green =     0;
+	Red.blue  =     0;
+d335 1
+a335 1
+	Yellow.red   = 65535;
+d337 1
+a337 1
+	Yellow.blue  =     0;
+d339 1
+a339 1
+	Green.red   =     0;
+d341 1
+a341 1
+	Green.blue  =     0;
+d345 2
+a346 2
+		pDirStyle->fg[i]   = Red;
+		pDirStyle->bg[i]   = Green;
+d353 6
+a358 2
+		GdkCursor *cursor = gdk_cursor_new (GDK_ARROW);
+		gdk_window_set_cursor (pWindow->window, cursor);
+a360 7
+#endif
+	char      buffer[256];
+	Status    status = eFileError;
+	GString  *path   = g_string_new (NULL);
+	//GString  *file   = g_string_new (NULL);
+	//TreeNode *node   = NULL;
+	GNode    *root   = g_node_new (NULL);
+d365 1
+a365 1
+		if (cin.eof())
+a377 1
+		tree_node_add (root, path->str, status);
+d380 10
+a389 10
+		switch (status)
+		{
+			case eFileSame:  g_print ("same:  %s\n", path->str); break;
+			case eFileDiff:  g_print ("diff:  %s\n", path->str); break;
+			case eFileLeft:  g_print ("left:  %s\n", path->str); break;
+			case eFileRight: g_print ("right: %s\n", path->str); break;
+			case eFileType:  g_print ("type:  %s\n", path->str); break;
+			default:         g_print ("error: %s\n", path->str); break;
+		}
+		*/
+d394 1
+d396 1
+a396 1
+	//gtk_main();
+a401 1
+
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d7 3
+a9 1
+#define MATCHES  8
+d50 1
+a50 1
+Status ParsePathName (char buffer[], GString *pPath)
+d52 4
+a55 1
+	regex_t RegSame;				// These could be global
+d94 5
+a98 1
+	if (result != eFileError)
+d100 8
+a107 3
+		g_string_assign   (pPath, buffer + matches[1].rm_so);
+		g_string_truncate (pPath, matches[1].rm_eo - matches[1].rm_so);
+		g_string_append   (pPath, "/");
+d109 2
+a110 4
+		GString *pFile = g_string_new (buffer + matches[2].rm_so);
+		g_string_truncate (pFile, matches[2].rm_eo - matches[2].rm_so);
+		g_string_append (pPath, pFile->str);
+		g_string_free (pFile, TRUE);
+d112 1
+a112 4
+		int iLeft  = strlen (base_left);			// Should be global
+		int iRight = strlen (base_right);
+
+		if (strncmp (base_left, pPath->str, iLeft) == 0)
+d114 1
+a114 1
+			g_string_erase (pPath, 0, iLeft);		// Same, diff, type, and left only
+d116 1
+a116 1
+		else if (strncmp (base_right, pPath->str, iRight) == 0)
+d118 1
+a118 1
+			g_string_erase (pPath, 0, iRight);
+d163 1
+a163 1
+	gtk_init (&argc, &argv);
+d176 1
+a277 1
+#if 0
+d297 1
+a297 4
+	int i = GTK_STATE_SELECTED;
+
+	for (i = 0; i < 5; i++)
+	//if (0)
+d299 3
+a301 7
+		pDirStyle->fg[i]	= Red;
+		pDirStyle->bg[i]	= Green;
+		//pDirStyle->light[i]	= Red;
+		//pDirStyle->dark[i]	= Green;
+		//pDirStyle->mid[i]	= Yellow;
+		//pDirStyle->text[i]	= Green;
+		pDirStyle->base[i]	= Yellow;
+a303 3
+	//pDirStyle->black = Yellow;
+	//pDirStyle->white = Yellow;
+
+a305 1
+#endif
+d311 41
+d353 1
+a353 1
+	gtk_main();
+d356 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d36 2
+d43 5
+d142 10
+d168 1
+a168 1
+	gtk_window_set_default_size (GTK_WINDOW (pWindow), 500, 300);
+d172 26
+a197 9
+	GtkWidget *pScrolled = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (pScrolled), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_container_add (GTK_CONTAINER(pWindow), pScrolled);
+
+	char *cols[] = {"Name", "Description"};
+	gtk_widget_show (pScrolled);
+	GtkWidget *pTree = gtk_ctree_new_with_titles (2, 0, cols);
+	gtk_container_add (GTK_CONTAINER (pScrolled), pTree);
+	gtk_widget_show (pTree);
+d200 8
+a207 4
+	gtk_clist_set_selection_mode     (GTK_CLIST (pTree), GTK_SELECTION_BROWSE);
+	gtk_clist_set_auto_sort          (GTK_CLIST (pTree), TRUE);
+	gtk_clist_set_compare_func       (GTK_CLIST (pTree), TreeCompare);
+	gtk_clist_set_column_auto_resize (GTK_CLIST (pTree), 0, TRUE);
+d209 10
+a218 1
+	CNode *pNode = new CNode (pTree);
+d220 4
+a223 1
+	GtkCTreeNode *pSibling = NULL;
+d225 2
+d228 1
+a228 1
+	while (TRUE)
+d236 2
+a237 2
+		GString *pPath = g_string_new ("");
+		Status eStatus = ParsePathName (buffer, pPath);
+d240 16
+a255 1
+		pNode->AddNode (NULL, pSibling, pPath->str, eStatus);
+d258 6
+d267 47
+d315 1
+a315 1
+	delete pNode;
+@

@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.25 $ */
-
 #include "config.h"
 #include "options.h"
 #include "style.h"
@@ -169,7 +167,6 @@ add_check (GtkContainer *cont, PrefOption *list, Options *options)
 	gtk_box_pack_start (GTK_BOX (hbox), toggle, FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_container_add (cont, hbox);
 
-
 	return 1;
 }
 
@@ -248,7 +245,7 @@ add_radio (GtkContainer *cont, PrefOption *list, Options *options)
 
 		gtk_toggle_button_set_active (toggle, TRUE);
 	}
-	
+
 	return count;
 }
 

@@ -1,0 +1,46 @@
+GtkCListRow
+
+	GtkCell *cell;
+
+	GtkStateType state;
+
+	GdkColor foreground;
+
+	GdkColor background;
+
+	GtkStyle *style;
+
+	gpointer data;
+
+	GtkDestroyNotify destroy;
+
+	guint fg_set     : 1;
+
+	guint bg_set     : 1;
+
+	guint selectable : 1;
+
+GtkCTreeRow
+
+	GtkCListRow row;
+
+	GtkCTreeNode *parent;
+
+	GtkCTreeNode *sibling;
+
+	GtkCTreeNode *children;
+
+	GdkPixmap *pixmap_closed;
+
+	GdkBitmap *mask_closed;
+
+	GdkPixmap *pixmap_opened;
+
+	GdkBitmap *mask_opened;
+
+	guint16 level;
+
+	guint is_leaf  : 1;
+
+	guint expanded : 1;
+

@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.12 $ */
-
 #include <stddef.h>
 #include <string.h>
 #include <gtk/gtk.h>
@@ -50,7 +48,7 @@ tree_node_new (char *name, char *path, Status status)
 		node->path   = g_strdup (path);
 		node->status = status;
 	}
-	
+
 	return node;
 }
 */
@@ -177,7 +175,7 @@ tree_parse_diff (FILE *file, gchar *left, gchar *right, GnomeApp *app)
 
 	tree_print (node, 0);
 
-	exit (0);
+	//exit (0);
 	return node;
 }
 

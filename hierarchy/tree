@@ -1,0 +1,140 @@
+GtkContainer
+
+	GtkWidget widget;
+
+	GtkWidget *focus_child;
+
+	guint border_width : 16;
+
+	guint need_resize : 1;
+
+	guint resize_mode : 2;
+
+	GSList *resize_widgets;
+
+GtkCList
+
+	GtkContainer container;
+
+	guint16 flags;
+
+	GMemChunk *row_mem_chunk;
+
+	GMemChunk *cell_mem_chunk;
+
+	guint freeze_count;
+
+	GdkRectangle internal_allocation;
+
+	gint rows;
+
+	gint row_center_offset;
+
+	gint row_height;
+
+	GList *row_list;
+
+	GList *row_list_end;
+
+	gint columns;
+
+	GdkRectangle column_title_area;
+
+	GdkWindow *title_window;
+
+	GtkCListColumn *column;
+
+	GdkWindow *clist_window;
+
+	gint clist_window_width;
+
+	gint clist_window_height;
+
+	gint hoffset;
+
+	gint voffset;
+
+	GtkShadowType shadow_type;
+
+	GtkSelectionMode selection_mode;
+
+	GList *selection;
+
+	GList *selection_end;
+
+	GList *undo_selection;
+
+	GList *undo_unselection;
+
+	gint undo_anchor;
+
+	guint8 button_actions[5];
+
+	guint8 drag_button;
+
+	GtkCListCellInfo click_cell;
+
+	GtkAdjustment *hadjustment;
+
+	GtkAdjustment *vadjustment;
+
+	GdkGC *xor_gc;
+
+	GdkGC *fg_gc;
+
+	GdkGC *bg_gc;
+
+	GdkCursor *cursor_drag;
+
+	gint x_drag;
+
+	gint focus_row;
+
+	gint anchor;
+
+	GtkStateType anchor_state;
+
+	gint drag_pos;
+
+	gint htimer;
+
+	gint vtimer;
+
+	GtkSortType sort_type;
+
+	GtkCListCompareFunc compare;
+
+	gint sort_column;
+
+GtkCTree
+
+	GtkCList clist;
+
+	GdkGC *lines_gc;
+
+	gint tree_indent;
+
+	gint tree_spacing;
+
+	gint tree_column;
+
+	guint line_style     : 2;
+
+	guint expander_style : 2;
+
+	guint show_stub      : 1;
+
+	GtkCTreeCompareDragFunc drag_compare;
+
+GtkDiffTree
+
+	GtkCTree widget;
+
+	int value;
+
+	char		*left;
+
+	char		*right;
+
+	Status		 view;
+

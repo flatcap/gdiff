@@ -1,0 +1,40 @@
+head	1.2;
+access;
+symbols;
+locks
+	src:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	99.09.01.08.54.15;	author src;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	99.08.30.08.21.48;	author src;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@GtkWidget *gnome_color_picker_new (void);
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+@

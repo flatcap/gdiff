@@ -1,0 +1,68 @@
+File
+	  New difference		CTRL-n		always
+	  -------------
+	  Save file list		CTRL-s		tree
+	  -------------
+	  Close				CTRL-w		tree | compare
+	  Exit				CTRL-q		always
+
+View (tree)						tree
+	X File count					tree
+	  -------------
+	  Prev diff			F9		tree
+	  Next diff			F10		tree
+	  -------------
+	> Display					tree
+		X Same			F5		tree
+		X Left			F6		tree
+		X Right			F7		tree
+		X Diff			F8		tree
+		X Error					tree
+	  Refresh			CTRL-r		tree
+	> Style
+		Tree			F2		tree
+		List (path)		F3		tree
+		List (no path)		F4		tree
+
+View (file)						file
+	X Line numbers					file
+	  -------------
+	  Refresh			CTRL-r		file
+	> Style						file
+		One pane		F2		file
+		Two panes		F3		file
+
+Sort							tree
+	X Directories first				tree
+	  -------------
+	O Alphabetical			SHIFT-F9	tree
+	O By diff type			SHIFT-F10	tree
+
+Settings
+	show status bar					always
+	preferences					always
+
+Windows
+	window list.					tree | compare
+
+Help
+	contents					always
+	about						always
+
+________________________________________________________________________________
+
+MDI							always
+	O Default					always
+	O Notebook					always
+	O Modal						always
+	O Top level					always
+
+Misc
+	Compare						tree
+	rescan whole tree				tree
+	Rescan from here				tree & selection
+	Stop diff now					treediff
+	save file list					tree
+	save file list here				tree & selection
+	display style tree				tree
+

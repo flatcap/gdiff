@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.28 $ */
-
 #include <gnome.h>
 #include "derived.h"
 #include "spawn.h"
@@ -98,7 +96,7 @@ gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff)
 	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL, diff);
 }
 
-static gint 
+static gint
 tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	const GtkCTreeRow *row1 = ptr1;
@@ -347,7 +345,6 @@ gtk_diff_tree_realize (GtkWidget *widget)
 	//g_print ("gtk_diff_tree_realize\n");
 	old_realize_handler (widget);
 }
-
 
 static gint
 gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event)

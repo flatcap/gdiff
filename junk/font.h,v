@@ -1,0 +1,24 @@
+head	1.1;
+access;
+symbols;
+locks
+	src:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	99.08.30.08.21.48;	author src;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

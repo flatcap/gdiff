@@ -1,0 +1,140 @@
+head	1.4;
+access;
+symbols;
+locks
+	src:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	99.09.26.13.21.01;	author src;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	99.09.21.08.11.48;	author src;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	99.09.02.06.31.51;	author src;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	99.09.01.05.36.31;	author src;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.4
+log
+@*** empty log message ***
+@
+text
+@#include <gnome.h>
+#include "derived.h"
+#include "menu.h"
+#include "global.h"
+
+#define APPNAME "derived"
+#define VERSION "0.0.1"
+#define WINNAME "Derived"
+
+void
+destroy (GtkWidget * pWidget, gpointer  pData)
+{
+	gtk_main_quit ();
+}
+
+int
+main (int argc, char *argv[])
+{
+	static char *cols[] = { "Left", "Right" };
+	GtkWidget   *app    = NULL;
+	GtkWidget   *tree   = NULL;
+
+	gnome_init (APPNAME, VERSION, argc, argv);
+
+	app = gnome_app_new (APPNAME, WINNAME);
+
+	gtk_signal_connect (GTK_OBJECT (app), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
+
+	global_init (app);
+
+	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
+
+	gtk_window_set_default_size	(GTK_WINDOW (app), 200, 500);
+	gnome_app_set_contents		(GNOME_APP  (app), tree);
+	menu_create			(GNOME_APP  (app));
+
+	gtk_widget_show_all (app);
+
+	gtk_diff_tree_compare (GTK_DIFF_TREE (tree), "2.3.13/", "2.3.14/");
+
+	gtk_main();
+
+	return 0;
+}
+
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d4 1
+d29 2
+d38 3
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d10 1
+a10 1
+destroy (GtkWidget * pWidget, gpointer * pData)
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+d9 1
+a9 1
+void 
+d15 2
+a16 1
+int main (int argc, char *argv[])
+d18 3
+a20 1
+	//GtkWidget *app = NULL;
+a23 1
+#if 0
+d28 7
+a34 1
+	gtk_widget_show (app);
+a35 4
+#endif
+
+	{
+		GtkWidget *r = gtk_richard_new();
+a36 5
+		gtk_object_ref   (GTK_OBJECT (r));
+		gtk_object_unref (GTK_OBJECT (r));
+		gtk_object_unref (GTK_OBJECT (r));
+	}
+	
+@

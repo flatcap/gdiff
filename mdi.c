@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.35 $ */
-
 #include <gnome.h>
 #include "mdi.h"
 #include "menu.h"
@@ -45,10 +43,10 @@ void		mdi_close (GnomeMDI *mdi);
 /*----------------------------------------------------------------------------*/
 
 #if 0
-	gint        (*add_child)(GnomeMDI *, GnomeMDIChild *); 
-	gint        (*remove_child)(GnomeMDI *, GnomeMDIChild *); 
-	gint        (*add_view)(GnomeMDI *, GtkWidget *); 
-	gint        (*remove_view)(GnomeMDI *, GtkWidget *); 
+	gint        (*add_child)(GnomeMDI *, GnomeMDIChild *);
+	gint        (*remove_child)(GnomeMDI *, GnomeMDIChild *);
+	gint        (*add_view)(GnomeMDI *, GtkWidget *);
+	gint        (*remove_view)(GnomeMDI *, GtkWidget *);
 	void        (*child_changed)(GnomeMDI *, GnomeMDIChild *);
 	void        (*view_changed)(GnomeMDI *, GtkWidget *);
 	void        (*app_created)(GnomeMDI *, GnomeApp *);
@@ -184,7 +182,7 @@ gd_mdi_set_label (GnomeMDIChild *child, GtkWidget *old_label, gpointer data)
 	return hbox;
 }
 
-static void 
+static void
 app_created (GnomeMDI *mdi, GnomeApp *app)
 {
 	menu_create (mdi, app);

@@ -1,0 +1,30 @@
+GtkObject
+
+	GtkObjectClass *klass;
+
+	guint32 flags;
+
+	guint ref_count;
+
+	GData *object_data;
+
+GtkWidget
+
+	guint16 private_flags;
+
+	guint8 state;
+
+	guint8 saved_state;
+
+	gchar *name;
+
+	GtkStyle *style;
+
+	GtkRequisition requisition;
+
+	GtkAllocation allocation;
+
+	GdkWindow *window;
+
+	GtkWidget *parent;
+

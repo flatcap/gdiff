@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.13 $ */
-
 #include "config.h"
 #include <gnome.h>
 #include <locale.h>
@@ -30,7 +28,7 @@
 int main (int argc, char *argv[], char *envv[]);
 /*----------------------------------------------------------------------------*/
 
-int 
+int
 main (int argc, char *argv[], char *envv[])
 {
 	GnomeMDI    *mdi  = NULL;

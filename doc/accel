@@ -1,0 +1,26 @@
+Accelerators should be arranged into a tree.  Lots of keybindings need to be global, but
+when it comes to the menu, the lower ones should be hidden until the higher ones are activated
+	
+	_File / _Open
+
+Alt-O should do nothing in the base state.  When Alt-F is pressed the accelerator group should set
+
+	active_accel = Alt-F (from its collection)
+
+Whilst the menu is active only the accelators below Alt-F should be active.
+
+The mnemonic space gets very cluttered.
+
+The active window determines which accel_group is current.  The app's group is global.
+
+What about dialogs?  Even if they're modeless, they should still have priority over the app.
+
+Aha!  Gnome dialogs have their own accelerator group.
+
+GnomeDialog GtkWindow GtkBin GtkContainer GtkWidget GtkObject
+GnomeApp    GtkWindow GtkBin GtkContainer GtkWidget GtkObject
+
+Other dialogs are derived from GtkWindow
+should they be derived from GtkDialog, then we could move the accelerators to GtkDialog.
+
+Only dialogs can have menu bars.  So only dialogs need accelerator groups.

@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.7 $ */
-
 #include <stdlib.h>
 #include "global.h"
 #include "icons/open.xpm"

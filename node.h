@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.10 $ */
-
 #ifndef _NODE_H_
 #define _NODE_H_
 

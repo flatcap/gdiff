@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.25 $ */
-
 #include <gnome.h>
 
 #define APP "canvas"
@@ -55,7 +53,6 @@ typedef struct
 } CompareData;
 
 void draw_rect (double scale, GnomeCanvasGroup *group);
-
 
 void
 destroy (GtkWidget *widget, gpointer data)

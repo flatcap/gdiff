@@ -1,0 +1,2 @@
+
+echo retched.c retched.h | sed 's/\.c\>/.x/g' | sed 's/\.h\>/.c/g' | sed 's/\.x\>/.h/g'

@@ -17,8 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.46 $ */
-
 #include "config.h"
 #include <gnome.h>
 #include "menu.h"
@@ -41,10 +39,10 @@
 static void about_cb          (GtkWidget *, GnomeMDI *);	// help.c	gd_about()
 static void close_display_cb  (GtkWidget *, GnomeMDI *);	// mdi.c	mdi_close_view()
 static void compare_cb        (GtkWidget *, GnomeMDI *);	//
-static void contents_cb       (GtkWidget *, GnomeMDI *);	// help.c	
+static void contents_cb       (GtkWidget *, GnomeMDI *);	// help.c
 static void exit_gdiff_cb     (GtkWidget *, GnomeMDI *);	// mdi.c	mdi_close_view()
 static void new_diff_cb       (GtkWidget *, GnomeMDI *);	// file.c	new_file()
-static void preferences_cb    (GtkWidget *, GnomeMDI *);	// options.c	
+static void preferences_cb    (GtkWidget *, GnomeMDI *);	// options.c
 static void save_file_list_cb (GtkWidget *, GnomeMDI *);	//
 static void status_bar_cb     (GtkWidget *, GnomeMDI *);	//
 
@@ -55,7 +53,6 @@ static void next_diff_cb      (GtkWidget *, GnomeMDIChild *);	//
 static void prev_diff_cb      (GtkWidget *, GnomeMDIChild *);	//
 static void refresh_cb        (GtkWidget *, GnomeMDIChild *);	//
 static void style_cb          (GtkWidget *, GnomeMDIChild *);	//
-
 
 /*----------------------------------------------------------------------------*/
 //static void menu_set_view_defaults (GtkMenuShell *shell);
@@ -256,7 +253,7 @@ set_menu_for_view (MDIDiffChild *child)
 {
 	GnomeUIInfo *menu = NULL;
 	DiffOptions *diff = child->diff_options;
-	
+
 	if ((diff->type == Dir) ||
 	    (diff->type == DirPatch))
 	{
