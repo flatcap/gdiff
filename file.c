@@ -1,4 +1,4 @@
-/* $Revision: 1.13 $ */
+/* $Revision: 1.14 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -194,25 +194,24 @@ dialog_destroyed (GtkWidget *widget, gpointer data)
 static void
 entry_changed (GtkEntry *entry, guint left) // gboolean
 {
-	GtkWidget *filesel = NULL;
+	GtkWidget *dialog = NULL;
 	FileInfo *finfo = NULL;
+	gboolean data = FALSE;
+	GtkWidget *button = NULL;
 
 	g_return_if_fail (entry != NULL);
 
-	filesel = gtk_widget_get_ancestor (GTK_WIDGET (entry), gnome_dialog_get_type());
-	finfo   = gtk_object_get_user_data (GTK_OBJECT (filesel));
-
-	/*
-	gtk_signal_connect_object ();
-	gtk_signal_connect_object (GtkObject	 *object,		
-				   const gchar	 *name,
-				   GtkSignalFunc  func,
-				   GtkObject	 *slot_object)
-
-	signal connect the dialog to an entry???
-	*/
-
 	g_print ("entry_changed %d\n", left);
+
+	dialog = gtk_widget_get_ancestor  (GTK_WIDGET (entry), gnome_dialog_get_type());
+	finfo  = gtk_object_get_user_data (GTK_OBJECT (dialog));
+
+	data = ((strlen (gtk_entry_get_text (finfo->lentry)) > 0) &&
+		(strlen (gtk_entry_get_text (finfo->rentry)) > 0));
+
+	button = GTK_WIDGET (g_list_nth_data (GNOME_DIALOG (dialog)->buttons, 1));	//XXX depends on buttons' order
+
+	gtk_widget_set_sensitive (button, data);
 }
 
 static void
@@ -272,6 +271,9 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 
 	// if we're closed then the dialog NULLs its parent (us) pointer
 	gtk_window_set_transient_for (GTK_WINDOW (dialog), parent);
+
+	// disable the OK button, initially
+	gtk_widget_set_sensitive (GTK_WIDGET (g_list_nth_data (GNOME_DIALOG (dialog)->buttons, 1)), FALSE);
 
 	gtk_signal_connect (GTK_OBJECT (dialog), "clicked", dialog_button_clicked, NULL);
 	gtk_signal_connect (GTK_OBJECT (dialog), "destroy", dialog_destroyed,      NULL);
