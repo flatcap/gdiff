@@ -69,6 +69,30 @@ gnomify all the types int -> gint etc
 ________________________________________________________________________________
 FEATURES - to do
 
+when displaying the tabs/menu items for dirs, list the root path for each on separate lines
+for files...? left-root right-root \n relative/Filename
+
+do we need to distinguish between eFileType and eFileError?
+
+Settings:
+	Style		global, immediate
+	Confirmation	global, immediate
+	View		global, next diff	want all local
+	Directory	global, next diff	want style local
+	File		global, next compare	want all local
+	Diff		global, next diff
+	MDI		global, immediate	ought to be after restart?
+	Exclusions	global, next diff
+
+	Tab width	global, immediate?	how else can I implement it automatically?
+
+gnome_dialog_set_parent (does gtk_window_set_transient_for for us)
+
+explain the names of the MDI styles
+Top level = a separate window for each diff
+
+standardise on same/identical naming
+
 make progress an option? why bother it's fast
 
 default buttons and activation on the file selection
