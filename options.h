@@ -1,4 +1,4 @@
-/* $Revision: 1.8 $ */
+/* $Revision: 1.9 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -66,8 +66,10 @@ typedef enum
 	MaxPage
 } PrefsPage;
 
+typedef struct _PrefOption PrefOption;
+
 //Options *	options_new (void);
-Options *	options_get_default (void);
+Options *	options_get_default (PrefOption *list);
 //void		options_free (Options *options);
 GtkWidget *	get_preferences (GtkWindow *parent, PrefsPage page);
 void		options_save (Options *opts);
@@ -89,8 +91,6 @@ typedef enum
 
 	PrefMax
 } PrefType;
-
-typedef struct _PrefOption PrefOption;
 
 struct _PrefOption
 {

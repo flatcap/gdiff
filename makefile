@@ -9,7 +9,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 
 all:	gd tags libtags
 
-gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o compare.o file.o
+gd:	args.o compare.o derived.o diff.o file.o gd.o global.o mdi.o menu.o node.o options.o progress.o spawn.o tree.o
 	$(CC) $(LIBS) $^ -o $@
 	#$@ &
 
@@ -93,9 +93,9 @@ testgtk: testgtk.o
 
 ################################################################################
 
-SOURCE	= args.c compare.c derived.c diff.c gd.c global.c mdi.c menu.c node.c options.c progress.c spawn.c tree.c file.c
-HEADER	= args.h config.h derived.h diff.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h compare.h file.h
-EXTRA	= todo makefile
+SOURCE	= args.c compare.c derived.c diff.c file.c gd.c global.c mdi.c menu.c node.c options.c preferences.c progress.c spawn.c tree.c
+HEADER	= args.h compare.h config.h derived.h diff.h file.h global.h mdi.h menu.h node.h options.h progress.h spawn.h tree.h
+EXTRA	= makefile todo
 FILES	= $(SOURCE) $(HEADER) $(EXTRA)
 
 co:
