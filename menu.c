@@ -1,4 +1,4 @@
-//#include "menu.h"
+#include "menu.h"
 #include "derived.h"
 #include "node.h"
 #include "tree.h"
