@@ -18,13 +18,13 @@ static GtkAccelGroup *accel    	= NULL;
 int selection = -1;
 
 void
-destroy (GtkWidget *widget, gpointer *data)
+destroy (GtkWidget *widget, gpointer data)
 {
 	gtk_exit (0);
 }
 
 void
-add_text (GtkWidget *widget, gpointer *data)
+add_text (GtkWidget *widget, gpointer data)
 {
 	//GtkCListRow *clist_row = NULL;
 	//GtkCell *cell = NULL;
@@ -50,7 +50,7 @@ add_text (GtkWidget *widget, gpointer *data)
 }
 
 void
-remove_text (GtkWidget *widget, gpointer *data)
+remove_text (GtkWidget *widget, gpointer data)
 {
 	g_print ("remove\n");
 }

@@ -7,7 +7,7 @@
 #define WINNAME "Derived"
 
 void
-destroy (GtkWidget * pWidget, gpointer * pData)
+destroy (GtkWidget * pWidget, gpointer  pData)
 {
 	gtk_main_quit ();
 }

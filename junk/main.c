@@ -40,19 +40,19 @@ char           *base_right = NULL;
 static gboolean bAbort = FALSE;
 
 void 
-destroy (GtkWidget * pWidget, gpointer * pData)
+destroy (GtkWidget * pWidget, gpointer  pData)
 {
 	gtk_main_quit ();
 }
 
 void 
-abort2 (GtkWidget * pWidget, gpointer * pData)
+abort2 (GtkWidget * pWidget, gpointer  pData)
 {
 	bAbort = TRUE;
 }
 
 void 
-font_ok (GtkWidget * pWidget, gpointer * pData)
+font_ok (GtkWidget * pWidget, gpointer  pData)
 {
 	GdkFont *font = gtk_font_selection_dialog_get_font      (GTK_FONT_SELECTION_DIALOG (pData));
 	gchar   *name = gtk_font_selection_dialog_get_font_name (GTK_FONT_SELECTION_DIALOG (pData)); 

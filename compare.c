@@ -5,7 +5,7 @@
 #define COMPARE_VERSION "0.0.1"
 
 void
-destroy (GtkWidget *widget, gpointer *data)
+destroy (GtkWidget *widget, gpointer data)
 {
 	gtk_exit (0);
 }
