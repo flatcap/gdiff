@@ -1,4 +1,4 @@
-/* $Revision: 1.8 $ */
+/* $Revision: 1.9 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -52,6 +52,25 @@ get_filename (GtkFileSelection *dialog)
 //static gboolean
 //gnome_dialog_quit_run(GnomeDialog *dialog,
 		      //struct GnomeDialogRunInfo *runinfo)
+
+static void
+dialog_button_clicked (GnomeDialog *dialog, gint button_number)
+{
+	g_print ("dialog_button_clicked\n");
+	switch (button_number)
+	{
+		case 0:			// OK
+			break;
+
+		case 1:			// Cancel
+			gnome_dialog_close (dialog);
+			break;
+
+		default:
+			g_assert_not_reached();
+	}
+}
+
 void
 new_file (GnomeMDI *mdi, GtkWindow *parent)
 {
@@ -61,20 +80,45 @@ new_file (GnomeMDI *mdi, GtkWindow *parent)
 
 	//GtkWidget *table = NULL;
 	GtkBox *box = NULL;
+	GtkBox *lbox=NULL;
+	GtkBox *rbox= NULL;
+	GtkWidget *lentry = NULL;
+	GtkWidget *rentry = NULL;
+	GtkWidget *lbrowse = NULL;
+	GtkWidget *rbrowse = NULL;
 	//int i = 0;
 
 	dialog = gnome_dialog_new ("Select files or directories to be compared", GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 
+	gtk_window_set_transient_for (GTK_WINDOW (dialog), parent);
+
+	gtk_signal_connect (GTK_OBJECT (dialog), "clicked", dialog_button_clicked, NULL);
+
 	box = GTK_BOX ((GNOME_DIALOG (dialog))->vbox);
 
-	gtk_box_pack_start (box, gtk_entry_new(), TRUE, TRUE, 0);
-	gtk_box_pack_start (box, gtk_entry_new(), TRUE, TRUE, 0);
+	lentry = gtk_entry_new();
+	rentry = gtk_entry_new();
+
+	lbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
+	rbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
+
+	lbrowse = gtk_button_new_with_label ("Browse...");
+	rbrowse = gtk_button_new_with_label ("Browse...");
+
+	gtk_box_pack_start (box, GTK_WIDGET(lbox), TRUE, TRUE, 0);
+	gtk_box_pack_start (box, GTK_WIDGET(rbox), TRUE, TRUE, 0);
+
+	gtk_box_pack_start (lbox, lentry, TRUE, TRUE, 0);
+	gtk_box_pack_start (lbox, lbrowse, TRUE, TRUE, 0);
+
+	gtk_box_pack_start (rbox, rentry, TRUE, TRUE, 0);
+	gtk_box_pack_start (rbox, rbrowse, TRUE, TRUE, 0);
 
 	gnome_dialog_set_parent (GNOME_DIALOG (dialog), parent);
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 100, 100);
 
 	gtk_widget_show_all (dialog);
-	gnome_dialog_run (GNOME_DIALOG (dialog));
+	//gnome_dialog_run (GNOME_DIALOG (dialog));
 }
 
 #if 0
