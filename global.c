@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Revision$ */
 
 #include <stdlib.h>
 #include "global.h"

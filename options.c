@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Revision$ */
 
 #include "options.h"
 

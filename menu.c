@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Revision$ */
 
 #include "menu.h"
 #include "derived.h"

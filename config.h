@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Revision$ */
 
 #define WINNAME    "Graphical differences"
 #define PACKAGE    "GDiff"

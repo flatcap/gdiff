@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Revision$ */
 
 #ifndef _MDI_H_
 #define _MDI_H_
