@@ -1,4 +1,4 @@
-/* $Revision: 1.11 $ */
+/* $Revision: 1.12 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -54,13 +54,24 @@ get_filename (GtkFileSelection *dialog)
 }
 
 void
-entry_changed (GtkEntry *entry, gpointer data)
+entry_changed (GtkEntry *entry, guint left) // gboolean
 {
-	g_print ("entry_changed %p\n", data);
+	g_print ("entry_changed %d\n", left);
 }
 
 void
-file_sel_button (GtkFileSelection *filesel, gpointer data)
+file_sel_ok (GtkButton *button, GtkEntry *entry)
+{
+	GtkFileSelection *filesel = NULL;
+
+	filesel = GTK_FILE_SELECTION (gtk_widget_get_ancestor (GTK_WIDGET (button), gtk_file_selection_get_type()));
+
+	//XXX leak a char*
+	gtk_entry_set_text (entry, get_filename (filesel));
+}
+
+void
+file_sel_button (GtkButton *button, gpointer data)
 {
 	g_print ("file_sel_button %p\n", data);
 }
@@ -85,9 +96,9 @@ browse_filename (char *title, GtkEntry *entry)
 		{
 			gtk_signal_connect (GTK_OBJECT (browse), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &browse);
 
-			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->ok_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
+			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->ok_button), "clicked", GTK_SIGNAL_FUNC (file_sel_ok), entry);
 			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->cancel_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
-			gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->help_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
+			//gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (browse)->help_button), "clicked", GTK_SIGNAL_FUNC (file_sel_button), GUINT_TO_POINTER (0x1234));
 
 			gtk_widget_show_all (browse);
 		}
@@ -105,6 +116,8 @@ dialog_button_destroyed (GtkWidget *widget, gpointer data)
 }
 
 static GnomeMDI *global_mdi = NULL;
+GtkEntry *global_left_entry = NULL;
+GtkEntry *global_right_entry = NULL;
 
 static void
 dialog_button_clicked (GnomeDialog *dialog, gint button_number)
@@ -119,10 +132,11 @@ dialog_button_clicked (GnomeDialog *dialog, gint button_number)
 		{
 			DiffOptions *diff = diffoptions_new();
 
-			diff->left = strdup ("a/Makefile");
-			diff->right = strdup ("b/Makefile");
+			diff->left = g_strdup (gtk_entry_get_text (global_left_entry));
+			diff->right = g_strdup (gtk_entry_get_text (global_right_entry));
 			categorise_args (diff);
-			//g_print ("type  = %s\n", (diff->type == File) ? "file" : "dir");
+			g_print ("%s,%s\n", diff->left, diff->right);
+			g_print ("type  = %s\n", (diff->type == File) ? "file" : "dir");
 
 			mdi_add_diff (global_mdi, diff);
 			gnome_dialog_close (dialog);				// OK
@@ -248,11 +262,14 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 	lentry = gtk_entry_new();
 	rentry = gtk_entry_new();
 
+	global_left_entry = GTK_ENTRY (lentry);
+	global_right_entry = GTK_ENTRY (rentry);
+	
 	linfo->entry = GTK_ENTRY (lentry);
 	rinfo->entry = GTK_ENTRY (rentry);
 
-	gtk_signal_connect (GTK_OBJECT (lentry), "changed", entry_changed, GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (rentry), "changed", entry_changed, GUINT_TO_POINTER (0x1234));
+	gtk_signal_connect (GTK_OBJECT (lentry), "changed", entry_changed, GUINT_TO_POINTER (TRUE));
+	gtk_signal_connect (GTK_OBJECT (rentry), "changed", entry_changed, GUINT_TO_POINTER (FALSE));
 
 	lbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
 	rbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
