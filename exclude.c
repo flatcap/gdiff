@@ -26,14 +26,27 @@ destroy (GtkWidget *widget, gpointer *data)
 void
 add_text (GtkWidget *widget, gpointer *data)
 {
+	//GtkCListRow *clist_row = NULL;
+	//GtkCell *cell = NULL;
+	int row;
 	char *cols[2] = { "", "" };
 	GString *str = g_string_new (gtk_entry_get_text (GTK_ENTRY (text)));
 
 	gtk_entry_set_text (GTK_ENTRY (text), "");
-	cols[0] = str->str;
-	cols[1] = str->str;
+	cols[0] = g_strdup ("enabled");
+	cols[1] = g_strdup (str->str);
 
-	gtk_clist_append (GTK_CLIST (clist), cols);
+	row = gtk_clist_append (GTK_CLIST (clist), cols);
+
+	//clist_row = (g_list_nth (GTK_CLIST (clist)->row_list, row))->data;
+	//cell = clist_row->cell;
+	//cell->type = GTK_CELL_WIDGET;
+	//g_free (cell->u.text);
+	//cell->u.widget = gtk_button_new_with_label ("hello");
+
+	//gtk_widget_set_parent_window (cell->u.widget, GTK_CLIST (clist)->clist_window);
+	//gtk_widget_set_parent (cell->u.widget, clist);
+	//gtk_widget_show (cell->u.widget);
 }
 
 void
@@ -59,12 +72,13 @@ unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event)
 int
 main (int argc, char *argv[])
 {
+	static char *cols[] = { "col1", "col2" };
 	gnome_init (X_APPNAME, X_VERSION, argc, argv);
 
 	app	= gnome_app_new (X_APPNAME, X_WINNAME);
 	table	= gtk_table_new (3, 1, FALSE);
 	scroll	= gtk_scrolled_window_new (NULL, NULL);
-	clist	= gtk_clist_new (2);
+	clist	= gtk_clist_new_with_titles (2, cols);
 	text	= gtk_entry_new();
 	bbox	= gtk_hbutton_box_new();
 	add   	= gtk_button_new_with_label ("Add");
@@ -106,8 +120,9 @@ main (int argc, char *argv[])
 	
 	gtk_window_set_default_size (GTK_WINDOW (app), 0, 300);
 
-	gtk_widget_set_sensitive (bremove, FALSE);
-	gtk_widget_grab_focus	 (text);
+	gtk_clist_set_selection_mode (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
+	gtk_widget_set_sensitive     (bremove, FALSE);
+	gtk_widget_grab_focus	     (text);
 
 	gtk_widget_show_all (app);
 	gtk_main();
