@@ -1,4 +1,4 @@
-/* $Revision$ */
+/* $Revision: 1.12 $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,17 +8,22 @@
 #include "node.h"
 #include "global.h"
 
-// Local methods
-Status tree_dialog_parse_diff_line (GtkDiffTree *tree, char *buffer, GString *path);
+/*----------------------------------------------------------------------------*/
+FILE * tree_dialog_start_diff (GtkDiffTree *tree, char *options);
+char * get_status_text (Status actual, Status view, gboolean node);
+GtkStyle * get_status_style (Status status, gboolean node);
+void set_row_data (GList *list, TreeNode *data);
+void tree_dialog_traverse (GtkDiffTree *tree, GtkCTreeNode *parent, GNode *node, Status status);
+gboolean tree_dialog_redraw (GtkDiffTree *tree, Status status, gboolean add);
+gboolean tree_dialog_draw (GtkDiffTree *tree, Status status);
+void tree_dialog_free (GtkDiffTree *tree);
+/*----------------------------------------------------------------------------*/
 
 FILE *
 tree_dialog_start_diff (GtkDiffTree *tree, char *options)
 {
 	return stdin;
 }
-
-//temp
-void tree_print (GNode *node, int depth);
 
 char *
 get_status_text (Status actual, Status view, gboolean node)

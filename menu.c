@@ -1,4 +1,4 @@
-/* $Revision: 1.21 $ */
+/* $Revision: 1.22 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -8,6 +8,18 @@
 #include "tree.h"
 #include "compare.h"
 #include "mdi.h"
+
+/*----------------------------------------------------------------------------*/
+void menu_set_view_defaults (GtkMenuShell *shell);
+void menu_create (GnomeMDI *mdi, GnomeApp *app);
+void file_open_cb (GtkWidget * widget, gpointer data);
+void file_close_cb (GtkWidget * widget, gpointer data);
+void view_cb (GtkWidget * widget, gpointer data);
+void about_cb (GtkWidget * widget, gpointer data);
+GtkWidget * get_current_view (GnomeMDI *mdi);
+DiffOptions * get_current_selection (GnomeMDI *mdi);
+void show_cb (GtkWidget * widget, gpointer data);
+/*----------------------------------------------------------------------------*/
 
 void file_open_cb	(GtkWidget * widget, gpointer data);
 void file_close_cb	(GtkWidget * widget, gpointer data);
@@ -60,7 +72,8 @@ static GnomeUIInfo main_menu[] =
 	GNOMEUIINFO_END
 };
 
-void menu_set_view_defaults (GtkMenuShell *shell)
+void
+menu_set_view_defaults (GtkMenuShell *shell)
 {
 	GList            *list  = NULL;
 	GtkLabel         *label = NULL;
@@ -104,7 +117,8 @@ void menu_set_view_defaults (GtkMenuShell *shell)
 	}
 }
 
-void menu_create (GnomeMDI *mdi, GnomeApp *app)
+void
+menu_create (GnomeMDI *mdi, GnomeApp *app)
 {
 	GtkWidget *status = NULL;
 
@@ -134,22 +148,26 @@ void menu_create (GnomeMDI *mdi, GnomeApp *app)
 */
 }
 
-void file_open_cb (GtkWidget * widget, gpointer data)
+void
+file_open_cb (GtkWidget * widget, gpointer data)
 {
 	//main_diff();
 }
 
-void file_close_cb (GtkWidget * widget, gpointer data)
+void
+file_close_cb (GtkWidget * widget, gpointer data)
 {
 	g_print ("file_close_cb\n");
 }
 
-void view_cb (GtkWidget * widget, gpointer data)
+void
+view_cb (GtkWidget * widget, gpointer data)
 {
 	g_print ("view_cb\n");
 }
 
-void about_cb (GtkWidget * widget, gpointer data)
+void
+about_cb (GtkWidget * widget, gpointer data)
 {
 	GtkWidget      *about;
 	const char     *authors[] =
@@ -219,7 +237,8 @@ get_current_selection (GnomeMDI *mdi)
 	return options;
 }
 
-void show_cb (GtkWidget * widget, gpointer data)
+void
+show_cb (GtkWidget * widget, gpointer data)
 {
 	GnomeMDI    *mdi  = NULL;
 	DiffOptions *diff = NULL;

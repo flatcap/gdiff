@@ -1,21 +1,23 @@
-/* $Revision$ */
+/* $Revision: 1.12 $ */
 
 #include <stdio.h>
 #include <gnome.h>
-#include "spawn.h"
-
 #include <sys/wait.h>
+#include "spawn.h"
 
 #define APP "spawn"
 #define VER "0.0.1"
 #define TTL "Spawn"
 
+/*----------------------------------------------------------------------------*/
+FILE * spawn_diff (char *args, char *left, char *right);
+FILE * run_diff (gchar *prog);
+/*----------------------------------------------------------------------------*/
+
 FILE * spawn_diff (char *args, char *left, char *right)
 {
 	return stdin;
 }
-
-FILE * run_diff (char *prog);
 
 FILE *
 run_diff (gchar *prog)

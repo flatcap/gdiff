@@ -1,4 +1,4 @@
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -10,11 +10,41 @@
 #include "tree.h"
 #include "menu.h"
 
+#define MATCHES 8
+
+static gint (* old_button_handler)  (GtkWidget *widget, GdkEventButton *event) = NULL;
+static gint (* old_key_handler)     (GtkWidget *widget, GdkEventKey    *event) = NULL;
+static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
+static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
+static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    = NULL;
+
+//XXX double click prototype needs to be:
+//XXX int handler (GtkWidget *tree, TreeNode *node);
+
+/*----------------------------------------------------------------------------*/
 static void gtk_diff_tree_init		 (GtkDiffTree * diff_tree);
 static void gtk_diff_tree_class_init	 (GtkDiffTreeClass * klass);
 static void gtk_diff_tree_finalize	 (GtkObject * object);
 
-#define MATCHES 8
+guint gtk_diff_tree_get_type (void);
+GtkWidget * gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff);
+gint tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2);
+GtkWidget * gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
+void gtk_diff_tree_set_view (GtkDiffTree *tree, Status status);
+Status gtk_diff_tree_parse_line (GtkDiffTree *tree, char *buffer, GString *path);
+void gtk_diff_tree_display (GtkDiffTree *tree);
+char * dup_and_add_slash (char *path);
+GtkStatusbar * get_view_statusbar(GtkDiffTree *tree);
+void gtk_diff_tree_compare(GtkDiffTree *tree, char *left, char *right);
+static void gtk_diff_tree_init (GtkDiffTree * tree);
+void gtk_diff_tree_show (GtkWidget *widget);
+void gtk_diff_tree_draw (GtkWidget *widget, GdkRectangle *area);
+void gtk_diff_tree_realize (GtkWidget *widget);
+gint gtk_diff_tree_key_press_event (GtkWidget *widget, GdkEventKey *event);
+gint gtk_diff_tree_button_press_event (GtkWidget *widget, GdkEventButton *event);
+static void gtk_diff_tree_class_init (GtkDiffTreeClass * klass);
+static void gtk_diff_tree_finalize (GtkObject *object);
+/*----------------------------------------------------------------------------*/
 
 //______________________________________________________________________________
 //
@@ -52,6 +82,29 @@ gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff)
 {
 	//g_print ("gtk_diff_tree_new\n");
 	return gtk_diff_tree_new_with_titles (columns, tree_column, NULL, diff);
+}
+
+gint 
+tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
+{
+	const GtkCTreeRow *row1 = ptr1;
+	const GtkCTreeRow *row2 = ptr2;
+
+	int leaf1 = (row1->is_leaf);
+	int leaf2 = (row2->is_leaf);
+
+	char *text1 = GTK_CELL_PIXTEXT (row1->row.cell[clist->sort_column])->text;
+	char *text2 = GTK_CELL_PIXTEXT (row2->row.cell[clist->sort_column])->text;
+
+	//XXX check options clist is our tree obj, we can get the options from there
+	if (leaf1 != leaf2)							// One leaf and one node
+	{
+		return ((leaf1) ? 1 : -1);
+	}
+	else
+	{
+		return strcmp (text1, text2);
+	}
 }
 
 GtkWidget *
@@ -113,6 +166,13 @@ gtk_diff_tree_new_with_titles (gint columns, gint tree_column, gchar *titles[], 
 	//g_print ("chunk5 = %p\n", g_chunk_new (GtkCTreeRow, list->row_mem_chunk));
 	//g_print ("chunk6 = %p\n", g_chunk_new (GtkCListRow, list->row_mem_chunk));
 	//g_print ("chunk7 = %p\n", g_chunk_new (GtkCListRow, list->row_mem_chunk));
+
+	gtk_clist_set_selection_mode     (list, GTK_SELECTION_BROWSE);
+	gtk_clist_set_auto_sort          (list, TRUE);
+	gtk_clist_set_compare_func       (list, tree_compare);
+	gtk_clist_set_column_auto_resize (list, 0, TRUE);
+	gtk_clist_column_titles_passive  (list);
+
 	return widget;
 }
 
@@ -362,18 +422,6 @@ gtk_diff_tree_init (GtkDiffTree * tree)
 
 	//g_print ("gtk_diff_tree_init\n");
 }
-
-static gint (* old_button_handler)  (GtkWidget *widget, GdkEventButton *event) = NULL;
-static gint (* old_key_handler)     (GtkWidget *widget, GdkEventKey    *event) = NULL;
-static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
-static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
-static void (* old_draw_handler)    (GtkWidget *widget, GdkRectangle *area)    = NULL;
-
-
-#if 0
-double click prototype needs to be:
-int handler (GtkWidget *tree, TreeNode *node);
-#endif
 
 void
 gtk_diff_tree_show (GtkWidget *widget)

@@ -1,9 +1,13 @@
-/* $Revision: 1.14 $ */
+/* $Revision: 1.15 $ */
 
 #include <gnome.h>
 #include <popt.h>
 #include "options.h"
 #include "diff.h"
+
+/*----------------------------------------------------------------------------*/
+DiffOptions * gnome_init_and_parse_args (const char *app_id, const char *app_version, int argc, char *argv[]);
+/*----------------------------------------------------------------------------*/
 
 /* return a pointer to an options object */
 DiffOptions *

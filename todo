@@ -201,3 +201,4 @@ add ident / rcs header
 
 button for next/prev diff
 
+gnomify all the types int -> gint etc

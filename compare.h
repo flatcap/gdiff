@@ -1,4 +1,4 @@
-/* $Revision: 1.6 $ */
+/* $Revision: 1.7 $ */
 
 #ifndef _COMPARE_H_
 #define _COMPARE_H_
@@ -13,8 +13,6 @@
 
 typedef struct	_GtkCompare		GtkCompare;
 typedef struct	_GtkCompareClass	GtkCompareClass;
-
-typedef struct _Compare Compare;
 
 guint		gtk_compare_get_type	(void);
 GtkWidget *	gtk_compare_new		(DiffOptions *diff);
@@ -40,15 +38,6 @@ struct _GtkCompareClass
 
 	// Signal handlers
 };
-
-struct _Compare
-{
-	char *left;
-	char *right;
-
-	gpointer data;	// don't know what format, yet...
-};
-
 
 #endif // _COMPARE_H_
 

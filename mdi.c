@@ -1,4 +1,4 @@
-/* $Revision: 1.20 $ */
+/* $Revision: 1.21 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -7,28 +7,17 @@
 #include "compare.h"
 #include "global.h"
 
-gint 
-tree_compare (GtkCList * clist, gconstpointer ptr1, gconstpointer ptr2)
-{
-	const GtkCTreeRow *row1 = ptr1;
-	const GtkCTreeRow *row2 = ptr2;
-
-	int leaf1 = (row1->is_leaf);
-	int leaf2 = (row2->is_leaf);
-
-	char *text1 = GTK_CELL_PIXTEXT (row1->row.cell[clist->sort_column])->text;
-	char *text2 = GTK_CELL_PIXTEXT (row2->row.cell[clist->sort_column])->text;
-
-	//XXX check options clist is our tree obj, we can get the options from there
-	if (leaf1 != leaf2)							// One leaf and one node
-	{
-		return ((leaf1) ? 1 : -1);
-	}
-	else
-	{
-		return strcmp (text1, text2);
-	}
-}
+/*----------------------------------------------------------------------------*/
+GtkWidget * gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data);
+GtkWidget * gd_mdi_create_view (GnomeMDIChild * child, gpointer data);
+GtkWidget * gd_mdi_set_label (GnomeMDIChild * child, GtkWidget * old_label, gpointer data);
+GList   * gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data);
+void app_created (GnomeMDI * mdi, GnomeApp * app);
+void destroy (GnomeMDI *mdi);
+gint remove_child (GnomeMDI *mdi, GnomeMDIChild *child);
+GnomeMDI * mdi_new (gchar *appname, gchar *title);
+void mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
+/*----------------------------------------------------------------------------*/
 
 GtkWidget *
 gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data)
@@ -61,13 +50,6 @@ gd_mdi_create_view (GnomeMDIChild * child, gpointer data)
 
 	diff = data;
 	tree = gtk_diff_tree_new (2, 0, diff);
-
-	/*XXX move this into the derived code*/
-	gtk_clist_set_selection_mode     (GTK_CLIST (tree), GTK_SELECTION_BROWSE);
-	gtk_clist_set_auto_sort          (GTK_CLIST (tree), TRUE);
-	gtk_clist_set_compare_func       (GTK_CLIST (tree), tree_compare);
-	gtk_clist_set_column_auto_resize (GTK_CLIST (tree), 0, TRUE);
-	gtk_clist_column_titles_passive  (GTK_CLIST (tree));
 
 	gtk_container_add (GTK_CONTAINER (scroll), tree);
 

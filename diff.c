@@ -1,7 +1,12 @@
-/* $Revision$ */
+/* $Revision: 1.4 $ */
 
 #include <gnome.h>
 #include "diff.h"
+
+/*----------------------------------------------------------------------------*/
+DiffOptions * diffoptions_new (void);
+void diffoptions_free (DiffOptions *diff);
+/*----------------------------------------------------------------------------*/
 
 DiffOptions *
 diffoptions_new (void)
@@ -19,7 +24,8 @@ diffoptions_new (void)
 	return diff;
 }
 
-void diffoptions_free (DiffOptions *diff)
+void
+diffoptions_free (DiffOptions *diff)
 {
 	if (diff)
 	{

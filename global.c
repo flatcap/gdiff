@@ -1,10 +1,15 @@
-/* $Revision$ */
+/* $Revision: 1.4 $ */
 
 #include <stdlib.h>
 #include "global.h"
 #include "icons/open.xpm"
 #include "icons/closed.xpm"
 #include "icons/leaf.xpm"
+
+/*----------------------------------------------------------------------------*/
+gboolean global_init (GnomeMDI *mdi);
+void global_close (void);
+/*----------------------------------------------------------------------------*/
 
 //______________________________________________________________________________
 //

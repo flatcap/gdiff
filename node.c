@@ -1,11 +1,20 @@
-/* $Revision$ */
+/* $Revision: 1.7 $ */
 
 #include <stddef.h>
 #include <string.h>
 #include <gtk/gtk.h>
 #include "node.h"
 
-TreeNode * tree_node_new (char *name, char *path, Status status)
+/*----------------------------------------------------------------------------*/
+TreeNode * tree_node_new (char *name, char *path, Status status);
+void tree_node_free (TreeNode *node);
+void tree_print (GNode *node, int depth);
+GNode * tree_node_find (GNode *node, char *name);
+void tree_node_add (GNode *parent, char *path, Status status, char *orig_path);
+/*----------------------------------------------------------------------------*/
+
+TreeNode *
+tree_node_new (char *name, char *path, Status status)
 {
 	TreeNode *node = (TreeNode*) g_malloc (sizeof (TreeNode));
 
@@ -19,7 +28,8 @@ TreeNode * tree_node_new (char *name, char *path, Status status)
 	return node;
 }
 
-void tree_node_free (TreeNode *node)
+void
+tree_node_free (TreeNode *node)
 {
 	if (node)
 	{
@@ -29,7 +39,8 @@ void tree_node_free (TreeNode *node)
 	}
 }
 
-void tree_print (GNode *node, int depth)
+void
+tree_print (GNode *node, int depth)
 {
 	static char *space = "                                                ";
 	TreeNode    *data  = NULL;
@@ -51,7 +62,8 @@ void tree_print (GNode *node, int depth)
 	}
 }
 
-GNode * tree_node_find (GNode *node, char *name)
+GNode *
+tree_node_find (GNode *node, char *name)
 {
 	TreeNode *tree  = NULL;
 	GNode    *match = NULL;
@@ -79,7 +91,8 @@ GNode * tree_node_find (GNode *node, char *name)
 	return match;
 }
 
-void tree_node_add (GNode *parent, char *path, Status status, char *orig_path)
+void
+tree_node_add (GNode *parent, char *path, Status status, char *orig_path)
 {
 	GNode    *node  = NULL;
 	GString  *root  = NULL;

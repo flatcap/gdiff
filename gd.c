@@ -1,4 +1,4 @@
-/* $Revision: 1.10 $ */
+/* $Revision: 1.11 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -6,6 +6,10 @@
 #include "args.h"
 #include "mdi.h"
 #include "global.h"
+
+/*----------------------------------------------------------------------------*/
+int main (int argc, char *argv[], char *envv[]);
+/*----------------------------------------------------------------------------*/
 
 int 
 main (int argc, char *argv[], char *envv[])

@@ -1,4 +1,4 @@
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #include <gnome.h>
 #include "compare.h"
@@ -7,6 +7,27 @@
 #define COMPARE_LEFT	"left:\t"
 #define COMPARE_RIGHT	"rght:\t"
 #define COMPARE_SAME	"same:\t"
+
+/*
+diff	--old-line-format='left: %L'		\
+	--unchanged-line-format='same: %L'	\
+	--new-line-format='rght: %L'		\
+	file1.c file2.c
+*/
+
+/*----------------------------------------------------------------------------*/
+static void gtk_compare_init		 (GtkCompare * compare);
+static void gtk_compare_class_init	 (GtkCompareClass * klass);
+void gtk_compare_show (GtkWidget *widget);
+void gtk_compare_realize (GtkWidget *widget);
+void gtk_compare_draw (GtkWidget *widget, GdkRectangle *area);
+guint gtk_compare_get_type (void);
+void gtk_compare_init (GtkCompare * compare);
+void gtk_compare_class_init (GtkCompareClass * klass);
+GtkWidget * gtk_compare_new (DiffOptions *diff);
+void gtk_compare (GtkCompare *compare);
+//XXX finalize?
+/*----------------------------------------------------------------------------*/
 
 static void (* old_show_handler)    (GtkWidget *widget)                        = NULL;
 static void (* old_realize_handler) (GtkWidget *widget)                        = NULL;
@@ -42,16 +63,6 @@ gtk_compare_draw (GtkWidget *widget, GdkRectangle *area)
 	}
 }
 
-
-/*
-diff	--old-line-format='left: %L'		\
-	--unchanged-line-format='same: %L'	\
-	--new-line-format='rght: %L'		\
-	read1.c read2.c
-*/
-
-static void gtk_compare_init		 (GtkCompare * compare);
-static void gtk_compare_class_init	 (GtkCompareClass * klass);
 
 guint
 gtk_compare_get_type (void)
@@ -157,18 +168,15 @@ gtk_compare (GtkCompare *compare)
 {
 	char buffer [1024];
 	char number [10];
-	//char *cols[] = { "line no.", "left", "right" };
 	char *text[3] = { number, NULL, NULL };
 	int line = 1;
 	FILE *f = NULL;
 	GtkCList *clist = NULL;
-	//GtkWidget *scroll = NULL;
 	GtkStyle *style_left = NULL;
 	GtkStyle *style_right = NULL;
 	GtkStyle *style_same = NULL;
 	GtkStyle *style_none = NULL;
 	GtkStyle *style_disc = NULL;
-	//GtkStyle *style_col1 = NULL;
 	GtkStyle *style_col2 = NULL;
 	GtkStyle *style_col3 = NULL;
 	int row;
@@ -184,16 +192,11 @@ gtk_compare (GtkCompare *compare)
 	int right_count = 0;
 	char *cmdline = NULL;
 
-	//clist = gtk_clist_new_with_titles (3, cols);
 	clist = GTK_CLIST (compare);
 
 	//XXX this should be in the initialise (once off)
 	gtk_clist_set_selection_mode    (clist, GTK_SELECTION_BROWSE);
 	gtk_clist_column_titles_passive (clist);
-
-	//scroll = gtk_scrolled_window_new (NULL, NULL);
-	//gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	//gtk_container_add (GTK_CONTAINER(scroll), clist);
 
 	//gtk_widget_show_all (scroll);
 	while (gtk_events_pending ())

@@ -1,7 +1,13 @@
-/* $Revision$ */
+/* $Revision: 1.6 $ */
 
 #include <gnome.h>
 #include "progress.h"
+
+/*----------------------------------------------------------------------------*/
+Progress * progress_new (GtkStatusbar *status);
+void progress_free (Progress *progress);
+void progress_set_text (Progress *progress, char *text);
+/*----------------------------------------------------------------------------*/
 
 Progress *
 progress_new (GtkStatusbar *status)
