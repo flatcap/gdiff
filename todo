@@ -259,3 +259,4 @@ make key bindings configurable?
 use GNOME regex!
 how about gnome_exec too
 
+rename every prefs to props
