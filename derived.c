@@ -1,4 +1,4 @@
-/* $Revision: 1.18 $ */
+/* $Revision: 1.19 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -285,6 +285,7 @@ dup_and_add_slash (char *path)
 static GtkStatusbar *
 get_view_statusbar(GtkDiffTree *tree)
 {
+	//XXX maybe just iterate through all the mdi->windows!
 	//what if they change mode whilst we're working?
 	GnomeMDIMode mode = GNOME_MDI_NOTEBOOK;		// derive from the tree's mdi child parent
 

@@ -230,4 +230,8 @@ If I cannot parse the diff output, write an explanation and quote it verbatim:
 "Cannot understand diff's output -- printing it verbatim" -- in Red
 ...
 
+how do I launch help?
 
+xref all methods -- make sure all local methods are static
+make sure all non-static methods are called from more than one place
+if a fn is only called from one place is it better to leave it in context? prob yes

@@ -1,4 +1,4 @@
-/* $Revision: 1.9 $ */
+/* $Revision: 1.10 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
@@ -50,6 +50,7 @@ struct _GtkDiffTree
 
 	gint flag1;
 	//XXX collection of compares
+	//XXX selection?
 };
 
 struct _GtkDiffTreeClass
