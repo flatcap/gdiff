@@ -11,6 +11,7 @@ all:	gd tags libtags
 
 gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o compare.o
 	$(CC) $(LIBS) $^ -o $@
+	$@ &
 
 libtags:
 	ctags -f libtags -i+p						\

@@ -1,4 +1,4 @@
-/* $Revision: 1.24 $ */
+/* $Revision: 1.25 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -9,23 +9,140 @@
 #include "compare.h"
 #include "mdi.h"
 
+static void about_cb		(GtkWidget *widget, gpointer data) { g_print ("about_cb\n"); }
+static void close_view_cb	(GtkWidget *widget, gpointer data) { g_print ("close_view_cb\n"); }
+static void compare_cb		(GtkWidget *widget, gpointer data) { g_print ("compare_cb\n"); }
+static void contents_cb		(GtkWidget *widget, gpointer data) { g_print ("contents_cb\n"); }
+static void exit_gdiff_cb	(GtkWidget *widget, gpointer data) { g_print ("exit_gdiff_cb\n"); }
+static void new_diff_cb		(GtkWidget *widget, gpointer data) { g_print ("new_diff_cb\n"); }
+static void next_diff_cb	(GtkWidget *widget, gpointer data) { g_print ("next_diff_cb\n"); }
+static void preferences_cb	(GtkWidget *widget, gpointer data) { g_print ("preferences_cb\n"); }
+static void prev_diff_cb	(GtkWidget *widget, gpointer data) { g_print ("prev_diff_cb\n"); }
+static void rescan_cb		(GtkWidget *widget, gpointer data) { g_print ("rescan_cb\n"); }
+static void save_file_list_cb	(GtkWidget *widget, gpointer data) { g_print ("save_file_list_cb\n"); }
+static void status_bar_cb	(GtkWidget *widget, gpointer data) { g_print ("status_bar_cb\n"); }
+static void view_cb		(GtkWidget *widget, gpointer data) { g_print ("view_cb\n"); }
+
 // XXX method to automate menu creation, callbacks, signals and accelerators!
 
 /*----------------------------------------------------------------------------*/
-static DiffOptions * get_current_selection (GnomeMDI *mdi);
-static GtkWidget * get_current_view (GnomeMDI *mdi);
-static void menu_set_view_defaults (GtkMenuShell *shell);
-static void about_orig_cb		(GtkWidget * widget, gpointer data);
-static void file_close_cb	(GtkWidget * widget, gpointer data);
-static void file_open_cb	(GtkWidget * widget, gpointer data);
-static void show_cb		(GtkWidget * widget, gpointer data);
-static void view_orig_cb		(GtkWidget * widget, gpointer data);
+//static DiffOptions * get_current_selection (GnomeMDI *mdi);
+//static GtkWidget * get_current_view (GnomeMDI *mdi);
+//static void menu_set_view_defaults (GtkMenuShell *shell);
+//static void about_orig_cb		(GtkWidget * widget, gpointer data);
+//static void file_close_cb	(GtkWidget * widget, gpointer data);
+//static void file_open_cb	(GtkWidget * widget, gpointer data);
+//static void show_cb		(GtkWidget * widget, gpointer data);
+//static void view_orig_cb		(GtkWidget * widget, gpointer data);
 
 void menu_create (GnomeMDI *mdi, GnomeApp *app);
 /*----------------------------------------------------------------------------*/
 
 GtkStatusbar *global_statusbar = NULL;
 
+#define GNOMEUIINFO_MENU_DIFF_TREE(tree) { GNOME_APP_UI_SUBTREE_STOCK, N_("_Diff"), NULL, tree, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL }
+
+//#define GNOMEUIINFO_ITEM            (label, tooltip, callback, xpm_data)
+//#define GNOMEUIINFO_ITEM_STOCK      (label, tooltip, callback, stock_id)
+//#define GNOMEUIINFO_ITEM_NONE       (label, tooltip, callback)
+//#define GNOMEUIINFO_ITEM_DATA       (label, tooltip, callback, user_data, xpm_data)
+//#define GNOMEUIINFO_TOGGLEITEM      (label, tooltip, callback, xpm_data)
+//#define GNOMEUIINFO_TOGGLEITEM_DATA (label, tooltip, callback, user_data, xpm_data)
+//#define GNOMEUIINFO_SEPARATOR
+
+///XXX <libgnome/gnome-uidefs.h>
+
+// need pointers to settings menu s/l/r/d, status bar
+// change toggle to checkbox X Show status bar
+
+#if 0
+typedef struct {
+	GnomeUIInfoType type;
+	gchar *label;
+	gchar *hint;
+	gpointer moreinfo;
+	gpointer user_data;
+	gpointer unused_data;
+	GnomeUIPixmapType pixmap_type;
+	gpointer pixmap_info;
+	guint accelerator_key;
+	GdkModifierType ac_mods;
+	GtkWidget *widget;
+} GnomeUIInfo;
+#endif
+
+static GnomeUIInfo file_menu[] =
+{
+	GNOMEUIINFO_MENU_SAVE_AS_ITEM(save_file_list_cb, NULL),
+	GNOMEUIINFO_MENU_CLOSE_ITEM(close_view_cb, NULL),
+	GNOMEUIINFO_MENU_EXIT_ITEM(exit_gdiff_cb, NULL),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo diff_menu[] =
+{
+	{ GNOME_APP_UI_ITEM, "_New Difference", "", new_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_n, GDK_CONTROL_MASK, NULL },
+
+	GNOMEUIINFO_SEPARATOR,
+
+	{ GNOME_APP_UI_ITEM, "_Previous Difference", "", prev_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F9, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_ITEM, "_Next Difference",     "", next_diff_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F10, (GdkModifierType) 0, NULL },
+	
+	GNOMEUIINFO_SEPARATOR,
+
+	{ GNOME_APP_UI_ITEM, "_Compare", "", compare_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_c, GDK_CONTROL_MASK, NULL },
+	{ GNOME_APP_UI_ITEM, "_Rescan",  "", rescan_cb,  NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_r, GDK_CONTROL_MASK, NULL },
+
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo view_menu[] =
+{
+	{ GNOME_APP_UI_TOGGLEITEM, "_Same", "Same tooltip", view_cb, GUINT_TO_POINTER (eFileSame), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F5, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_TOGGLEITEM, "_Left", "Left tooltip", view_cb, GUINT_TO_POINTER (eFileLeft), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F6, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_TOGGLEITEM, "_Right", "Right tooltip", view_cb, GUINT_TO_POINTER (eFileRight), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F7, (GdkModifierType) 0, NULL },
+	{ GNOME_APP_UI_TOGGLEITEM, "_Different", "Different tooltip", view_cb, GUINT_TO_POINTER (eFileDiff), NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F8, (GdkModifierType) 0, NULL },
+
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo settings[] =
+{
+	GNOMEUIINFO_TOGGLEITEM_DATA ("Show Status _Bar", NULL, status_bar_cb, NULL, NULL),
+	//togg = gtk_menu_item_new_with_label ("Toggle Status _Bar");		// ctrl-b
+	//GNOMEUIINFO_ITEM_NONE ("_Preferences", NULL, NULL),
+	//pref = gtk_menu_item_new_with_label ("_Preferences");			// ctrl-p
+	GNOMEUIINFO_MENU_PREFERENCES_ITEM (preferences_cb, NULL),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo windows_menu[] =
+{
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo help_menu[] =
+{
+	GNOMEUIINFO_ITEM_NONE ("_Contents", NULL, contents_cb),
+	//cont  = gtk_menu_item_new_with_label ("_Contents");			// F1
+	//GNOMEUIINFO_ITEM_NONE ("_About", NULL, NULL),
+	GNOMEUIINFO_MENU_ABOUT_ITEM(about_cb, NULL),
+	//about = gtk_menu_item_new_with_label ("_About");			// F2
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo main_menu[] =
+{
+	GNOMEUIINFO_MENU_FILE_TREE     (file_menu),
+	GNOMEUIINFO_MENU_DIFF_TREE     (diff_menu),
+	GNOMEUIINFO_MENU_VIEW_TREE     (view_menu),
+	GNOMEUIINFO_MENU_SETTINGS_TREE (settings),
+	GNOMEUIINFO_MENU_WINDOWS_TREE  (windows_menu),
+	GNOMEUIINFO_MENU_HELP_TREE     (help_menu),
+	GNOMEUIINFO_END
+};
+
+/*
 static GnomeUIInfo file_menu[] =
 {
 	GNOMEUIINFO_MENU_OPEN_ITEM  (file_open_cb,  NULL),
@@ -68,7 +185,15 @@ static GnomeUIInfo main_menu[] =
 	GNOMEUIINFO_MENU_HELP_TREE (help_menu),
 	GNOMEUIINFO_END
 };
+*/
 
+/*
+static GnomeUIInfo dummy_menu[] =
+{
+	GNOMEUIINFO_END
+};
+*/
+/*
 static void
 menu_set_view_defaults (GtkMenuShell *shell)
 {
@@ -113,16 +238,47 @@ menu_set_view_defaults (GtkMenuShell *shell)
 		}
 	}
 }
+*/
+
+GtkWidget * create_file_menu();
+GtkWidget * create_diff_menu();
+GtkWidget * create_view_menu();
+GtkWidget * create_settings_menu();
+GtkWidget * create_window_menu();
+GtkWidget * create_help_menu();
 
 void
 menu_create (GnomeMDI *mdi, GnomeApp *app)
 {
 	GtkWidget *status = NULL;
+	//GtkMenuBar *menubar = NULL;
+
+	gnome_app_create_menus_with_data (app, main_menu, NULL);
+
+	status = gtk_statusbar_new();
+	//global_statusbar = GTK_STATUSBAR (status);
+
+	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
+	gnome_app_set_statusbar (GNOME_APP (app), status);
+	/*
+	menubar = GTK_MENU_BAR (app->menubar);
+
+	gtk_menu_bar_append (menubar, create_file_menu());
+	gtk_menu_bar_append (menubar, create_diff_menu());
+	gtk_menu_bar_append (menubar, create_view_menu());
+	gtk_menu_bar_append (menubar, create_settings_menu());
+	gtk_menu_bar_append (menubar, create_window_menu());
+	gtk_menu_bar_append (menubar, create_help_menu());
+
+	gtk_widget_show_all (app->menubar);
+	*/
+	/*
+	GtkWidget *status = NULL;
 
 	g_return_if_fail (app != NULL);
 
 	gnome_app_create_menus_with_data (app, main_menu, mdi);
-	
+
 	g_return_if_fail (app->menubar != NULL);
 
 	menu_set_view_defaults (GTK_MENU_SHELL (app->menubar));
@@ -132,6 +288,7 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), status);
+	*/
 
 /*
 	if these menus are created with data,
@@ -145,6 +302,7 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 */
 }
 
+/*
 static void
 file_open_cb (GtkWidget * widget, gpointer data)
 {
@@ -166,9 +324,10 @@ view_orig_cb (GtkWidget * widget, gpointer data)
 static void
 about_orig_cb (GtkWidget * widget, gpointer data)
 {
+	// should only allow one of these, gdk_widget_raise it if called again
+	// mustn't be modal
 	GtkWidget      *about;
-	const char     *authors[] =
-	{"jim <jim@@ait.co.uk>", "bob <bob@@nrma.com.au>", "dave <dave@@vmware.com>", NULL};
+	const char     *authors[] = {"Richard Russon <Richard.Russon@ait.co.uk>", NULL};
 	const char     *copyright = "Copyright 1999";
 	const char     *extra = "Extra information";
 
@@ -180,7 +339,9 @@ about_orig_cb (GtkWidget * widget, gpointer data)
 
 	return;
 }
+*/
 
+/*
 static GtkWidget *
 get_current_view (GnomeMDI *mdi)
 {
@@ -209,7 +370,7 @@ get_current_selection (GnomeMDI *mdi)
 	DiffOptions	*options	= NULL;
 
 	view = get_current_view (mdi);
-	
+
 	g_return_val_if_fail (view != NULL, NULL);
 	tree  = GTK_DIFF_TREE (view);
 	clist = GTK_CLIST     (tree);
@@ -233,7 +394,8 @@ get_current_selection (GnomeMDI *mdi)
 
 	return options;
 }
-
+*/
+/*
 static void
 show_cb (GtkWidget * widget, gpointer data)
 {
@@ -248,23 +410,10 @@ show_cb (GtkWidget * widget, gpointer data)
 	g_return_if_fail (diff != NULL);
 	mdi_add_diff (mdi, diff);
 }
+*/
 
 //______________________________________________________________________________
 //
-
-static void about_cb		(GtkWidget *widget, gpointer data) {}
-static void close_view_cb	(GtkWidget *widget, gpointer data) {}
-static void compare_cb		(GtkWidget *widget, gpointer data) {}
-static void contents_cb		(GtkWidget *widget, gpointer data) {}
-static void exit_gdiff_cb	(GtkWidget *widget, gpointer data) {}
-static void new_diff_cb		(GtkWidget *widget, gpointer data) {}
-static void next_diff_cb	(GtkWidget *widget, gpointer data) {}
-static void preferences_cb	(GtkWidget *widget, gpointer data) {}
-static void prev_diff_cb	(GtkWidget *widget, gpointer data) {}
-static void rescan_cb		(GtkWidget *widget, gpointer data) {}
-static void save_file_list_cb	(GtkWidget *widget, gpointer data) {}
-static void status_bar_cb	(GtkWidget *widget, gpointer data) {}
-static void view_cb		(GtkWidget *widget, gpointer data) {}
 
 GtkWidget *
 create_file_menu (void)
@@ -314,7 +463,7 @@ create_diff_menu (void)
 	diff = gtk_menu_item_new_with_label ("_Diff");
 
 	g_return_val_if_fail (newd && comp && scan && diff, NULL);
- 
+
 	gtk_signal_connect (GTK_OBJECT (newd), "activate", GTK_SIGNAL_FUNC (new_diff_cb), GUINT_TO_POINTER (0x1234));
 	gtk_signal_connect (GTK_OBJECT (comp), "activate", GTK_SIGNAL_FUNC (compare_cb),  GUINT_TO_POINTER (0x1234));
 	gtk_signal_connect (GTK_OBJECT (scan), "activate", GTK_SIGNAL_FUNC (rescan_cb),   GUINT_TO_POINTER (0x1234));
@@ -441,4 +590,20 @@ create_help_menu (void)
 
 	return help;
 }
+#if 0
 
+#define GNOME_MENU_FILE_STRING D_("_File")
+#define GNOME_MENU_FILE_PATH D_("_File/")
+#define GNOME_MENU_EDIT_STRING D_("_Edit")
+#define GNOME_MENU_EDIT_PATH D_("_Edit/")
+#define GNOME_MENU_VIEW_STRING D_("_View")
+#define GNOME_MENU_VIEW_PATH D_("_View/")
+#define GNOME_MENU_SETTINGS_STRING D_("_Settings")
+#define GNOME_MENU_SETTINGS_PATH D_("_Settings/")
+#define GNOME_MENU_NEW_STRING D_("_New")
+#define GNOME_MENU_NEW_PATH D_("_New/")
+#define GNOME_MENU_FILES_STRING D_("Fi_les")
+#define GNOME_MENU_FILES_PATH D_("Fi_les/")
+#define GNOME_MENU_WINDOWS_STRING D_("_Windows")
+#define GNOME_MENU_WINDOWS_PATH D_("_Windows/")
+#endif
