@@ -80,7 +80,6 @@ table_canvas (GtkWidget *app)
 	char *titles[] = { "title" };
 	GtkWidget        *canvas = NULL;
 	GtkWidget        *hbox   = NULL;
-	double d;
 	GnomeCanvasGroup *group = NULL;
 	GtkWidget *clist = NULL;
 	GtkWidget *scroll = NULL;
@@ -102,9 +101,7 @@ table_canvas (GtkWidget *app)
 
 	group = gnome_canvas_root (GNOME_CANVAS (canvas));
 
-	d= window_height;
-	//d/=50.0;
-	draw_rect (d, group);
+	draw_rect (window_height, group);
 
 	gtk_widget_set_usize (GTK_WIDGET (canvas), min_width, min_height);
 
@@ -115,7 +112,7 @@ table_canvas (GtkWidget *app)
 	clist = gtk_clist_new_with_titles (1, titles);
 	vbar = gtk_vscrollbar_new (NULL);
 
-	for (i = 0; i < 70; i++)
+	for (i = 0; i < 218; i++) // 962, 218
 	{
 		sprintf (buffer, "hello %d\n", i);
 		gtk_clist_append (GTK_CLIST (clist), text);
@@ -200,6 +197,18 @@ scale_and_translate_group (GnomeCanvasItem *item, double scale_factor, double tr
 }
 
 void
+draw_lines (GnomeCanvasGroup *root_group, double window_height, double lines, double low, double high)
+{
+	GnomeCanvasGroup *group = NULL;
+	gulong colour = 0x000000ff;
+
+	group = GNOME_CANVAS_GROUP (gnome_canvas_item_new (root_group, gnome_canvas_group_get_type(), NULL));
+
+	gnome_canvas_item_new (group, gnome_canvas_rect_get_type(),
+		"x1", 8.0, "y1", 50.0, "x2", 10.0, "y2", 100.0, "fill_color_rgba", colour, NULL);
+}
+
+void
 draw_rect (double window_height, GnomeCanvasGroup *root_group)
 {
 	double ly1 = 0.0;
@@ -262,6 +271,8 @@ draw_rect (double window_height, GnomeCanvasGroup *root_group)
 
 	scale_and_translate_group (GNOME_CANVAS_ITEM (lgroup), unit, x_indent, y_indent);
 	scale_and_translate_group (GNOME_CANVAS_ITEM (rgroup), unit, window_width - x_indent - bar_width, y_indent);
+
+	draw_lines (root_group, 400.0, 218.0, 58.0, 86.0);
 
 	gtk_layout_thaw (layout);
 }

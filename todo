@@ -223,6 +223,7 @@ force two args? or leave this a a limitation (handy to be able
 to do 'diff dir' and have it default the rest
 
 support file editing (and refresh)
+refresh -> update patch
 
 implement a gboolean reversed flag
 this would make all the dir/file logic much simpler.
@@ -305,3 +306,47 @@ until we support rcs properly?
 
 if lines only exist in one file, show a 'token' line on the other side as a marker
 
+config object (GtkObject) should be able to hook up serveral other people
+config 'emit's 'config_changed' (or 'changed');
+also need to listen for 'destroy' (call gtk_widget_destroyed?)
+
+don't use a scrolled window for the overview/clist, but a viewport
+forget it -- keep the scrollbar
+
+disable the options that aren't connected
+
+scale the overview
+extract left/right view and inform the overview to draw brackets
+make sure all keys/mouse ->overview and clist are always in sync
+
+remove unit and post scale (separate fn)
+
+move options object (get) to global (static)
+
+standardise args -> add/remove '/' -- call from categorise args
+
+allow click and drag on the overview
+hook up to scrolled window/clist
+
+create tree_save_file_list !<>' ', then full pathname
+
+parse diff into diff lines, tabs but no \n
+
+parse raw -u diff into above?  -- not yet
+
+display file errors -- where can it fail?
+
+add gzip/bzip2 options to create patch
+read existing diff options -- need save diff options section
+need to keep all output or rerun diff
+
+for create_patch ask "Use existing options <list>, or re-run diff"
+Buttons: Existing, Diff Options, OK, Cancel
+Existing -> immediate results
+OK -> slow but you can have a progress window
+
+* by an option ->only on next diff
++ by an option ->need to restart (get rid of these eventually)
+MORE LABELS
+
+resolve which need to be double and which guint in overview
