@@ -1,4 +1,4 @@
-/* $Revision: 1.19 $ */
+/* $Revision: 1.20 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -183,7 +183,7 @@ categorise_args (DiffOptions *diff)
 	{
 		swap_strings (&diff->left, &diff->right);	// This seems strange, but it simplifies
 		reversed = TRUE;				// the logic (below) immensely
-	}
+	}							// left == file, right == dir
 
 	path = g_strjoin (G_DIR_SEPARATOR_S, diff->right, g_basename (diff->left), NULL);
 

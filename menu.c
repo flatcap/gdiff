@@ -1,4 +1,4 @@
-/* $Revision: 1.26 $ */
+/* $Revision: 1.27 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -8,148 +8,45 @@
 #include "tree.h"
 #include "compare.h"
 #include "mdi.h"
+#include "file.h"
 
-static void about_cb		(GtkWidget *widget, gpointer data) { g_print ("about_cb\n"); }
-static void close_view_cb	(GtkWidget *widget, gpointer data) { g_print ("close_view_cb\n"); }
-static void compare_cb		(GtkWidget *widget, gpointer data) { g_print ("compare_cb\n"); }
-static void contents_cb		(GtkWidget *widget, gpointer data) { g_print ("contents_cb\n"); }
-static void exit_gdiff_cb	(GtkWidget *widget, gpointer data) { g_print ("exit_gdiff_cb\n"); }
-static void next_diff_cb	(GtkWidget *widget, gpointer data) { g_print ("next_diff_cb\n"); }
-static void preferences_cb	(GtkWidget *widget, gpointer data) { g_print ("preferences_cb\n"); }
-static void prev_diff_cb	(GtkWidget *widget, gpointer data) { g_print ("prev_diff_cb\n"); }
-static void rescan_cb		(GtkWidget *widget, gpointer data) { g_print ("rescan_cb\n"); }
-static void save_file_list_cb	(GtkWidget *widget, gpointer data) { g_print ("save_file_list_cb\n"); }
-static void status_bar_cb	(GtkWidget *widget, gpointer data) { g_print ("status_bar_cb\n"); }
-static void view_cb		(GtkWidget *widget, gpointer data) { g_print ("view_cb\n"); }
+#define GNOME_MENU_DIFF_STRING D_("_Diff")
+#define GNOMEUIINFO_MENU_DIFF_TREE(tree) { GNOME_APP_UI_SUBTREE_STOCK, GNOME_MENU_DIFF_STRING, NULL, tree, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL }
 
-typedef struct _Reply Reply;
-
-struct _Reply
-{
-	guint button;
-};
-
-static void
-cmw_destroy_cb (GtkWidget * widget)
-{
-	g_print ("destroyed\n");
-	//gtk_main_quit (); /* This is needed to get out of gtk_main */
-}
-
-void
-file_selection_ok (GtkWidget * w,
-		   GtkFileSelection * dialog)
-{
-	//g_print ("%s\n", gtk_file_selection_get_filename (dialog));
-	gtk_main_quit();
-}
-
-void
-file_selection_cancel (GtkWidget * w,
-		   GtkFileSelection * dialog)
-{
-	//gtk_file_selection_set_filename (dialog, "");
-	gtk_entry_set_text (GTK_ENTRY (dialog->selection_entry), "");
-	gtk_main_quit();
-}
-
-char *
-get_filename (GtkFileSelection *dialog)
-{
-	GtkEntry *entry = GTK_ENTRY (dialog->selection_entry);
-
-	if (strlen (gtk_entry_get_text (entry)) == 0)
-	{
-		return NULL;
-	}
-	else
-	{
-		return strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
-	}
-}
-
-static void new_diff_cb (GtkWidget *widget, gpointer data)
-{
-	GtkWidget *dialog = NULL;
-
-	g_print ("new_diff_cb\n");
-
-	dialog = gtk_file_selection_new ("This is a modal file selection dialog");
-	//!!! gtk_window_set_title (GTK_WINDOW (filesel), title);
-	//gtk_window_set_transient_for (GTK_WINDOW (fs), GTK_WINDOW (parent));  get via the mdi (data)
-	gtk_signal_connect (GTK_OBJECT (dialog), "destroy",
-			    GTK_SIGNAL_FUNC (cmw_destroy_cb), NULL);
-
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button),
-			    "clicked", GTK_SIGNAL_FUNC (file_selection_ok), dialog);
-	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button),
-			   "clicked", GTK_SIGNAL_FUNC (file_selection_cancel), dialog);//XXX
-	//gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button),
-	//		   "clicked", GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT (dialog));
-
-	gtk_widget_show_all (dialog);
-	gtk_main();
-	//window = gtk_font_selection_dialog_new ("Font Selection Dialog");
-	//window = gtk_color_selection_dialog_new ("color selection dialog");
-	g_print ("filename '%s'\n", get_filename (GTK_FILE_SELECTION (dialog)));
-	gtk_widget_destroy (GTK_WIDGET (dialog));
-
-  //XXX neat!
-  //gtk_signal_connect_object (GTK_OBJECT (filesel->selection_entry), "focus_in_event",
-			     //(GtkSignalFunc) gtk_widget_grab_default,
-			     //GTK_OBJECT (filesel->ok_button));
-  //gtk_signal_connect_object (GTK_OBJECT (filesel->selection_entry), "activate",
-                             //(GtkSignalFunc) gtk_button_clicked,
-                             //GTK_OBJECT (filesel->ok_button));
-}
-
-// XXX method to automate menu creation, callbacks, signals and accelerators!
+#if 0
+#define GNOME_MENU_FILE_STRING D_("_File")
+#define GNOME_MENU_FILE_PATH D_("_File/")
+#define GNOME_MENU_EDIT_STRING D_("_Edit")
+#define GNOME_MENU_EDIT_PATH D_("_Edit/")
+#define GNOME_MENU_VIEW_STRING D_("_View")
+#define GNOME_MENU_VIEW_PATH D_("_View/")
+#define GNOME_MENU_SETTINGS_STRING D_("_Settings")
+#define GNOME_MENU_SETTINGS_PATH D_("_Settings/")
+#define GNOME_MENU_NEW_STRING D_("_New")
+#define GNOME_MENU_NEW_PATH D_("_New/")
+#define GNOME_MENU_FILES_STRING D_("Fi_les")
+#define GNOME_MENU_FILES_PATH D_("Fi_les/")
+#define GNOME_MENU_WINDOWS_STRING D_("_Windows")
+#define GNOME_MENU_WINDOWS_PATH D_("_Windows/")
+#endif
 
 /*----------------------------------------------------------------------------*/
-//static DiffOptions * get_current_selection (GnomeMDI *mdi);
-//static GtkWidget * get_current_view (GnomeMDI *mdi);
-//static void menu_set_view_defaults (GtkMenuShell *shell);
-//static void about_orig_cb		(GtkWidget * widget, gpointer data);
-//static void file_close_cb	(GtkWidget * widget, gpointer data);
-//static void file_open_cb	(GtkWidget * widget, gpointer data);
-//static void show_cb		(GtkWidget * widget, gpointer data);
-//static void view_orig_cb		(GtkWidget * widget, gpointer data);
+static void about_cb		(GtkWidget *widget, gpointer data);
+static void close_view_cb	(GtkWidget *widget, gpointer data);
+static void compare_cb		(GtkWidget *widget, gpointer data);
+static void contents_cb		(GtkWidget *widget, gpointer data);
+static void exit_gdiff_cb	(GtkWidget *widget, gpointer data);
+static void new_diff_cb		(GtkWidget *widget, gpointer data);
+static void next_diff_cb	(GtkWidget *widget, gpointer data);
+static void preferences_cb	(GtkWidget *widget, gpointer data);
+static void prev_diff_cb	(GtkWidget *widget, gpointer data);
+static void rescan_cb		(GtkWidget *widget, gpointer data);
+static void save_file_list_cb	(GtkWidget *widget, gpointer data);
+static void status_bar_cb	(GtkWidget *widget, gpointer data);
+static void view_cb		(GtkWidget *widget, gpointer data);
 
 void menu_create (GnomeMDI *mdi, GnomeApp *app);
 /*----------------------------------------------------------------------------*/
-
-GtkStatusbar *global_statusbar = NULL;
-
-#define GNOMEUIINFO_MENU_DIFF_TREE(tree) { GNOME_APP_UI_SUBTREE_STOCK, N_("_Diff"), NULL, tree, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL }
-
-//#define GNOMEUIINFO_ITEM            (label, tooltip, callback, xpm_data)
-//#define GNOMEUIINFO_ITEM_STOCK      (label, tooltip, callback, stock_id)
-//#define GNOMEUIINFO_ITEM_NONE       (label, tooltip, callback)
-//#define GNOMEUIINFO_ITEM_DATA       (label, tooltip, callback, user_data, xpm_data)
-//#define GNOMEUIINFO_TOGGLEITEM      (label, tooltip, callback, xpm_data)
-//#define GNOMEUIINFO_TOGGLEITEM_DATA (label, tooltip, callback, user_data, xpm_data)
-//#define GNOMEUIINFO_SEPARATOR
-
-///XXX <libgnome/gnome-uidefs.h>
-
-// need pointers to settings menu s/l/r/d, status bar
-// change toggle to checkbox X Show status bar
-
-#if 0
-typedef struct {
-	GnomeUIInfoType type;
-	gchar *label;
-	gchar *hint;
-	gpointer moreinfo;
-	gpointer user_data;
-	gpointer unused_data;
-	GnomeUIPixmapType pixmap_type;
-	gpointer pixmap_info;
-	guint accelerator_key;
-	GdkModifierType ac_mods;
-	GtkWidget *widget;
-} GnomeUIInfo;
-#endif
 
 static GnomeUIInfo file_menu[] =
 {
@@ -222,57 +119,179 @@ static GnomeUIInfo main_menu[] =
 	GNOMEUIINFO_END
 };
 
-/*
-static GnomeUIInfo file_menu[] =
+static GtkWidget *
+get_current_view (GnomeMDI *mdi)
 {
-	GNOMEUIINFO_MENU_OPEN_ITEM  (file_open_cb,  NULL),
-	GNOMEUIINFO_MENU_CLOSE_ITEM (file_close_cb, NULL),
-	GNOMEUIINFO_END
-};
+	GtkWidget *widget = NULL;
+	GtkBin    *bin    = NULL;
 
-static GnomeUIInfo empty_menu[] =
-{
-	GNOMEUIINFO_END
-};
+	g_return_val_if_fail (mdi != NULL, NULL);
+	widget = gnome_mdi_get_active_view (mdi);
 
-static GnomeUIInfo view_menu[] =
-{
-	{ GNOME_APP_UI_TOGGLEITEM, N_("_Identical"), N_("Show files that are the same"),           view_orig_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F5, (GdkModifierType) 0, NULL },
-	{ GNOME_APP_UI_TOGGLEITEM, N_("_Left"),      N_("Show files that only appear in 'left'"),  view_orig_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F6, (GdkModifierType) 0, NULL },
-	{ GNOME_APP_UI_TOGGLEITEM, N_("_Right"),     N_("Show files that only appear in 'right'"), view_orig_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F7, (GdkModifierType) 0, NULL },
-	{ GNOME_APP_UI_TOGGLEITEM, N_("_Different"), N_("Show files that are different"),          view_orig_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F8, (GdkModifierType) 0, NULL },
-	GNOMEUIINFO_END
-};
+	g_return_val_if_fail (widget != NULL, NULL);
+	bin = GTK_BIN (widget);
 
-static GnomeUIInfo compare_menu[] =
-{
-	{ GNOME_APP_UI_TOGGLEITEM, N_("_Show diff"), N_("asfasdfShow files that are the same"),     show_cb, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, GDK_F5, (GdkModifierType) 0, NULL },
-	GNOMEUIINFO_END
-};
+	g_return_val_if_fail (bin != NULL, NULL);
+	return bin->child;
+}
 
-static GnomeUIInfo help_menu[] =
+static DiffOptions *
+get_current_selection (GnomeMDI *mdi)
 {
-	GNOMEUIINFO_MENU_ABOUT_ITEM (about_orig_cb, NULL),
-	GNOMEUIINFO_END
-};
+	GtkWidget	*view		= NULL;
+	GtkDiffTree	*tree		= NULL;
+	GtkCList	*clist		= NULL;
+	GList		*selection	= NULL;
+	GList		*list		= NULL;
+	DiffTreeRow	*treerow	= NULL;
+	DiffOptions	*options	= NULL;
 
-static GnomeUIInfo main_menu[] =
-{
-	GNOMEUIINFO_MENU_FILE_TREE (file_menu),
-	GNOMEUIINFO_MENU_VIEW_TREE (view_menu),
-	{ GNOME_APP_UI_SUBTREE, ("Children"), NULL, empty_menu,   NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_SUBTREE, ("Compare"),  NULL, compare_menu, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	GNOMEUIINFO_MENU_HELP_TREE (help_menu),
-	GNOMEUIINFO_END
-};
-*/
+	view = get_current_view (mdi);
 
-/*
-static GnomeUIInfo dummy_menu[] =
+	g_return_val_if_fail (view != NULL, NULL);
+	tree  = GTK_DIFF_TREE (view);
+	clist = GTK_CLIST     (tree);
+
+	g_return_val_if_fail (clist != NULL, NULL);
+	selection = clist->selection;
+
+	g_return_val_if_fail (selection != NULL, NULL);
+	list    = (selection->data);
+
+	g_return_val_if_fail (list != NULL, NULL);
+	treerow = (DiffTreeRow*) list->data;
+
+	g_return_val_if_fail (treerow != NULL, NULL);
+	options = diffoptions_new();
+
+	g_return_val_if_fail (options != NULL, NULL);
+	options->left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, treerow->path, NULL);
+	options->type  = File;
+
+	return options;
+}
+
+static void
+close_view_cb (GtkWidget *widget, gpointer data)
 {
-	GNOMEUIINFO_END
-};
-*/
+	//MDIChild or MDI and current view
+	g_print ("close_view_cb\n");
+}
+
+static void
+compare_cb (GtkWidget *widget, gpointer data)
+{
+	//tree, mdichild or mdi
+	//g_print ("compare_cb\n");
+
+	GnomeMDI    *mdi  = NULL;
+	DiffOptions *diff = NULL;
+
+	mdi = GNOME_MDI (data);
+	g_return_if_fail (mdi != NULL);
+
+	diff = get_current_selection (mdi);
+
+	g_return_if_fail (diff != NULL);
+	mdi_add_diff (mdi, diff);
+}
+
+static void
+contents_cb (GtkWidget *widget, gpointer data)
+{
+	// NONE
+	g_print ("contents_cb\n");
+}
+
+static void
+exit_gdiff_cb (GtkWidget *widget, gpointer data)
+{
+	//mdi
+	g_print ("exit_gdiff_cb\n");
+}
+
+static void
+next_diff_cb (GtkWidget *widget, gpointer data)
+{
+	//mdichild - then I can figure out what the view is of
+	g_print ("next_diff_cb\n");
+}
+
+static void
+preferences_cb (GtkWidget *widget, gpointer data)
+{
+	// NONE
+	g_print ("preferences_cb\n");
+}
+
+static void
+prev_diff_cb (GtkWidget *widget, gpointer data)
+{
+	//mdichild - then I can figure out what the view is of
+	g_print ("prev_diff_cb\n");
+}
+
+static void
+rescan_cb (GtkWidget *widget, gpointer data)
+{
+	//mdichild - then I can figure out what the view is of
+	g_print ("rescan_cb\n");
+}
+
+static void
+save_file_list_cb (GtkWidget *widget, gpointer data)
+{
+	// tree or mdichild or mdi
+	g_print ("save_file_list_cb\n");
+}
+
+static void
+status_bar_cb (GtkWidget *widget, gpointer data)
+{
+	g_print ("status_bar_cb\n");
+}
+
+static void
+view_cb (GtkWidget *widget, gpointer data)
+{
+	//tree or mdichild or mdi
+	g_print ("view_cb\n");
+}
+
+static void
+new_diff_cb (GtkWidget *widget, gpointer data)
+{
+	//mdi app(window)
+	new_file();
+}
+
+static void
+about_cb (GtkWidget *widget, gpointer data)
+{
+	//app (window)
+	static GtkWidget *about     = NULL;
+	const char       *authors[] = { "Richard Russon <Richard.Russon@ait.co.uk>", NULL };
+	const char       *copyright = "Copyright 1999";
+	const char       *extra     = NULL;
+
+	if (about)
+	{
+		gdk_window_show  (about->window);
+		gdk_window_raise (about->window);
+	}
+	else
+	{
+		about = gnome_about_new (PACKAGE, VERSION, copyright, authors, extra, NULL);
+
+		gtk_signal_connect (GTK_OBJECT (about), "destroy", GTK_SIGNAL_FUNC (gtk_widget_destroyed), &about);
+
+		//gtk_window_set_transient_for (GTK_WINDOW (about), GTK_WINDOW (app));
+
+		gtk_widget_show_all (about);
+	}
+}
+
 /*
 static void
 menu_set_view_defaults (GtkMenuShell *shell)
@@ -335,13 +354,35 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 
 	//GtkMenuBar *menubar = NULL;
 
-	gnome_app_create_menus_with_data (app, main_menu, NULL);
+	gnome_app_create_menus_with_data (app, main_menu, mdi);
+
+	if (0)
+	{
+		GtkMenuBar *mb = NULL;
+		GtkWidget  *w  = NULL;
+		mb = GTK_MENU_BAR (app->menubar);
+		w = GTK_WIDGET (mb);
+		g_print ("menubar parent = %p\n", gtk_widget_get_name (w->parent));
+		g_print ("menubar parent = %s\n", gtk_widget_get_name (w->parent));
+		g_print ("menubar parent = %s\n", gtk_widget_get_name (w->parent->parent));
+	}
 
 	status = gtk_statusbar_new();
-	//global_statusbar = GTK_STATUSBAR (status);
 
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), status);
+
+	if (0)
+	{
+		GtkStatusbar *sb = NULL;
+		GtkWidget  *w  = NULL;
+		sb = GTK_STATUSBAR (app->statusbar);
+		w = GTK_WIDGET (sb);
+		g_print ("statusbar parent = %p\n", gtk_widget_get_name (w->parent));
+		g_print ("statusbar parent = %s\n", gtk_widget_get_name (w->parent));
+		g_print ("statusbar parent = %s\n", gtk_widget_get_name (w->parent->parent));
+		g_print ("statusbar parent = %s\n", gtk_widget_get_name (w->parent->parent->parent));
+	}
 
 	window = &main_menu[4];
 
@@ -385,7 +426,6 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 	menu_set_view_defaults (GTK_MENU_SHELL (app->menubar));
 
 	status = gtk_statusbar_new();
-	global_statusbar = GTK_STATUSBAR (status);
 
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), status);
@@ -403,308 +443,3 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 */
 }
 
-/*
-static void
-file_open_cb (GtkWidget * widget, gpointer data)
-{
-	//main_diff();
-}
-
-static void
-file_close_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("file_close_cb\n");
-}
-
-static void
-view_orig_cb (GtkWidget * widget, gpointer data)
-{
-	g_print ("view_orig_cb\n");
-}
-
-static void
-about_orig_cb (GtkWidget * widget, gpointer data)
-{
-	// should only allow one of these, gdk_widget_raise it if called again
-	// mustn't be modal
-	GtkWidget      *about;
-	const char     *authors[] = {"Richard Russon <Richard.Russon@ait.co.uk>", NULL};
-	const char     *copyright = "Copyright 1999";
-	const char     *extra = "Extra information";
-
-	about = gnome_about_new (PACKAGE, VERSION, copyright, authors, extra, NULL);
-
-	//gtk_window_set_transient_for (GTK_WINDOW (about), GTK_WINDOW (app));
-
-	gtk_widget_show (about);
-
-	return;
-}
-*/
-
-/*
-static GtkWidget *
-get_current_view (GnomeMDI *mdi)
-{
-	GtkWidget *widget = NULL;
-	GtkBin    *bin    = NULL;
-
-	g_return_val_if_fail (mdi != NULL, NULL);
-	widget = gnome_mdi_get_active_view (mdi);
-
-	g_return_val_if_fail (widget != NULL, NULL);
-	bin = GTK_BIN (widget);
-
-	g_return_val_if_fail (bin != NULL, NULL);
-	return bin->child;
-}
-
-static DiffOptions *
-get_current_selection (GnomeMDI *mdi)
-{
-	GtkWidget	*view		= NULL;
-	GtkDiffTree	*tree		= NULL;
-	GtkCList	*clist		= NULL;
-	GList		*selection	= NULL;
-	GList		*list		= NULL;
-	DiffTreeRow	*treerow	= NULL;
-	DiffOptions	*options	= NULL;
-
-	view = get_current_view (mdi);
-
-	g_return_val_if_fail (view != NULL, NULL);
-	tree  = GTK_DIFF_TREE (view);
-	clist = GTK_CLIST     (tree);
-
-	g_return_val_if_fail (clist != NULL, NULL);
-	selection = clist->selection;
-
-	g_return_val_if_fail (selection != NULL, NULL);
-	list    = (selection->data);
-
-	g_return_val_if_fail (list != NULL, NULL);
-	treerow = (DiffTreeRow*) list->data;
-
-	g_return_val_if_fail (treerow != NULL, NULL);
-	options = diffoptions_new();
-
-	g_return_val_if_fail (options != NULL, NULL);
-	options->left  = g_strconcat (tree->left,  G_DIR_SEPARATOR_S, treerow->path, NULL);
-	options->right = g_strconcat (tree->right, G_DIR_SEPARATOR_S, treerow->path, NULL);
-	options->dir   = FALSE;
-
-	return options;
-}
-*/
-/*
-static void
-show_cb (GtkWidget * widget, gpointer data)
-{
-	GnomeMDI    *mdi  = NULL;
-	DiffOptions *diff = NULL;
-
-	mdi = GNOME_MDI (data);
-	g_return_if_fail (mdi != NULL);
-
-	diff = get_current_selection (mdi);
-
-	g_return_if_fail (diff != NULL);
-	mdi_add_diff (mdi, diff);
-}
-*/
-
-//______________________________________________________________________________
-//
-
-GtkWidget *
-create_file_menu (void)
-{
-	GtkMenu   *menu = GTK_MENU (gtk_menu_new());
-	GtkWidget *save = NULL;
-	GtkWidget *close = NULL;
-	GtkWidget *exit = NULL;
-	GtkWidget *file = NULL;
-
-	g_return_val_if_fail (menu != NULL, NULL);
-
-	save  = gtk_menu_item_new_with_label ("_Save File List");		// ctrl-s
-	close = gtk_menu_item_new_with_label ("Close _View");			// ctrl-w
-	exit  = gtk_menu_item_new_with_label ("E_xit GDiff");			// ctrl-q
-	file  = gtk_menu_item_new_with_label ("_File");
-
-	g_return_val_if_fail (save && close && exit && file, NULL);
-
-	gtk_signal_connect (GTK_OBJECT (save),  "activate", GTK_SIGNAL_FUNC (save_file_list_cb), GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (close), "activate", GTK_SIGNAL_FUNC (close_view_cb),     GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (exit),  "activate", GTK_SIGNAL_FUNC (exit_gdiff_cb),     GUINT_TO_POINTER (0x1234));
-
-	gtk_menu_append (menu, save);
-	gtk_menu_append (menu, close);
-	gtk_menu_append (menu, exit);
-
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (file), GTK_WIDGET (menu));
-
-	return file;
-}
-
-GtkWidget *
-create_diff_menu (void)
-{
-	GtkMenu   *menu = GTK_MENU (gtk_menu_new());
-	GtkWidget *newd = NULL;
-	GtkWidget *comp = NULL;
-	GtkWidget *scan = NULL;
-	GtkWidget *diff = NULL;
-
-	g_return_val_if_fail (menu != NULL, NULL);
-
-	newd = gtk_menu_item_new_with_label ("_New Diff");			// ctrl-n
-	comp = gtk_menu_item_new_with_label ("_Compare");			// ctrl-c
-	scan = gtk_menu_item_new_with_label ("_Rescan");			// ctrl-r
-	diff = gtk_menu_item_new_with_label ("_Diff");
-
-	g_return_val_if_fail (newd && comp && scan && diff, NULL);
-
-	gtk_signal_connect (GTK_OBJECT (newd), "activate", GTK_SIGNAL_FUNC (new_diff_cb), GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (comp), "activate", GTK_SIGNAL_FUNC (compare_cb),  GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (scan), "activate", GTK_SIGNAL_FUNC (rescan_cb),   GUINT_TO_POINTER (0x1234));
-
-	gtk_menu_append (menu, newd);
-	gtk_menu_append (menu, comp);
-	gtk_menu_append (menu, scan);
-
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (diff), GTK_WIDGET (menu));
-
-	return diff;
-}
-
-GtkWidget *
-create_view_menu (void)
-{
-	GtkMenu   *menu  = GTK_MENU (gtk_menu_new());
-	GtkWidget *same  = NULL;
-	GtkWidget *left  = NULL;
-	GtkWidget *right = NULL;
-	GtkWidget *diff  = NULL;
-	GtkWidget *prev  = NULL;
-	GtkWidget *next  = NULL;
-	GtkWidget *view  = NULL;
-
-	g_return_val_if_fail (menu != NULL, NULL);
-
-	same  = gtk_menu_item_new_with_label ("_Same");				// F5
-	left  = gtk_menu_item_new_with_label ("_Left");				// F6
-	right = gtk_menu_item_new_with_label ("_Right");			// F7
-	diff  = gtk_menu_item_new_with_label ("_Different");			// F8
-	prev  = gtk_menu_item_new_with_label ("_Previous Difference");		// F9
-	next  = gtk_menu_item_new_with_label ("_Next Difference");		// F10
-	view  = gtk_menu_item_new_with_label ("_View");
-
-	g_return_val_if_fail (same && left && right && diff && prev && next && view, NULL);
-
-	gtk_signal_connect (GTK_OBJECT (same),  "activate", GTK_SIGNAL_FUNC (view_cb),      GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (left),  "activate", GTK_SIGNAL_FUNC (view_cb),      GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (right), "activate", GTK_SIGNAL_FUNC (view_cb),      GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (diff),  "activate", GTK_SIGNAL_FUNC (view_cb),      GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (prev),  "activate", GTK_SIGNAL_FUNC (prev_diff_cb), GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (next),  "activate", GTK_SIGNAL_FUNC (next_diff_cb), GUINT_TO_POINTER (0x1234));
-
-	gtk_menu_append (menu, same);
-	gtk_menu_append (menu, left);
-	gtk_menu_append (menu, right);
-	gtk_menu_append (menu, diff);
-	gtk_menu_append (menu, prev);
-	gtk_menu_append (menu, next);
-
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (view), GTK_WIDGET (menu));
-
-	return view;
-}
-
-GtkWidget *
-create_settings_menu (void)
-{
-	GtkMenu   *menu = GTK_MENU (gtk_menu_new());
-	GtkWidget *togg = NULL;
-	GtkWidget *pref = NULL;
-	GtkWidget *sets = NULL;
-
-	g_return_val_if_fail (menu != NULL, NULL);
-
-	togg = gtk_menu_item_new_with_label ("Toggle Status _Bar");		// ctrl-b
-	pref = gtk_menu_item_new_with_label ("_Preferences");			// ctrl-p
-	sets = gtk_menu_item_new_with_label ("_Settings");
-
-	g_return_val_if_fail (togg && pref && sets, NULL);
-
-	gtk_signal_connect (GTK_OBJECT (togg), "activate", GTK_SIGNAL_FUNC (status_bar_cb),  GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (pref), "activate", GTK_SIGNAL_FUNC (preferences_cb), GUINT_TO_POINTER (0x1234));
-
-	gtk_menu_append (menu, togg);
-	gtk_menu_append (menu, pref);
-
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (sets), GTK_WIDGET (menu));
-
-	return sets;
-}
-
-GtkWidget *
-create_window_menu (void)
-{
-	GtkMenu   *menu = GTK_MENU (gtk_menu_new());
-	GtkWidget *wind = NULL;
-
-	g_return_val_if_fail (menu != NULL, NULL);
-
-	wind = gtk_menu_item_new_with_label ("_Window");
-
-	g_return_val_if_fail (wind, NULL);
-
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (wind), GTK_WIDGET (menu));
-
-	return wind;
-}
-
-GtkWidget *
-create_help_menu (void)
-{
-	GtkMenu   *menu  = GTK_MENU (gtk_menu_new());
-	GtkWidget *cont  = NULL;
-	GtkWidget *about = NULL;
-	GtkWidget *help  = NULL;
-
-	g_return_val_if_fail (menu != NULL, NULL);
-
-	cont  = gtk_menu_item_new_with_label ("_Contents");			// F1
-	about = gtk_menu_item_new_with_label ("_About");			// F2
-	help  = gtk_menu_item_new_with_label ("_Help");
-
-	g_return_val_if_fail (cont && about && help, NULL);
-
-	gtk_signal_connect (GTK_OBJECT (cont),  "activate", GTK_SIGNAL_FUNC (contents_cb), GUINT_TO_POINTER (0x1234));
-	gtk_signal_connect (GTK_OBJECT (about), "activate", GTK_SIGNAL_FUNC (about_cb),    GUINT_TO_POINTER (0x1234));
-
-	gtk_menu_append (menu, cont);
-	gtk_menu_append (menu, about);
-
-	gtk_menu_item_set_submenu (GTK_MENU_ITEM (help), GTK_WIDGET (menu));
-
-	return help;
-}
-#if 0
-
-#define GNOME_MENU_FILE_STRING D_("_File")
-#define GNOME_MENU_FILE_PATH D_("_File/")
-#define GNOME_MENU_EDIT_STRING D_("_Edit")
-#define GNOME_MENU_EDIT_PATH D_("_Edit/")
-#define GNOME_MENU_VIEW_STRING D_("_View")
-#define GNOME_MENU_VIEW_PATH D_("_View/")
-#define GNOME_MENU_SETTINGS_STRING D_("_Settings")
-#define GNOME_MENU_SETTINGS_PATH D_("_Settings/")
-#define GNOME_MENU_NEW_STRING D_("_New")
-#define GNOME_MENU_NEW_PATH D_("_New/")
-#define GNOME_MENU_FILES_STRING D_("Fi_les")
-#define GNOME_MENU_FILES_PATH D_("Fi_les/")
-#define GNOME_MENU_WINDOWS_STRING D_("_Windows")
-#define GNOME_MENU_WINDOWS_PATH D_("_Windows/")
-#endif

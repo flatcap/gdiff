@@ -1,4 +1,4 @@
-/* $Revision: 1.23 $ */
+/* $Revision: 1.24 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -19,6 +19,39 @@ static void destroy (GnomeMDI *mdi);
 GnomeMDI * mdi_new (gchar *appname, gchar *title);
 void mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
 /*----------------------------------------------------------------------------*/
+
+#if 0
+	gint        (*add_child)(GnomeMDI *, GnomeMDIChild *); 
+	gint        (*remove_child)(GnomeMDI *, GnomeMDIChild *); 
+	gint        (*add_view)(GnomeMDI *, GtkWidget *); 
+	gint        (*remove_view)(GnomeMDI *, GtkWidget *); 
+	void        (*child_changed)(GnomeMDI *, GnomeMDIChild *);
+	void        (*view_changed)(GnomeMDI *, GtkWidget *);
+	void        (*app_created)(GnomeMDI *, GnomeApp *);
+#endif
+
+static void
+view_changed (GnomeMDI *mdi, GtkWidget *oldview)
+{
+	GtkBin *bin = NULL;
+
+	if (oldview)
+	{
+		bin = GTK_BIN (oldview);
+		//g_print ("old view = %s\n", gtk_widget_get_name (bin->child));
+	}
+	else
+	{
+		//g_print ("old view = NULL\n");
+	}
+
+	bin = GTK_BIN (mdi->active_view);
+	//g_print ("new view = %s\n", gtk_widget_get_name (bin->child));
+	//g_print ("object = %d\n", gtk_object_get_type());
+	//g_print ("view   = %d\n", GTK_OBJECT_TYPE (bin->child));
+
+	// change the menus (obj type)
+}
 
 static GtkWidget *
 gd_mdi_create_compare_view (GnomeMDIChild * child, gpointer data)
@@ -99,6 +132,7 @@ gd_mdi_set_label (GnomeMDIChild * child,
 static GList   *
 gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 {
+	// this isn't called because we haven't registered the callback?
 	// These menus are mdi child specific -- we chose to distinguish between tree and file
 	GList          *menu_list;
 	GtkWidget      *menu, *w;
@@ -106,6 +140,7 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 
 	diff = data;
 
+	g_assert (FALSE);
 	//g_print ("gd_mdi_create_menus (w = %s) (p = %s) (pp = %s) (ppp = %s) (pppp = %s)\n", gtk_widget_get_name (view), gtk_widget_get_name (view->parent), gtk_widget_get_name (view->parent->parent), gtk_widget_get_name (view->parent->parent->parent), gtk_widget_get_name (view->parent->parent->parent->parent));
 	menu_list = NULL;
 
@@ -139,8 +174,6 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 static void 
 app_created (GnomeMDI * mdi, GnomeApp * app)
 {
-	//g_print ("app_created\n");
-	//gnome_app_create_menus (app, main_menu);
 	menu_create (mdi, app);
 	gtk_window_set_default_size (GTK_WINDOW (app), 500, 500);
 	gtk_widget_show_all (GTK_WIDGET (app));
@@ -174,10 +207,11 @@ mdi_new (gchar *appname, gchar *title)
 	gtk_signal_connect (GTK_OBJECT (mdi), "app_created",  GTK_SIGNAL_FUNC (app_created),  NULL);
 	gtk_signal_connect (GTK_OBJECT (mdi), "destroy",      GTK_SIGNAL_FUNC (destroy),      NULL);
 	gtk_signal_connect (GTK_OBJECT (mdi), "remove_child", GTK_SIGNAL_FUNC (remove_child), NULL);
+	gtk_signal_connect (GTK_OBJECT (mdi), "view_changed", GTK_SIGNAL_FUNC (view_changed), NULL);
 
 	//XXX move to menu.c
 	gnome_mdi_set_child_menu_path(mdi, _("Compare"));		// child specific menus
-	gnome_mdi_set_child_list_path(mdi, _("Children/"));		// automatic window list
+	gnome_mdi_set_child_list_path(mdi, _("Windows/"));		// automatic window list
 
 	gnome_mdi_open_toplevel (mdi);
 

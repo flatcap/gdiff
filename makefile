@@ -9,7 +9,7 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 
 all:	gd tags libtags
 
-gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o compare.o
+gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o compare.o file.o
 	$(CC) $(LIBS) $^ -o $@
 	#$@ &
 
@@ -93,7 +93,7 @@ testgtk.o:
 testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 
-FILES	= args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo compare.h
+FILES	= args.c args.h compare.c config.h derived.c derived.h diff.c diff.h gd.c global.c global.h mdi.c mdi.h menu.c menu.h node.c node.h options.c options.h progress.c progress.h spawn.c spawn.h tree.c tree.h makefile todo compare.h file.c file.h
 co:
 	co -l -q $(FILES)
 ci:
