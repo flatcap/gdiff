@@ -69,6 +69,7 @@ unselect_row (GtkCList *clist, gint row, gint column, GdkEvent *event)
 	gtk_widget_set_sensitive (bremove, FALSE);
 }
 
+/* Turn "_Jim" into a button called "Jim" that is accelerated by Alt-J */
 GtkWidget*
 gtk_button_new_with_accel (const gchar *raw_label, GtkAccelGroup *accel)
 {
@@ -82,7 +83,6 @@ gtk_button_new_with_accel (const gchar *raw_label, GtkAccelGroup *accel)
 	g_return_val_if_fail (raw_label != NULL, NULL);
 	g_return_val_if_fail (accel     != NULL, NULL);
 
-	pattern    = g_string_new (NULL);
 	label      = g_string_new (raw_label);
 	underscore = strchr       (raw_label, '_');
 
@@ -91,19 +91,16 @@ gtk_button_new_with_accel (const gchar *raw_label, GtkAccelGroup *accel)
 		mnemonic = *(underscore+1);			// Could still be 0
 
 		offset = (underscore - raw_label);
-		g_string_erase    (label, offset, 1);
-		g_string_assign   (pattern, g_strnfill (offset, ' '));
+		g_string_erase (label, offset, 1);
+		pattern = g_string_new (g_strnfill (offset, ' '));
 		g_string_append_c (pattern, '_');
 	}
 
 	button = gtk_button_new_with_label (label->str);
 	
-	g_print ("label   = '%s'\n", label  ->str);
-	g_print ("pattern = '%s'\n", pattern->str);
-
 	g_string_free (label, TRUE);
 
-	if (pattern)
+	if (pattern && button)
 	{
 		gtk_label_set_pattern (GTK_LABEL (GTK_BIN (button)->child), pattern->str);
 		g_string_free (pattern, TRUE);
@@ -132,8 +129,8 @@ main (int argc, char *argv[])
 	accel   = gtk_accel_group_new ();
 
 	add   	= gtk_button_new_with_accel ("_Add",    accel);
-	bremove	= gtk_button_new_with_accel ("Re_move", accel);
-	bclose 	= gtk_button_new_with_accel ("Clos_e",  accel);
+	bremove	= gtk_button_new_with_accel ("_Remove", accel);
+	bclose 	= gtk_button_new_with_accel ("_Close",  accel);
 
 	gtk_accel_group_attach (accel, GTK_OBJECT (app));
 
