@@ -28,20 +28,18 @@ configure the colours, sizes, fonts, diff/same/left/right visible,
 tree font and diff font
 
 trap close and Ctrl-C and abort processing loop m_bAbort = TRUE;
+check the statusbar is OK
 
 diffstat
 default single argument to /usr/src/linux (for patches)
 
-[p1]~/src$ diff d diff
-diff: diff/d: No such file or directory
-if file doesn't exist in directory, see if it's a patch
 
-generate patches
 
 save file list (l/r/s/d/t)
 format <, >, ' ', !  space then the filename
 
 option - show stats -> FULL diff parsed into added 4, deleted 2 moved 15, etc
+very slow
 
 gnome-history
 
@@ -67,6 +65,7 @@ HELP!
 make the colour scheme a separate .rc file
 .gnome-diff	ColourScheme = bob
 .gnome-diff_bob	x = red, etc
+separate users -- not our problem
 
 
 GtkList and GtkTree can contain widgets, but are limited to 32768 pixels
@@ -78,7 +77,7 @@ the overview widget:	A click means change the view to one centred HERE
 now that I'm not using a text widget, can I implement highlight / copy
 to fit in with editing?
 
-i18n the config files too
+i18n the config files too -- main code first
 
 pattern matching to locate second file / dir
 guess where the root is?
@@ -164,8 +163,10 @@ don't allow the selection of directories
 I _could_ stat any left/right file.  Any that turn out to be dirs, will need expanding
 'find path' should do the trick (and all are left/right)
 stat the left/right directories first -- no need to recurse!
+flag any queries as 'to be resolved'
 
 always on top button
+prerogative of the window manager
 
 try and remove the unixness of the path stuff -- there will be a few tripups for DOS ppl
 
@@ -179,6 +180,7 @@ colours too
 how about fonts?
 
 printing support?
+wait for gnome
 
 Window / Windows... , Diff1, Compare1, ...
 
@@ -208,6 +210,7 @@ gnomify all the types int -> gint etc
 tab width default but is compare specific
 
 add a timeout to refresh the diff tree every 5 seconds?
+no, but a progress/cancel box would be nice (modeless)
 
 rescan option - current FILE , or selected branch of the TREE
 
@@ -238,18 +241,22 @@ let gnome do it automatically
 xref all methods -- make sure all local methods are static
 make sure all non-static methods are called from more than one place
 if a fn is only called from one place is it better to leave it in context? prob yes
+menus are the best example of leaving things as is.
 
 handy!
 GtkWidget* gtk_widget_get_ancestor (GtkWidget *widget, GtkType    widget_type)
 GtkWidget* gtk_widget_get_toplevel (GtkWidget *widget)
 
 should view ident/diff/left/right be global or per tree?
+View menu -> per Tree
+Prefs menu -> global  -- need to be named carefully
 
 sort by diff-type, eg 1st=same,2nd=left,3rd=right,4th=diff,5th=error (alphabetic within groups)
 
 option to automatically open file/open/browse don't just give focus to the entry field 
 
 add a file count to the tree
+will need to be refreshed when view changes
 
 right click on tree
 	refresh WHOLE tree
@@ -258,8 +265,9 @@ right click on tree
 
 make key bindings configurable?
 
-use GNOME regex!
-how about gnome_exec too
+use GNOME regex! -- ought to have a look
+
+how about gnome_exec too -- no gain
 
 rename every prefs to props
 
@@ -285,15 +293,20 @@ mnemonic space is too cluttered
 
 make options a GtkObject, then it can emit signals "config changed"
 No -- that will only help one person!
+No I don't think that's true I think it WILL work
 
 move the exclusions to a separate dialog on the settings menu
 much simpler than cramming it onto the pref's notebook
 likewise the style menu? Or make it into a list and a work area
+will also need a reset button and a default (no colour) button
 
 extend settings menu (one for each page of the preferences)
 plus exclusions
 font?
 styles?
+
+toolbar -- new, refresh, next, prev, close, exit, etc
+(exclude-like dialog)
 
 one consistant set of left/right/etc enums
 
@@ -305,6 +318,7 @@ in the overview -- lines linking all the diff OR lines at set intervals
 until we support rcs properly?
 
 if lines only exist in one file, show a 'token' line on the other side as a marker
+remember to add 1 to the other side.
 
 config object (GtkObject) should be able to hook up serveral other people
 config 'emit's 'config_changed' (or 'changed');
@@ -351,18 +365,47 @@ MORE LABELS
 
 resolve which need to be double and which guint in overview
 
-call all callbacks *_cb
-
-split file.c into file.c and browse.c
 
 default buttons and activation on the file selection
 
 split up preferences to create a drop-in preferences component
 eg, a drop-in 'view options', or 'diff settings'
 
+(my/sensible) defaults if there's no config file
+
+________________________________________________________________________________
+BUILD - dependencies, etc
+________________________________________________________________________________
+CODING - better ways
+
 recursion -> duff's
 
-file history for file selection / browse
+call all callbacks *_cb
 
 remove top node -- replace it with a node that has both next and children
 
+split file.c into file.c and browse.c
+
+________________________________________________________________________________
+COSMETICS - formatting, etc
+________________________________________________________________________________
+FEATURES - to do
+
+file history for file selection / browse
+
+________________________________________________________________________________
+WISH LIST - blue sky
+
+generate patches
+
+[p1]~/src$ diff d diff
+diff: diff/d: No such file or directory
+if file doesn't exist in directory, see if it's a patch
+
+________________________________________________________________________________
+DONE - already there
+________________________________________________________________________________
+WON'T DO - problems
+________________________________________________________________________________
+INFO - extras
+________________________________________________________________________________
