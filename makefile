@@ -26,6 +26,7 @@ compare: compare.o
 file:	file.o menu.o
 	$(CC) $(LIBS) $^ -o $@
 
+main.o:	global.h tree.h node.h
 main:	main.o node.o tree.o global.o
 	$(CC) $(LIBS) $^ -o $@
 
