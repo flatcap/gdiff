@@ -137,3 +137,16 @@ of patch (and all combinations)
 gnome session management?
 
 right-click menus where applicable
+
+need to rename windows when switching from notebook to modal to toplevel
+
+need to trap signals SIGTERM, SIGINT, etc
+
+refresh signal on diff object one for options, one for colours/fonts
+
+SHOULD the options be global?
+
+remove all c++ comments!
+
+add BEGIN_GNOME_DECLS, END_GNOME_DECLS
+

@@ -11,6 +11,9 @@ POPT	= popt/popt.o popt/poptconfig.o popt/popthelp.o popt/poptparse.o popt/findm
 
 all:	gd
 
+gd:	gd.o args.o mdi.o options.o diff.o
+	$(CC) $(LIBS) $^ -o $@
+
 richard: richard.o derived.o menu.o progress.o global.o spawn.o
 	$(CC) $(LIBS) $^ -o $@
 
@@ -25,9 +28,6 @@ spawn:	spawn.o
 canvas:	canvas.o
 	$(CC) $(LIBS) $^ -o $@
 	$@ &
-
-gd:	gd.o args.o
-	$(CC) $(LIBS) $^ -o $@
 
 p:	popt.o
 	$(CC) $(LIBS) $^ -o $@
