@@ -1,4 +1,4 @@
-/* $Revision: 1.22 $ */
+/* $Revision: 1.23 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -76,7 +76,7 @@ gd_mdi_set_label (GnomeMDIChild * child,
 		label = gtk_label_new (g_strdup_printf ("%s", child->name));
 		gtk_widget_show (label);
 		//pixmap = gnome_stock_new_with_icon (GNOME_STOCK_MENU_BOOK_OPEN);
-		if (diff->dir)
+		if ((diff->type == Dir) || (diff->type == DirPatch))
 		{
 			pixmap = gtk_pixmap_new (pixmap_open, mask_open);
 		}
@@ -121,7 +121,7 @@ gd_mdi_create_menus (GnomeMDIChild * child, GtkWidget * view, gpointer data)
 
 	gtk_menu_append (GTK_MENU (menu), w);
 
-	if (diff->dir)
+	if ((diff->type == Dir) || (diff->type == DirPatch))
 	{
 		w = gtk_menu_item_new_with_label ("Dir menu");
 	}
@@ -155,7 +155,9 @@ destroy (GnomeMDI *mdi)
 static gint
 remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 {
+	//XXX ask config for confirm, if compare just close, if tree 'close all compares, too?'
 	//g_print ("remove child\n");
+	//XXX update menus
 	return TRUE;			// yes let it die
 }
 
@@ -173,6 +175,7 @@ mdi_new (gchar *appname, gchar *title)
 	gtk_signal_connect (GTK_OBJECT (mdi), "destroy",      GTK_SIGNAL_FUNC (destroy),      NULL);
 	gtk_signal_connect (GTK_OBJECT (mdi), "remove_child", GTK_SIGNAL_FUNC (remove_child), NULL);
 
+	//XXX move to menu.c
 	gnome_mdi_set_child_menu_path(mdi, _("Compare"));		// child specific menus
 	gnome_mdi_set_child_list_path(mdi, _("Children/"));		// automatic window list
 
@@ -197,7 +200,7 @@ mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 	gnome_mdi_generic_child_set_menu_creator (child, gd_mdi_create_menus, diff);//XXX
 	gnome_mdi_generic_child_set_label_func   (child, gd_mdi_set_label,    diff);
 
-	if (diff->dir)
+	if ((diff->type == Dir) || (diff->type == DirPatch))
 	{
 		gnome_mdi_generic_child_set_view_creator (child, gd_mdi_create_view,  diff);
 	}
@@ -208,5 +211,7 @@ mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 
 	gnome_mdi_add_child (mdi, GNOME_MDI_CHILD (child));			/* Add one child to the MDI */
 	gnome_mdi_add_view  (mdi, GNOME_MDI_CHILD (child));			/* Display one view of that child */
+
+	//XXX update menus
 }
 

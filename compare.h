@@ -1,4 +1,4 @@
-/* $Revision: 1.8 $ */
+/* $Revision: 1.9 $ */
 
 #ifndef _COMPARE_H_
 #define _COMPARE_H_
@@ -30,6 +30,7 @@ struct _GtkCompare
 
 	gint flag1;
 	guint drawn;
+	//XXX pointer to parent tree
 };
 
 struct _GtkCompareClass

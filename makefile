@@ -11,7 +11,7 @@ all:	gd tags libtags
 
 gd:	gd.o args.o mdi.o options.o diff.o menu.o derived.o global.o spawn.o progress.o node.o tree.o compare.o
 	$(CC) $(LIBS) $^ -o $@
-	$@ &
+	#$@ &
 
 libtags:
 	ctags -f libtags -i+p						\
@@ -56,7 +56,7 @@ richard: richard.o derived.o menu.o progress.o global.o #spawn.o
 	$(CC) $(LIBS) $^ -o $@
 exclude: exclude.o
 	$(CC) $(LIBS) $^ -o $@
-	$@ &
+	#$@ &
 spawn:	spawn.o
 	$(CC) $(LIBS) $^ -o $@
 	#$@ &
@@ -88,6 +88,8 @@ main:	main.o node.o tree.o global.o
 	$(CC) $(LIBS) $^ -o $@
 g:	gnome.o
 	$(CC) $(LIBS) $^ -o $@
+testgtk.o:
+	$(CC) -I. -I.. $(CFLAGS) -o $@ ../junk/testgtk.c
 testgtk: testgtk.o
 	$(CC) $(LIBS) $^ -o $@
 

@@ -1,4 +1,4 @@
-/* $Revision: 1.6 $ */
+/* $Revision: 1.7 $ */
 
 #ifndef _DIFF_H_
 #define _DIFF_H_
@@ -7,17 +7,26 @@
 
 typedef struct _DiffOptions DiffOptions;
 
+typedef enum
+{
+	Error,					// No idea
+	File,					// Two files
+	Dir,					// Two directories
+	FilePatch,				// A file and a patch					
+	DirPatch,				// A directory and a patch
+} DiffType;
+
 struct _DiffOptions
 {
-	gchar *left;				// The left  file/dir relative to path
-	gchar *right;				// The right file/dir relative to path
+	gchar *left;				// The left  path
+	gchar *right;				// The right path
 
-	gboolean dir;				// File or directory?
+	DiffType type;				// File or directory?
 
 	GNode *root;
 	gpointer compare_stuff;
 
-	char *last_error;
+	//char *last_error;
 };
 
 DiffOptions *	diffoptions_new  (void);

@@ -1,4 +1,4 @@
-/* $Revision: 1.15 $ */
+/* $Revision: 1.16 $ */
 
 #include <gnome.h>
 #include <popt.h>
@@ -100,7 +100,7 @@ gnome_init_and_parse_args (const char *app_id,
 			{
 				diff->left  = g_strdup (left);
 				diff->right = g_strdup (right);
-				diff->dir   = TRUE;
+				diff->type  = File;
 			}
 		}
 	}

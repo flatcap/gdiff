@@ -1,4 +1,4 @@
-/* $Revision: 1.25 $ */
+/* $Revision: 1.26 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -14,7 +14,6 @@ static void close_view_cb	(GtkWidget *widget, gpointer data) { g_print ("close_v
 static void compare_cb		(GtkWidget *widget, gpointer data) { g_print ("compare_cb\n"); }
 static void contents_cb		(GtkWidget *widget, gpointer data) { g_print ("contents_cb\n"); }
 static void exit_gdiff_cb	(GtkWidget *widget, gpointer data) { g_print ("exit_gdiff_cb\n"); }
-static void new_diff_cb		(GtkWidget *widget, gpointer data) { g_print ("new_diff_cb\n"); }
 static void next_diff_cb	(GtkWidget *widget, gpointer data) { g_print ("next_diff_cb\n"); }
 static void preferences_cb	(GtkWidget *widget, gpointer data) { g_print ("preferences_cb\n"); }
 static void prev_diff_cb	(GtkWidget *widget, gpointer data) { g_print ("prev_diff_cb\n"); }
@@ -22,6 +21,87 @@ static void rescan_cb		(GtkWidget *widget, gpointer data) { g_print ("rescan_cb\
 static void save_file_list_cb	(GtkWidget *widget, gpointer data) { g_print ("save_file_list_cb\n"); }
 static void status_bar_cb	(GtkWidget *widget, gpointer data) { g_print ("status_bar_cb\n"); }
 static void view_cb		(GtkWidget *widget, gpointer data) { g_print ("view_cb\n"); }
+
+typedef struct _Reply Reply;
+
+struct _Reply
+{
+	guint button;
+};
+
+static void
+cmw_destroy_cb (GtkWidget * widget)
+{
+	g_print ("destroyed\n");
+	//gtk_main_quit (); /* This is needed to get out of gtk_main */
+}
+
+void
+file_selection_ok (GtkWidget * w,
+		   GtkFileSelection * dialog)
+{
+	//g_print ("%s\n", gtk_file_selection_get_filename (dialog));
+	gtk_main_quit();
+}
+
+void
+file_selection_cancel (GtkWidget * w,
+		   GtkFileSelection * dialog)
+{
+	//gtk_file_selection_set_filename (dialog, "");
+	gtk_entry_set_text (GTK_ENTRY (dialog->selection_entry), "");
+	gtk_main_quit();
+}
+
+char *
+get_filename (GtkFileSelection *dialog)
+{
+	GtkEntry *entry = GTK_ENTRY (dialog->selection_entry);
+
+	if (strlen (gtk_entry_get_text (entry)) == 0)
+	{
+		return NULL;
+	}
+	else
+	{
+		return strdup (gtk_file_selection_get_filename (GTK_FILE_SELECTION (dialog)));
+	}
+}
+
+static void new_diff_cb (GtkWidget *widget, gpointer data)
+{
+	GtkWidget *dialog = NULL;
+
+	g_print ("new_diff_cb\n");
+
+	dialog = gtk_file_selection_new ("This is a modal file selection dialog");
+	//!!! gtk_window_set_title (GTK_WINDOW (filesel), title);
+	//gtk_window_set_transient_for (GTK_WINDOW (fs), GTK_WINDOW (parent));  get via the mdi (data)
+	gtk_signal_connect (GTK_OBJECT (dialog), "destroy",
+			    GTK_SIGNAL_FUNC (cmw_destroy_cb), NULL);
+
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->ok_button),
+			    "clicked", GTK_SIGNAL_FUNC (file_selection_ok), dialog);
+	gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button),
+			   "clicked", GTK_SIGNAL_FUNC (file_selection_cancel), dialog);//XXX
+	//gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION (dialog)->cancel_button),
+	//		   "clicked", GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT (dialog));
+
+	gtk_widget_show_all (dialog);
+	gtk_main();
+	//window = gtk_font_selection_dialog_new ("Font Selection Dialog");
+	//window = gtk_color_selection_dialog_new ("color selection dialog");
+	g_print ("filename '%s'\n", get_filename (GTK_FILE_SELECTION (dialog)));
+	gtk_widget_destroy (GTK_WIDGET (dialog));
+
+  //XXX neat!
+  //gtk_signal_connect_object (GTK_OBJECT (filesel->selection_entry), "focus_in_event",
+			     //(GtkSignalFunc) gtk_widget_grab_default,
+			     //GTK_OBJECT (filesel->ok_button));
+  //gtk_signal_connect_object (GTK_OBJECT (filesel->selection_entry), "activate",
+                             //(GtkSignalFunc) gtk_button_clicked,
+                             //GTK_OBJECT (filesel->ok_button));
+}
 
 // XXX method to automate menu creation, callbacks, signals and accelerators!
 
@@ -251,6 +331,8 @@ void
 menu_create (GnomeMDI *mdi, GnomeApp *app)
 {
 	GtkWidget *status = NULL;
+	GnomeUIInfo *window = NULL;
+
 	//GtkMenuBar *menubar = NULL;
 
 	gnome_app_create_menus_with_data (app, main_menu, NULL);
@@ -260,6 +342,25 @@ menu_create (GnomeMDI *mdi, GnomeApp *app)
 
 	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
 	gnome_app_set_statusbar (GNOME_APP (app), status);
+
+	window = &main_menu[4];
+
+	/*
+	g_print ("type      %d\n", window->type);
+	g_print ("label     %s\n", window->label);
+	g_print ("hint      %s\n", window->hint);
+	g_print ("submenu   %p\n", window->moreinfo);
+	g_print ("user      %p\n", window->user_data);
+	g_print ("unused    %p\n", window->unused_data);
+	g_print ("pixtype   %d\n", window->pixmap_type);
+	g_print ("pixinfo   %p\n", window->pixmap_info);
+	g_print ("accel     %d\n", window->accelerator_key);
+	g_print ("acmods    %d\n", window->ac_mods);
+	g_print ("widget    %s\n", gtk_widget_get_name (window->widget));
+	*/
+
+	gtk_widget_set_sensitive (window->widget, FALSE);
+
 	/*
 	menubar = GTK_MENU_BAR (app->menubar);
 

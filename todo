@@ -175,6 +175,8 @@ drag and drop support
 if one file popup a dialog
 if two files auto mode
 if more files popup a list dialog
+colours too
+how about fonts?
 
 printing support?
 
@@ -212,3 +214,5 @@ rescan option - current FILE , or selected branch of the TREE
 make sure ctrl-end ctrl-home work as expected
 
 save file list as list of paths or as a tree?
+
+share libraries of widgets, then develop rcsdiff, cvsdiff, etc
