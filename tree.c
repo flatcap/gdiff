@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.14 $ */
+/* $Revision: 1.15 $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,12 +65,12 @@ get_status_text (Status actual, Status view, gboolean node)
 	{
 		switch (actual)
 		{
-		case eFileSame:  result = "";		break;
-		case eFileLeft:  result = "left";	break;
-		case eFileRight: result = "right";	break;
-		case eFileDiff:  result = "diff";	break;
-		case eFileType:  result = "type";	break;
-		default:         result = "error";	break;
+			case eFileSame:  result = "";		break;
+			case eFileLeft:  result = "left";	break;
+			case eFileRight: result = "right";	break;
+			case eFileDiff:  result = "diff";	break;
+			case eFileType:  result = "type";	break;
+			default:         result = "error";	break;
 		}
 	}
 
