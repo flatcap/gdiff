@@ -8,6 +8,7 @@
 
 #define MATCHES 8
 #define APPNAME "TestApp"
+#define WINNAME "GDiff"
 #define VERSION "0.0.1"
 
 #if 0
@@ -196,12 +197,13 @@ main (int argc, char *argv[], char *env[])
 
 	gtk_widget_show (window);
 	global_init (window);
+	gtk_widget_hide (window);
 
 	{
 		TreeDialog *tree = tree_dialog_new (window);
 
 		tree_dialog_parse (tree, base_left, base_right);
-		tree_dialog_draw  (tree, eFileLeft | eFileRight | eFileDiff);
+		tree_dialog_draw  (tree, eFileAll);
 	}
 
 #if 0
