@@ -1,4 +1,4 @@
-/* $Revision: 1.14 $ */
+/* $Revision: 1.15 $ */
 
 #include <gnome.h>
 #include "file.h"
@@ -45,7 +45,7 @@ static void		browse_filename		(GtkWidget *button, BrowseInfo *info);
 static void		destroy_browse		(GtkWidget *parent, GtkWidget **browse);
 static void		dialog_button_clicked	(GnomeDialog *dialog, gint button_number);
 static void		dialog_destroyed	(GtkWidget *widget, gpointer data);
-static void		entry_changed		(GtkEntry *entry, guint left);
+static void		entry_changed		(GtkEntry *entry, FileInfo *finfo);
 static void		file_sel_ok		(GtkButton *button, BrowseInfo *info);
 static GtkWidget *	new_file2		(GnomeMDI *mdi, GtkWindow *parent);
 /*----------------------------------------------------------------------------*/
@@ -192,24 +192,20 @@ dialog_destroyed (GtkWidget *widget, gpointer data)
 }
 
 static void
-entry_changed (GtkEntry *entry, guint left) // gboolean
+entry_changed (GtkEntry *entry, FileInfo *finfo)
 {
 	GtkWidget *dialog = NULL;
-	FileInfo *finfo = NULL;
 	gboolean data = FALSE;
 	GtkWidget *button = NULL;
 
 	g_return_if_fail (entry != NULL);
 
-	g_print ("entry_changed %d\n", left);
-
 	dialog = gtk_widget_get_ancestor  (GTK_WIDGET (entry), gnome_dialog_get_type());
-	finfo  = gtk_object_get_user_data (GTK_OBJECT (dialog));
+
+	button = GTK_WIDGET (g_list_nth_data (GNOME_DIALOG (dialog)->buttons, 1));	//XXX depends on buttons' order
 
 	data = ((strlen (gtk_entry_get_text (finfo->lentry)) > 0) &&
 		(strlen (gtk_entry_get_text (finfo->rentry)) > 0));
-
-	button = GTK_WIDGET (g_list_nth_data (GNOME_DIALOG (dialog)->buttons, 1));	//XXX depends on buttons' order
 
 	gtk_widget_set_sensitive (button, data);
 }
@@ -237,10 +233,6 @@ static GtkWidget *
 new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 {
 	GtkWidget *dialog = NULL;
-	//static GtkWidget *left   = NULL;
-	//static GtkWidget *right  = NULL;
-
-	//GtkWidget *table = NULL;
 	GtkBox *box = NULL;
 	GtkBox *lbox=NULL;
 	GtkBox *rbox= NULL;
@@ -249,7 +241,6 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 	GtkWidget *lbrowse = NULL;
 	GtkWidget *rbrowse = NULL;
 	GtkWidget *check   = NULL;
-	//int i = 0;
 	BrowseInfo *lbinfo = NULL;
 	BrowseInfo *rbinfo = NULL;
 	FileInfo *finfo = NULL;
@@ -293,8 +284,8 @@ new_file2 (GnomeMDI *mdi, GtkWindow *parent)
 	lbinfo->parent = GTK_WINDOW (dialog);
 	rbinfo->parent = GTK_WINDOW (dialog);
 
-	gtk_signal_connect (GTK_OBJECT (lentry), "changed", entry_changed, GUINT_TO_POINTER (TRUE));
-	gtk_signal_connect (GTK_OBJECT (rentry), "changed", entry_changed, GUINT_TO_POINTER (FALSE));
+	gtk_signal_connect (GTK_OBJECT (lentry), "changed", entry_changed, finfo);
+	gtk_signal_connect (GTK_OBJECT (rentry), "changed", entry_changed, finfo);
 
 	lbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));
 	rbox = GTK_BOX (gtk_hbox_new (FALSE, GNOME_PAD_SMALL));

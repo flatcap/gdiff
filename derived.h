@@ -1,4 +1,4 @@
-/* $Revision: 1.13 $ */
+/* $Revision: 1.14 $ */
 
 #ifndef _DERIVED_H_
 #define _DERIVED_H_
@@ -30,6 +30,7 @@ guint		gtk_diff_tree_get_type		(void);
 //GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[], DiffOptions *diff);
 GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column, DiffOptions *diff);
 DiffOptions *	get_current_selection		(GtkDiffTree *tree);
+void		gtk_diff_tree_save_list		(GtkDiffTree *tree);
 
 //void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
 //void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);

@@ -1,4 +1,4 @@
-/* $Revision: 1.22 $ */
+/* $Revision: 1.23 $ */
 
 #include <gnome.h>
 #include <regex.h>
@@ -37,9 +37,10 @@ static void gtk_diff_tree_realize (GtkWidget *widget);
 //static void gtk_diff_tree_set_view (GtkDiffTree *tree, Status status);
 static void gtk_diff_tree_show (GtkWidget *widget);
 
-GtkWidget * gtk_diff_tree_new (gint columns, gint tree_column, DiffOptions *diff);
-guint gtk_diff_tree_get_type (void);
-DiffOptions * get_current_selection (GtkDiffTree *tree);
+GtkWidget *	gtk_diff_tree_new	(gint columns, gint tree_column, DiffOptions *diff);
+guint		gtk_diff_tree_get_type	(void);
+DiffOptions *	get_current_selection	(GtkDiffTree *tree);
+void		gtk_diff_tree_save_list	(GtkDiffTree *tree);
 /*----------------------------------------------------------------------------*/
 
 //______________________________________________________________________________
@@ -548,5 +549,29 @@ gtk_diff_tree_destroy (GtkObject *object)
 	g_return_if_fail (parent != NULL);
 
 	parent->destroy (object);
+}
+
+static void
+save_recurse (GNode *node)
+{
+	TreeNode *tree  = NULL;
+
+	if (node != NULL)
+	{
+		tree = node->data;
+		if (tree)
+		{
+			g_print ("%d %s\n", tree->status, tree->path);
+		}
+
+		save_recurse (node->children);
+		save_recurse (node->next);
+	}
+}
+
+void
+gtk_diff_tree_save_list (GtkDiffTree *tree)
+{
+	save_recurse (tree->root);
 }
 

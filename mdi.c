@@ -1,4 +1,4 @@
-/* $Revision: 1.26 $ */
+/* $Revision: 1.27 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -16,9 +16,10 @@ static gint remove_child (GnomeMDI *mdi, GnomeMDIChild *child);
 static void app_created (GnomeMDI * mdi, GnomeApp * app);
 static void destroy (GnomeMDI *mdi);
 
-GnomeMDI * mdi_new (gchar *appname, gchar *title);
-void mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
-GtkWidget * mdi_get_current_view (GnomeMDI *mdi);
+GnomeMDI *	mdi_new (gchar *appname, gchar *title);
+void		mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff);
+GtkWidget *	mdi_get_current_view (GnomeMDI *mdi);
+void		mdi_close (GnomeMDI *mdi);
 /*----------------------------------------------------------------------------*/
 
 #if 0
@@ -209,6 +210,14 @@ remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 	g_print ("remove child\n");
 	//XXX update menus
 	return TRUE;			// yes let it die
+}
+
+void
+mdi_close (GnomeMDI *mdi)
+{
+	g_print ("mdi_close\n");
+	gnome_mdi_remove_all (mdi, FALSE);
+	gtk_main_quit();
 }
 
 GnomeMDI *

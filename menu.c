@@ -1,4 +1,4 @@
-/* $Revision: 1.34 $ */
+/* $Revision: 1.35 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -184,6 +184,7 @@ about_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 close_view_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
+	//XXX move the actual doing to mdi.c
 	GnomeMDIChild *child = NULL;
 
 	g_return_if_fail (mdi != NULL);
@@ -226,8 +227,8 @@ contents_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 exit_gdiff_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	//mdi
 	g_print ("exit_gdiff_cb\n");
+	mdi_close (mdi);
 }
 
 static void
@@ -281,8 +282,13 @@ rescan_cb (GtkWidget *widget, GnomeMDI *mdi)
 static void
 save_file_list_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
-	// tree or mdichild or mdi
-	g_print ("save_file_list_cb\n");
+	GtkDiffTree *tree = NULL;
+
+	tree = GTK_DIFF_TREE (mdi_get_current_view (mdi));
+	if (tree)
+	{
+		gtk_diff_tree_save_list (tree);
+	}
 }
 
 static void

@@ -353,3 +353,11 @@ resolve which need to be double and which guint in overview
 
 call all callbacks *_cb
 
+split file.c into file.c and browse.c
+
+default buttons and activation on the file selection
+
+split up preferences to create a drop-in preferences component
+eg, a drop-in 'view options', or 'diff settings'
+
+recursion -> duff's
