@@ -10,8 +10,9 @@ what about local (static) methods?
 
 implement get/set args on the derived objects
 
-the overview widget:	A click means change the view to one centred HERE
-			A drag should send scroll messages to the window (up/down) to match the mouse posn
+the overview widget:
+    A click means change the view to one centred HERE
+    A drag should send scroll messages to the window (up/down) to match the mouse posn
 
 if _I_ expand tabs, then I need to keep the original text cached if they change the tabstops
 
@@ -213,9 +214,9 @@ view same, diff, left only, right only
 (keep the directory tree visible, but not the files)
 
 check cumulative status for dirs:
-	if the dir has only right only -> right
-	if the dir has only left  only -> left
-	otherwise just diff
+    if the dir has only right only -> right
+    if the dir has only left  only -> left
+    otherwise just diff
 
 make sure ctrl-end ctrl-home work as expected
 see gtk_binding_set_by_class(klass) in gtkclist.c
@@ -312,9 +313,9 @@ save file list - exclusions option
 use GNOME regex! -- ought to have a look
 
 right click on tree
-	refresh WHOLE tree
-	refresh from here
-	new view from here
+    refresh WHOLE tree
+    refresh from here
+    new view from here
 what DO we want on the right click menus for trees/dirs?
 where will the entries live in the normal menus?
 
@@ -417,8 +418,8 @@ pattern matching to locate second file / dir
 guess where the root is?
 
 make the colour scheme a separate .rc file
-.gnome-diff	ColourScheme = bob
-.gnome-diff_bob	x = red, etc
+.gnome-diff        ColourScheme = bob
+.gnome-diff_bob    x = red, etc
 separate users -- not our problem
 
 two panes? one for dirs (left) and one for files (right/middle)?
@@ -433,17 +434,17 @@ INFO - extras
 new directories aren't recursed, limitation of diff
 
 diff options (local to one diff, naturally)
-	dir dir		compare two directories
-	file file	compare two files
-	file dir	compare file and dir/file (same name)
-	dir file	compare dir/file and file (same name)
-	dir		compare dir and .
-	file		compare file and . (dir/file (or file is a patch against .))
-	l,r x,x		left right extra
-	l,x x,l
-	r,x x,r
-	l   r
-	r,l
+    dir dir    compare two directories
+    file file  compare two files
+    file dir   compare file and dir/file (same name)
+    dir file   compare dir/file and file (same name)
+    dir        compare dir and .
+    file       compare file and . (dir/file (or file is a patch against .))
+    l,r x,x    left right extra
+    l,x x,l
+    r,x x,r
+    l   r
+    r,l
 
 gnome-history
 
