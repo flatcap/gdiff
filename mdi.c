@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.32 $ */
+/* $Revision: 1.33 $ */
 
 #include <gnome.h>
 #include "mdi.h"
@@ -86,8 +86,10 @@ view_changed (GnomeMDI *mdi, GtkWidget *oldview)
 	//g_print ("new view = %s\n", gtk_widget_get_name (bin->child));
 	//g_print ("object = %d\n", gtk_object_get_type());
 	//g_print ("view   = %d\n", GTK_OBJECT_TYPE (bin->child));
+	g_print ("active_child = %p\nactive_view = %p\nactive_window = %p\n\n", mdi->active_child, mdi->active_view, mdi->active_window);
 
 	// change the menus (obj type)
+	set_menu_state (mdi);
 }
 
 static GtkWidget *
@@ -230,12 +232,17 @@ destroy (GnomeMDI *mdi)
 	gtk_main_quit();
 }
 
+static void
+child_destroy (GnomeMDIChild *child, GnomeMDI *mdi)
+{
+	set_menu_state (mdi);
+}
+
 static gint
 remove_child (GnomeMDI *mdi, GnomeMDIChild *child)
 {
 	//XXX ask config for confirm, if compare just close, if tree 'close all compares, too?'
 	g_print ("remove child\n");
-	//XXX update menus
 	return TRUE;			// yes let it die
 }
 
@@ -254,6 +261,8 @@ mdi_new (gchar *appname, gchar *title)
 
 	mdi = GNOME_MDI (gnome_mdi_new (appname, title));
 
+	menu_create_main (mdi);
+
 	mdi->tab_pos = GTK_POS_TOP;		// GTK_POS_LEFT, GTK_POS_RIGHT, GTK_POS_TOP, GTK_POS_BOTTOM
 	gnome_mdi_set_mode (mdi, GNOME_MDI_NOTEBOOK); // GNOME_MDI_NOTEBOOK GNOME_MDI_TOPLEVEL GNOME_MDI_MODAL
 
@@ -263,6 +272,7 @@ mdi_new (gchar *appname, gchar *title)
 	gtk_signal_connect (GTK_OBJECT (mdi), "view_changed", GTK_SIGNAL_FUNC (view_changed), NULL);
 
 	gnome_mdi_open_toplevel (mdi);
+	set_menu_state (mdi);
 
 	return mdi;
 }
@@ -294,6 +304,8 @@ mdi_add_diff (GnomeMDI *mdi, DiffOptions *diff)
 	g_return_if_fail (child != NULL);
 	gnome_mdi_generic_child_set_menu_creator (child, gd_mdi_create_menus, diff);//XXX
 	gnome_mdi_generic_child_set_label_func   (child, gd_mdi_set_label,    diff);
+
+	gtk_signal_connect (GTK_OBJECT (child), "destroy", GTK_SIGNAL_FUNC (child_destroy), mdi);
 
 	if ((diff->type == Dir) || (diff->type == DirPatch))
 	{

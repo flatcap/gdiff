@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.40 $ */
+/* $Revision: 1.41 $ */
 
 #include "config.h"
 #include <gnome.h>
@@ -41,14 +41,17 @@ static void exit_gdiff_cb     (GtkWidget *, GnomeMDI *);
 static void new_diff_cb       (GtkWidget *, GnomeMDI *);
 static void next_diff_cb      (GtkWidget *, GnomeMDI *);
 static void preferences_cb    (GtkWidget *, GnomeMDI *);
-static void prev_diff_cb      (GtkWidget *, GnomeMDI *);
+//static void prev_diff_cb      (GtkWidget *, GnomeMDI *);
+static void prev_diff_cb      (GtkWidget *widget, GnomeMDIChild *child); //XXX all mdi children menus have child as data
 //static void rescan_cb         (GtkWidget *, GnomeMDI *);
 static void save_file_list_cb (GtkWidget *, GnomeMDI *);
 static void status_bar_cb     (GtkWidget *, GnomeMDI *);
 static void view_cb           (GtkWidget *, GnomeMDI *);
 
+//XXX would the MDI child be more useful (consistant) than the MDI itself?
+
 /*----------------------------------------------------------------------------*/
-static void menu_set_view_defaults (GtkMenuShell *shell);
+//static void menu_set_view_defaults (GtkMenuShell *shell);
 void menu_create (GnomeMDI *mdi, GnomeApp *app);
 /*----------------------------------------------------------------------------*/
 
@@ -100,9 +103,25 @@ static GnomeUIInfo view_menu[] =
 	GNOMEUIINFO_END
 };
 
+static GnomeUIInfo sort_list_menu[] =
+{
+	GNOMEUIINFO_RADIOITEM_DATA  ("_Alphabetical", NULL , NULL, NULL, NULL),
+	GNOMEUIINFO_RADIOITEM_DATA  ("_By Diff Type", NULL , NULL, NULL, NULL),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo sort_menu[] =
+{
+	{ GNOME_APP_UI_TOGGLEITEM, "_Directories first", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	GNOMEUIINFO_RADIOLIST(sort_list_menu),
+	GNOMEUIINFO_END
+};
+
 static GnomeUIInfo tree_view_menu[] =
 {
 	GNOMEUIINFO_MENU_VIEW_TREE     (view_menu),
+	{ GNOME_APP_UI_SUBTREE_STOCK, "_Sort", NULL, sort_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_END
 };
 
@@ -132,21 +151,6 @@ static GnomeUIInfo view_menu2[] =
 static GnomeUIInfo compare_view_menu[] =
 {
 	GNOMEUIINFO_MENU_VIEW_TREE     (view_menu2),
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo sort_list_menu[] =
-{
-	GNOMEUIINFO_RADIOITEM_DATA  ("_Alphabetical", NULL , NULL, NULL, NULL),
-	GNOMEUIINFO_RADIOITEM_DATA  ("_By Diff Type", NULL , NULL, NULL, NULL),
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo sort_menu[] =
-{
-	{ GNOME_APP_UI_TOGGLEITEM, "_Directories first", "Different tooltip", NULL, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, (GdkModifierType) 0, NULL },
-	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_RADIOLIST(sort_list_menu),
 	GNOMEUIINFO_END
 };
 
@@ -184,7 +188,6 @@ static GnomeUIInfo main_menu[] =
 	GNOMEUIINFO_MENU_FILE_TREE     (file_menu),
 	//GNOMEUIINFO_MENU_VIEW_TREE     (view_menu),
 	//{ GNOME_APP_UI_SUBTREE_STOCK, "_View2", NULL, view_menu2, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
-	{ GNOME_APP_UI_SUBTREE_STOCK, "_Sort", NULL, sort_menu, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL },
 	GNOMEUIINFO_MENU_SETTINGS_TREE (settings_menu),
 	GNOMEUIINFO_MENU_WINDOWS_TREE  (windows_menu),
 	GNOMEUIINFO_MENU_HELP_TREE     (help_menu),
@@ -267,17 +270,28 @@ Misc
 // Public
 
 void
+menu_create_main (GnomeMDI *mdi)
+{
+	gnome_mdi_set_menubar_template (mdi, main_menu);
+}
+
+void
 menu_create (GnomeMDI *mdi, GnomeApp *app)
 {
 	GtkWidget *status = NULL;
 
+	/*
 	gnome_app_create_menus_with_data (app, main_menu, mdi);
 
 	menu_set_view_defaults (GTK_MENU_SHELL (app->menubar));
-
+	*/
 	status = gtk_statusbar_new();
 
-	gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
+	//XXX need to point at the app object data (the copy created by the mdi)
+	//gnome_app_install_statusbar_menu_hints (GTK_STATUSBAR (status), main_menu);
+	// we can do this as soon as we get app_created
+	// hang on... we're being CALLED from app_created
+
 	gnome_app_set_statusbar (GNOME_APP (app), gtk_statusbar_new());
 
 	gnome_mdi_set_child_menu_path (mdi, GNOME_MENU_FILE_STRING);	// child specific menus
@@ -354,6 +368,7 @@ set_menu_for_view (GnomeMDIChild *child, GtkType type)
 	}
 }
 
+/*
 static void
 menu_set_view_defaults (GtkMenuShell *shell)
 {
@@ -384,6 +399,7 @@ menu_set_view_defaults (GtkMenuShell *shell)
 		g_print ("name = %smenu_get_type\n", gtk_widget_get_name (w));
 	}
 }
+*/
 
 //______________________________________________________________________________
 //
@@ -465,7 +481,8 @@ static void
 contents_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
 	// NONE
-	g_print ("contents_cb\n");
+	//g_print ("contents_cb\n");
+	dump_menu (gnome_mdi_get_active_window (mdi));
 }
 
 static void
@@ -511,7 +528,7 @@ preferences_cb (GtkWidget *widget, GnomeMDI *mdi)
 }
 
 static void
-prev_diff_cb (GtkWidget *widget, GnomeMDI *mdi)
+prev_diff_cb (GtkWidget *widget, GnomeMDIChild *child)
 {
 	//mdichild - then I can figure out what the view is of
 	g_print ("prev_diff_cb\n");
@@ -549,5 +566,109 @@ view_cb (GtkWidget *widget, GnomeMDI *mdi)
 {
 	//tree or mdichild or mdi
 	g_print ("view_cb %p\n", gtk_object_get_data (GTK_OBJECT (widget), GNOMEUIINFO_KEY_UIDATA));
+}
+
+void
+recurse_menu (GtkMenuShell *shell, int depth)
+{
+	static char *space = "                                            ";
+	GList *list = NULL;
+	GtkWidget *item = NULL;
+	GtkWidget *submenu = NULL;
+
+	if (!shell)
+		return;
+
+	list = shell->children;
+	while (list)
+	{
+		item = GTK_WIDGET (list->data);
+		g_print ("%.*s%s\n", depth, space, gtk_widget_get_name (item));
+
+		submenu = GTK_MENU_ITEM (item)->submenu;
+		if (submenu)
+		{
+			recurse_menu (GTK_MENU_SHELL (submenu), depth + 4);
+		}
+
+		list = list->next;
+	}
+}
+
+void
+recurse_template (GnomeUIInfo *info)
+{
+	g_print ("label  = %s\n", info[0].label);
+	g_print ("widget = %p\n", info[0].widget);
+}
+
+#define GNOME_MDI_MENUBAR_INFO_KEY           "MDIMenubarUIInfo"
+#define GNOME_MDI_CHILD_MENU_INFO_KEY        "MDIChildMenuUIInfo"
+
+void
+dump_templates (GnomeApp *app)
+{
+	GnomeUIInfo *menu  = NULL;
+	GnomeUIInfo *child = NULL;
+
+	// OK, so this is actually private data of the MDI
+	// We CAN get all this info by more orthodox routes,
+	// but it takes a lot longer (we have to recurse through
+	// all the menus / menu items and filter out all the junk).
+	menu  = gtk_object_get_data (GTK_OBJECT (app), GNOME_MDI_MENUBAR_INFO_KEY);
+	child = gtk_object_get_data (GTK_OBJECT (app), GNOME_MDI_CHILD_MENU_INFO_KEY);
+
+	g_print ("menu = %p, child = %p\n", menu, child);
+
+	recurse_template (menu);
+	recurse_template (child);
+}
+
+void
+set_menu_state (GnomeMDI *mdi)
+{
+	gboolean     tree       = FALSE;
+	gboolean     compare    = FALSE;
+	GnomeApp    *app        = NULL;
+	GtkWidget   *view       = NULL;
+	GtkWidget   *bin        = NULL;
+	GnomeUIInfo *main_menu  = NULL;
+	GnomeUIInfo *child_menu = NULL;
+	//GtkWidget   *file_save  = NULL;
+	//GtkWidget   *file_close = NULL;
+	GtkWidget   *windows    = NULL;
+
+	g_return_if_fail (mdi != NULL);
+
+	app  = mdi->active_window;
+	bin  = mdi->active_view;
+
+	if (bin)
+	{
+		view = GTK_BIN (bin)->child;
+		if (view)
+		{
+			tree    = GTK_IS_DIFF_TREE (view);
+			compare = GTK_IS_COMPARE   (view);
+		}
+	}
+
+	g_print ("tree = %d, compare = %d\n", tree, compare);
+
+	main_menu  = gtk_object_get_data (GTK_OBJECT (app), GNOME_MDI_MENUBAR_INFO_KEY);
+	child_menu = gtk_object_get_data (GTK_OBJECT (app), GNOME_MDI_CHILD_MENU_INFO_KEY);
+
+	// XXX HUGE AMOUNT OF SANITY CHECKING
+
+	windows = main_menu[2].widget;
+
+	gtk_widget_set_sensitive (windows, (tree || compare));
+}
+
+void
+dump_menu (GnomeApp *app)
+{
+	//recurse_menu (GTK_MENU_SHELL (app->menubar), 0);
+	dump_templates (app);
 }
 

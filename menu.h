@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* $Revision: 1.9 $ */
+/* $Revision: 1.10 $ */
 
 #ifndef _MENU_H_
 #define _MENU_H_
@@ -26,6 +26,9 @@
 
 void	menu_create		(GnomeMDI *mdi, GnomeApp *app); //XXX can guess app from mdi
 void	set_menu_for_view	(GnomeMDIChild *child, GtkType type);
+void	dump_menu		(GnomeApp *app);
+void	menu_create_main	(GnomeMDI *mdi);
+void	set_menu_state		(GnomeMDI *mdi);
 
 #endif // _MENU_H_
 
