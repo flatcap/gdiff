@@ -1,5 +1,6 @@
-/* $Revision: 1.11 $ */
+/* $Revision: 1.12 $ */
 
+#include "config.h"
 #include "options.h"
 
 //XXX still missing tab size, exclusions list and extra options for diff
@@ -23,14 +24,6 @@ who will own the global options? refcount?
 
 Options * options_get_default (PrefOption *list);
 /*----------------------------------------------------------------------------*/
-
-Options *
-options_get_default (PrefOption *list)
-{
-	// ask global for this first
-	// read from the config file
-	return g_malloc0 (sizeof (Options));
-}
 
 void
 options_save (Options *options)
@@ -212,9 +205,147 @@ get_preferences (GtkWindow *parent, PrefsPage page)
 	}
 
 	//set_default_page (page);
-	//gtk_window_set_default_size (GTK_WINDOW (props), 400, 400);
 	gtk_window_set_transient_for (GTK_WINDOW (props), parent);
 
 	return GTK_WIDGET (props);
+}
+
+void 
+save_config_file (Options *options, PrefOption *list)
+{
+	char *section = NULL;
+	char *key     = NULL;
+	char *ptr     = NULL;
+	
+	for (; list->type; list++)
+	{
+		if (list->type == PrefPage)
+		{
+			section = list->rcfile;
+			continue;
+		}
+
+		if ((list->type == PrefFrame) ||
+		   ((list->type == PrefRadio) && (list->rcfile == NULL)))
+		{
+			continue;
+		}
+
+		g_free (key);
+		key = g_strconcat ("/", PACKAGE, "/", section, "/", list->rcfile, NULL);
+		ptr = (char *) options;
+		ptr += list->offset;
+
+		switch (list->type)
+		{
+		case PrefCheck:
+		case PrefLabel:
+		case PrefRadio:
+			//g_print ("[%s] %s = %d\n", section, key, *((guint*) (ptr)));
+			gnome_config_set_int (key, *((guint*) (ptr)));
+			break;
+
+		case PrefStyle:
+			//g_print ("[%s] %s = %p\n", section, key, (ptr));
+			gnome_config_set_int (key, (guint) (ptr));
+			break;
+			break;
+
+		case PrefList:
+			//g_print ("[%s] %s = (null)\n", section, key);
+			gnome_config_set_int (key, 0);
+			break;
+			break;
+
+		case PrefPage:
+		case PrefFrame:
+		default:
+			//g_print ("%d\n", list->type);
+			g_assert_not_reached();
+		}
+	}
+
+	g_free (key);
+	gnome_config_sync();
+}
+
+void 
+read_config_file (Options *options, PrefOption *list)
+{
+	char *section = NULL;
+	char *key     = NULL;
+	char *ptr     = NULL;
+	
+	for (; list->type; list++)
+	{
+		if (list->type == PrefPage)
+		{
+			section = list->rcfile;
+			continue;
+		}
+
+		if ((list->type == PrefFrame) ||
+		   ((list->type == PrefRadio) && (list->rcfile == NULL)))
+		{
+			continue;
+		}
+
+		g_free (key);
+		key = g_strconcat ("/", PACKAGE, "/", section, "/", list->rcfile, NULL);
+		ptr = (char *) options;
+		ptr += list->offset;
+
+		switch (list->type)
+		{
+		case PrefCheck:
+		case PrefLabel:
+		case PrefRadio:
+			*((guint*) (ptr)) = gnome_config_get_int (key);
+			g_print ("[%s] %s = %d\n", section, key, *((guint*) (ptr)));
+			break;
+
+		case PrefStyle:
+			*((guint*) (ptr)) = gnome_config_get_int (key);
+			g_print ("[%s] %s = %p\n", section, key, *((guint*) (ptr)));
+			break;
+			break;
+
+		case PrefList:
+			*((guint*) (ptr)) = gnome_config_get_int (key);
+			g_print ("[%s] %s = %d\n", section, key, *((guint*) (ptr)));
+			break;
+			break;
+
+		case PrefPage:
+		case PrefFrame:
+		default:
+			//g_print ("%d\n", list->type);
+			g_assert_not_reached();
+		}
+	}
+
+	g_free (key);
+}
+
+Options *
+options_get_default (PrefOption *list)
+{
+	//XXX ask global for this first
+	Options *opt = NULL;
+
+	opt = g_malloc0 (sizeof (Options));
+
+	opt->DirStyleSame	= gtk_style_new();
+	opt->DirStyleLeft	= gtk_style_new();
+	opt->DirStyleRight	= gtk_style_new();
+	opt->DirStyleDiff	= gtk_style_new();
+	opt->DirStyleError	= gtk_style_new();
+	opt->FileStyleLeft	= gtk_style_new();
+	opt->FileStyleRight	= gtk_style_new();
+
+	read_config_file (opt, list);
+	//save_config_file (opt, list);
+
+	return opt;
 }
 
