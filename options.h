@@ -1,4 +1,4 @@
-/* $Revision: 1.10 $ */
+/* $Revision: 1.11 $ */
 
 #ifndef _OPTIONS_H_
 #define _OPTIONS_H_
@@ -12,7 +12,7 @@ typedef struct _PrefColours PrefColours;
 struct _PrefColours
 {
 	GdkColor fg;
-	GdkColor bg;
+	GdkColor base;
 };
 
 struct _Options

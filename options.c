@@ -1,4 +1,4 @@
-/* $Revision: 1.14 $ */
+/* $Revision: 1.15 $ */
 
 #include "config.h"
 #include "options.h"
@@ -108,7 +108,6 @@ check_toggled (GtkToggleButton *toggle_button, guint *number)
 	{
 		gnome_property_box_changed (GNOME_PROPERTY_BOX (props));
 	}
-
 }
 
 static int
@@ -187,10 +186,69 @@ add_radio (GtkContainer *cont, PrefOption *list, Options *options)
 	return count;
 }
 
-static void
-colour_changed (GtkWidget *widget, gpointer data)
+typedef struct _StyleGroup StyleGroup;
+
+struct _StyleGroup
 {
-	g_print ("colour_changed\n");
+	GtkLabel	 *label;
+	GnomeColorPicker *fg;
+	GnomeColorPicker *base;
+	GtkEntry	 *entry;
+	Options		 *options;
+	guint		 offset;
+};
+
+static Options *global_options = NULL;
+
+static void
+colour_changed (GnomeColorPicker *picker, guint r, guint g, guint b, gboolean fg)
+{
+	StyleGroup  *group  = NULL;
+	PrefColours *colour = NULL;
+	gchar       *ptr    = NULL;
+	GtkWidget   *props  = NULL;
+	GtkStyle    *style  = NULL;
+
+	g_print ("colour_changed %d\n", fg);
+
+	group = gtk_object_get_user_data (GTK_OBJECT (picker));
+
+	ptr = (char*) group->options;
+	ptr += group->offset;
+	colour = (PrefColours*) ptr;
+
+	//XXX unref the old style
+	style = gtk_style_copy (gtk_widget_get_style (GTK_WIDGET (group->entry))); //XXX what the ....
+	if (fg)
+	{
+		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (picker), &colour->fg.red, &colour->fg.green, &colour->fg.blue, NULL);
+		style->fg[GTK_STATE_INSENSITIVE] = colour->fg;
+	}
+	else
+	{
+		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (picker), &colour->base.red, &colour->base.green, &colour->base.blue, NULL);
+		style->base[GTK_STATE_INSENSITIVE] = colour->base;
+	}
+
+	gtk_widget_set_style (GTK_WIDGET (group->entry), style);
+
+	props = gtk_widget_get_ancestor (GTK_WIDGET (picker), gnome_property_box_get_type());
+	if (props)
+	{
+		gnome_property_box_changed (GNOME_PROPERTY_BOX (props));
+	}
+}
+
+static void
+fg_changed (GnomeColorPicker *picker, guint r, guint g, guint b, guint a) // actually gushort
+{
+	colour_changed (picker, r, g, b, TRUE);
+}
+
+static void
+bg_changed (GnomeColorPicker *picker, guint r, guint g, guint b, guint a) // actually gushort
+{
+	colour_changed (picker, r, g, b, FALSE);
 }
 
 static int
@@ -205,6 +263,7 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	GtkStyle    *style  = NULL;
 	PrefColours *colour = NULL;
 	char        *ptr    = NULL;
+	StyleGroup  *group  = NULL;
 
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 
@@ -219,8 +278,23 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 	fg    = gnome_color_picker_new();
 	base  = gnome_color_picker_new();
 
-	gtk_signal_connect (GTK_OBJECT (fg), "color_set", colour_changed, GUINT_TO_POINTER (list->offset));
-	gtk_signal_connect (GTK_OBJECT (base), "color_set", colour_changed, GUINT_TO_POINTER (list->offset));
+	group = g_malloc (sizeof (StyleGroup));		//XXX who's going to free this?
+	g_return_val_if_fail (group != NULL, 0);
+
+	group->label	= GTK_LABEL (label);
+	group->fg	= GNOME_COLOR_PICKER (fg);
+	group->base	= GNOME_COLOR_PICKER (base);
+	group->entry	= GTK_ENTRY (entry);
+	group->options	= options;
+	group->offset	= list->offset;
+
+	gtk_object_set_user_data (GTK_OBJECT (label),  group);
+	gtk_object_set_user_data (GTK_OBJECT (fg),     group);
+	gtk_object_set_user_data (GTK_OBJECT (base),   group);
+	gtk_object_set_user_data (GTK_OBJECT (entry),  group);
+
+	gtk_signal_connect (GTK_OBJECT (fg), "color_set", fg_changed, NULL);
+	gtk_signal_connect (GTK_OBJECT (base), "color_set", bg_changed, NULL);
 
 	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, GNOME_PAD_SMALL);
 	gtk_box_pack_start (GTK_BOX (hbox), dummy, TRUE,  TRUE,  GNOME_PAD_SMALL);
@@ -233,12 +307,12 @@ add_style (GtkContainer *cont, PrefOption *list, Options *options)
 
 	style = gtk_style_new();
 	style->fg  [GTK_STATE_INSENSITIVE] = colour->fg;
-	style->base[GTK_STATE_INSENSITIVE] = colour->bg;
+	style->base[GTK_STATE_INSENSITIVE] = colour->base;
 
 	gtk_widget_set_style (entry, style);
 
 	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (fg),   colour->fg.red, colour->fg.green, colour->fg.blue, 0);
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (base), colour->bg.red, colour->bg.green, colour->bg.blue, 0);
+	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (base), colour->base.red, colour->base.green, colour->base.blue, 0);
 
 	gtk_container_add (cont, hbox);
 
@@ -253,8 +327,6 @@ add_list (GtkContainer *cont, PrefOption *list, Options *options)
 }
 
 void save_config_file (Options *options, PrefOption *list);
-
-static Options *global_options = NULL;
 
 static void
 apply_signal (GtkWidget *button, Options *options)
@@ -411,9 +483,9 @@ save_config_file (Options *options, PrefOption *list)
 				colour->fg.red	 >> 8,
 				colour->fg.green >> 8,
 				colour->fg.blue	 >> 8,
-				colour->bg.red	 >> 8,
-				colour->bg.green >> 8,
-				colour->bg.blue	 >> 8);
+				colour->base.red	 >> 8,
+				colour->base.green >> 8,
+				colour->base.blue	 >> 8);
 			g_print ("Colour = %s\n", str);
 			gnome_config_set_string (key, str);
 			g_free (str);
@@ -479,12 +551,12 @@ read_config_file (Options *options, PrefOption *list)
 		{
 			colour = (PrefColours*) ptr;
 			temp = gnome_config_get_string (key);
-			delim = strchr (temp, ',');
+			delim = strchr (temp, ',');		// XXX if (temp) else gtk_style_new!
 			*delim = 0;
 			delim++;
 			//g_print ("[%s] %s = %p\n", section, key, ptr);
 			gdk_color_parse (temp,  &colour->fg);
-			gdk_color_parse (delim, &colour->bg);
+			gdk_color_parse (delim, &colour->base);
 			g_free (temp);
 			break;
 		}
@@ -519,19 +591,19 @@ options_get_default (PrefOption *list)
 		GdkColor blue = { 0,     0, 0, 65535 };
 
 		opt->DirStyleSame.fg = red;
-		opt->DirStyleSame.bg = blue;
+		opt->DirStyleSame.base = blue;
 		opt->DirStyleLeft.fg = red;
-		opt->DirStyleLeft.bg = blue;
+		opt->DirStyleLeft.base = blue;
 		opt->DirStyleRight.fg = red;
-		opt->DirStyleRight.bg = blue;
+		opt->DirStyleRight.base = blue;
 		opt->DirStyleDiff.fg = red;
-		opt->DirStyleDiff.bg = blue;
+		opt->DirStyleDiff.base = blue;
 		opt->DirStyleError.fg = red;
-		opt->DirStyleError.bg = blue;
+		opt->DirStyleError.base = blue;
 		opt->FileStyleLeft.fg = red;
-		opt->FileStyleLeft.bg = blue;
+		opt->FileStyleLeft.base = blue;
 		opt->FileStyleRight.fg = red;
-		opt->FileStyleRight.bg = blue;
+		opt->FileStyleRight.base = blue;
 	}
 
 	read_config_file (opt, list);
