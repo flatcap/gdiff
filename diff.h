@@ -11,9 +11,14 @@ struct _DiffOptions
 	gchar *right;
 
 	GNode *root;
+	//----------
+	char *path; // from which left and right are relative
+	gboolean dir; // file or directory?
+	gpointer compare_stuff;
 };
 
-DiffOptions * diffoptions_new (void);
+DiffOptions *	diffoptions_new  (void);
+void		diffoptions_free (DiffOptions *diff);
 
 #endif // _DIFF_H_
 

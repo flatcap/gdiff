@@ -2,10 +2,6 @@
 #include "compare.h"
 #include "spawn.h"
 
-#define COMPARE_APPNAME "compare"
-#define COMPARE_WINNAME "Compare files"
-#define COMPARE_VERSION "0.0.1"
-
 #define COMPARE_LEFT	"left:\t"
 #define COMPARE_RIGHT	"rght:\t"
 #define COMPARE_SAME	"same:\t"
@@ -17,12 +13,6 @@ diff	--old-line-format='left: %L'		\
 	read1.c read2.c
 */
 
-void
-cdestroy (GtkWidget *widget, gpointer data)
-{
-	gtk_main_quit();
-}
-
 GtkWidget *
 compare (char *left, char *right)
 {
@@ -31,7 +21,6 @@ compare (char *left, char *right)
 	char *cols[] = { "line no.", "left", "right" };
 	char *text[3] = { number, NULL, NULL };
 	int line = 1;
-	//GtkWidget *app = NULL;
 	FILE *f = NULL;
 	GtkWidget *clist = NULL;
 	GtkWidget *scroll = NULL;
@@ -56,11 +45,6 @@ compare (char *left, char *right)
 	int right_count = 0;
 	char *cmdline = NULL;
 
-	//app = gnome_app_new (COMPARE_APPNAME, COMPARE_WINNAME);
-	//gtk_window_set_default_size (GTK_WINDOW (app), 500, 700);
-
-	//gtk_signal_connect (GTK_OBJECT (app), "destroy", (GtkSignalFunc) cdestroy, NULL);
-
 	clist = gtk_clist_new_with_titles (3, cols);
 
 	gtk_clist_set_selection_mode    (GTK_CLIST (clist), GTK_SELECTION_BROWSE);
@@ -69,8 +53,6 @@ compare (char *left, char *right)
 	scroll = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_container_add (GTK_CONTAINER(scroll), clist);
-
-	//gnome_app_set_contents (GNOME_APP (app), scroll);
 
 	gtk_widget_show_all (scroll);
 	while (gtk_events_pending ())
@@ -208,20 +190,11 @@ compare (char *left, char *right)
 		line++;
 	}
 
-	//gtk_clist_set_shadow_type (GTK_CLIST (clist), GTK_SHADOW_NONE);
+	fclose (f);
 
+	//gtk_clist_set_shadow_type (GTK_CLIST (clist), GTK_SHADOW_NONE);
 	gtk_clist_columns_autosize (GTK_CLIST (clist));
 	gtk_clist_thaw             (GTK_CLIST (clist));
-
-	fclose (f);
-	//gtk_main();
-
-	if (0)
-	{
-		GtkWidget *b = gtk_button_new_with_label ("button");
-		gtk_widget_show_all (b);
-		return b;
-	}
 
 	return scroll;
 }

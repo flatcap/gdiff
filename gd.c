@@ -30,18 +30,16 @@ main (int argc, char *argv[], char *envv[])
 
 	if (args)
 	{
-		mdi_add_diff (mdi, opt, diff);
-
-		//g_free (opt);	 // maybe?	// who's going to own these?
-		//g_free (diff);
-
+		mdi_add_diff (mdi, opt, diff);	// MDI take responsibility for opt and diff???
+	}
+	else
+	{
+		//options_free (opt);
+		//diffoptions_free (diff);
 	}
 
-	mdi_show_all (mdi);
 	gtk_main();
-
 	global_close();
-	
 	return 0;
 }
 

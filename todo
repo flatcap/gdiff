@@ -183,3 +183,7 @@ notebook / menu pixmaps  Dir / File stock icons
 
 combination of mdi modes
 new notebook for each diff, all compares join parent diff
+
+double click on a directory should open/close it
+
+view scrollbar, overview, both

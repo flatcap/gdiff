@@ -3,8 +3,20 @@
 Options *
 options_get_default (void)
 {
+	// ask global for this first
 	// read from the config file
 	return g_malloc0 (sizeof (Options));
+}
+
+Options *
+options_new (void)
+{
+	return NULL;
+}
+
+void options_free (Options *options)
+{
+	g_free (options);
 }
 
 /*
@@ -16,4 +28,21 @@ commit will save to cfg file
 
 who will own the global options? refcount?
 */
+
+gboolean options_set_options  (Options *options)
+{
+	return FALSE;
+}
+
+gboolean options_save_options (Options *options)
+{
+	gboolean result = FALSE;
+
+	if (options_set_options (options))
+	{
+		//save to config file
+	}
+
+	return result;
+}
 
