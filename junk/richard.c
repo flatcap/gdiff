@@ -1,39 +1,39 @@
 #include <gnome.h>
 #include "derived.h"
+#include "menu.h"
 
 #define APPNAME "derived"
 #define VERSION "0.0.1"
 #define WINNAME "Derived"
 
-void 
+void
 destroy (GtkWidget * pWidget, gpointer * pData)
 {
 	gtk_main_quit ();
 }
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-	//GtkWidget *app = NULL;
+	static char *cols[] = { "Left", "Right" };
+	GtkWidget   *app    = NULL;
+	GtkWidget   *tree   = NULL;
 
 	gnome_init (APPNAME, VERSION, argc, argv);
 
-#if 0
 	app = gnome_app_new (APPNAME, WINNAME);
 
 	gtk_signal_connect (GTK_OBJECT (app), "destroy", GTK_SIGNAL_FUNC (destroy), NULL);
 
-	gtk_widget_show (app);
+	tree = gtk_diff_tree_new_with_titles (2, 0, cols);
+
+	gtk_window_set_default_size	(GTK_WINDOW (app), 200, 500);
+	gnome_app_set_contents		(GNOME_APP  (app), tree);
+	menu_create			(GNOME_APP  (app));
+
+	gtk_widget_show_all (app);
 	gtk_main();
-#endif
 
-	{
-		GtkWidget *r = gtk_richard_new();
-
-		gtk_object_ref   (GTK_OBJECT (r));
-		gtk_object_unref (GTK_OBJECT (r));
-		gtk_object_unref (GTK_OBJECT (r));
-	}
-	
 	return 0;
 }
 

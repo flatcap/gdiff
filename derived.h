@@ -3,28 +3,46 @@
 
 #include <gtk/gtk.h>
 
-#define GTK_TYPE_RICHARD		(gtk_richard_get_type ())
-#define GTK_RICHARD(obj)		GTK_CHECK_CAST (obj, gtk_richard_get_type (), GtkRichard)
-#define GTK_RICHARD_CLASS(klass)	GTK_CHECK_CLASS_CAST (klass, gtk_richard_get_type (), GtkRichardClass)
-#define GTK_IS_RICHARD(obj)		GTK_CHECK_TYPE (obj, gtk_richard_get_type ())
-	
-typedef struct _GtkRichard       GtkRichard;
-typedef struct _GtkRichardClass  GtkRichardClass;
+#define GTK_TYPE_DIFF_TREE		(gtk_diff_tree_get_type ())
+#define GTK_DIFF_TREE(obj)		GTK_CHECK_CAST (obj, gtk_diff_tree_get_type (), GtkDiffTree)
+#define GTK_DIFF_TREE_CLASS(klass)	GTK_CHECK_CLASS_CAST (klass, gtk_diff_tree_get_type (), GtkDiffTreeClass)
+#define GTK_IS_DIFF_TREE(obj)		GTK_CHECK_TYPE (obj, gtk_diff_tree_get_type ())
 
-struct _GtkRichard
+typedef enum
 {
-	GtkWidget widget;
+	eFileSame  = 1 << 0,		// Obviously these are mutually exclusive for files,
+	eFileLeft  = 1 << 1,		// but directories can accumulate them.
+	eFileRight = 1 << 2,
+	eFileDiff  = 1 << 3,
+	eFileType  = 1 << 4,
+	eFileError = 1 << 5,
 
-	int value;
+	eFileAll   = (1 << 6) - 1
+} Status;
+
+typedef struct	_GtkDiffTree		GtkDiffTree;
+typedef struct	_GtkDiffTreeClass	GtkDiffTreeClass;
+
+guint		gtk_diff_tree_get_type		(void);
+GtkWidget *	gtk_diff_tree_new_with_titles	(gint columns, gint tree_column, gchar *titles[]);
+GtkWidget *	gtk_diff_tree_new		(gint columns, gint tree_column);
+
+void		gtk_diff_tree_set_view		(GtkDiffTree *tree, Status status);
+void		gtk_diff_tree_compare		(GtkDiffTree *tree, char *left, char *right);
+
+struct _GtkDiffTree
+{
+	GtkCTree widget;
+
+	char	*left;
+	char	*right;
+	Status	 view;
 };
 
-struct _GtkRichardClass
+struct _GtkDiffTreeClass
 {
-	GtkWidgetClass parent_class;
+	GtkCTreeClass parent_class;
 };
-
-guint      gtk_richard_get_type (void);
-GtkWidget* gtk_richard_new (void);
 
 #endif // _DERIVED_H_
 
